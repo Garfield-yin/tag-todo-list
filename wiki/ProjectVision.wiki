@@ -1,12 +1,7 @@
-#summary One-sentence summary of this page.
+#summary This page tries to show you how you should look at this project.
 #labels Phase-Requirements
 
-= Introduction =
-
-Add your content here.
-
-
-= Details =
+There are a few guidelines which i followed when i developed this app, and now, as an open-source project, it would be cool if development could stay within those lines.
 
 The superpowers of this project should reside in:
   * feedback-driven development
