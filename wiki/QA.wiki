@@ -4,8 +4,10 @@
 =Writing tests (JUnit or something ... :)=
 This project does not contain tests at the time i write this. The simplicity and straightforward nature gave it a certain modular aspect which allow for growth without the possibility of crumbling the entire structure. However, you're welcome to write the tests that you feel necessary since the app will be getting more complex from a development point of view (if you do, please make sure an identical one hasn't been written before).
 
+
 =Annotations=
 Don't forget to make annotations :) I know i do sometimes, but it would be recommended especially if you think other members of this project won't be able to figure out the purpose of the method easily.
+
 
 =Actually testing, as a user=
 Also, before you upload the your contributions, make sure the app works on your machine, on your emulator or phone.
