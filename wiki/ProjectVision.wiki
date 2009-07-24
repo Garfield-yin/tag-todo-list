@@ -9,6 +9,6 @@ Add your content here.
 = Details =
 
 The superpowers of this project should reside in:
-* feedback-driven development
-* simplicity as a top priority
-* speed and energy efficiency as a top priority
+  * feedback-driven development
+  * simplicity as a top priority
+  * speed and energy efficiency as a top priority
