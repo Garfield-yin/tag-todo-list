@@ -6,7 +6,7 @@ This project does not contain tests at the time i write this. The simplicity and
 
 
 =Annotations=
-Don't forget to make annotations :) I know i do sometimes, but it would be recommended especially if you think other members of this project won't be able to figure out the purpose of the method easily.
+Don't forget to make annotations :) I know i do sometimes, but it would be recommended especially if you think other members of this project won't be able to figure out the purpose of the method easily. Also feel free to make comments; if you're trying to understand the source code of this app they already are the pillar you should rely on.
 
 
 =Actually testing, as a user=
