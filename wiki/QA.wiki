@@ -7,5 +7,5 @@ This project does not contain tests at the time i write this. The simplicity and
 =Annotations=
 Don't forget to make annotations :) I know i do sometimes, but it would be recommended especially if you think other members of this project won't be able to figure out the purpose of the method easily.
 
-=Actually testing, as a user
+=Actually testing, as a user=
 Also, before you upload the your contributions, make sure the app works on your machine, on your emulator or phone.
