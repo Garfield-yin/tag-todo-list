@@ -1,0 +1,4 @@
+#summary Compiling an .APK file
+#labels Phase-Deploy
+
+I'll be the one adding the existing app signature to the .APK file and uploading it to the Android Market, as part of the 'official project'. I'll do this once in a while - when i do it, i'll also post a new download with the corresponding .APK. However, you're welcome to make unsigned .APK files for testing purposes between the members of this project.
