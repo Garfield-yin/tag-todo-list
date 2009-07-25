@@ -1,0 +1,6 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+	android:minWidth="80px" android:minHeight="100px"
+	android:initialLayout="@layout/widget"
+	android:updatePeriodMillis="43200000" />
+	
+	<!-- 43200000 = Update twice per day -->

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<ScrollView android:id="@+id/optionsScrollView"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:scrollbars="vertical" android:layout_weight="1">
+
+		<LinearLayout android:id="@+id/optionsLayout"
+			android:orientation="vertical" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" />
+
+	</ScrollView>
+
+	<EditText android:id="@+id/usernameEdit" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:visibility="gone" />
+	<EditText android:id="@+id/passwordEdit" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:visibility="gone" />
+	<Button android:id="@+id/confirmLoginButton"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:text="@string/login_confirm" android:visibility="gone" />
+
+	<Button android:id="@+id/closeConfigurationButton"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:text="@string/go_back" />
+	<Button android:id="@+id/websiteButton"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:text="@string/help_site" />
+
+</LinearLayout>
