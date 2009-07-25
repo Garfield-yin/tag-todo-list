@@ -1,0 +1,8 @@
+#summary How to implement stuff and upload changes to the project
+#labels Phase-Implementation
+
+= How to edit the code =
+Feel free to comment wherever you think that might help devs that will touch that area in the future. Please also use annotations as you see on other methods.
+
+= How to commit changes =
+Use some SVN client, i guess i don't have to tell you that :) In case you're new to this, i recommend the [http://subclipse.tigris.org/ Subclipse] plugin for Eclipse, most of the Java+Android editing is done in there anyway so it fits perfectly...
