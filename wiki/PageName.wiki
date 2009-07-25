@@ -1,4 +1,4 @@
 #labels Phase-Design
 =How to understand the code easily=
-Basically, the easiest way to see what a class does is to see what Android class it inherits. You should know that the main class of the app is 'TagToDoList'.
+Basically, the easiest way to see what a class does is to see what Android class it inherits. You should know that the main class of the app is {{{TagToDoList}}}.
 It's unlikely you'll need to go through all the classes. 
