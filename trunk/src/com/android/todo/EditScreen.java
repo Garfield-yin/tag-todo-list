@@ -197,7 +197,7 @@ public final class EditScreen extends Activity {
 			} else {
 				mDateTb.setChecked(false);
 			}
-			mDateTb.setTag(new Boolean(false));
+			mDateTb.setTag(Boolean.valueOf(false));
 			mDateTb.setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
 					if (((ToggleButton) v).isChecked()) {
@@ -205,7 +205,7 @@ public final class EditScreen extends Activity {
 						OnDateSetListener odsl = new OnDateSetListener() {
 							public void onDateSet(DatePicker view, int year,
 									int monthOfYear, int dayOfMonth) {
-								mDateTb.setTag(new Boolean(true));
+								mDateTb.setTag(Boolean.valueOf(true));
 								if (!(creating)) {
 									mDbHelper.setDueDate(EditScreen.sParameter,
 											true);
@@ -258,7 +258,7 @@ public final class EditScreen extends Activity {
 								if ((Boolean) (mDateTb.getTag()) == false) {
 									mDateTb.setChecked(false);
 								}
-								mDateTb.setTag(new Boolean(false));
+								mDateTb.setTag(Boolean.valueOf(false));
 							}
 						});
 						setWhenButton(false);
@@ -292,12 +292,12 @@ public final class EditScreen extends Activity {
 					sDayOfWeek = mDbHelper
 							.getDueDayOfWeek(EditScreen.sParameter);
 					setWhenButton(true);
-					mWhenButton.setChecked(sDayOfWeek > 0);
+					mWhenButton.setChecked(sDayOfWeek > -1);
 				}
 			} else {
 				mTimeTb.setChecked(false);
 			}
-			mTimeTb.setTag(new Boolean(false));
+			mTimeTb.setTag(Boolean.valueOf(false));
 			mTimeTb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 				public void onCheckedChanged(CompoundButton cb, boolean checked) {
 					if (checked) {
@@ -306,7 +306,7 @@ public final class EditScreen extends Activity {
 								new TimePickerDialog.OnTimeSetListener() {
 									public void onTimeSet(TimePicker view,
 											int hour, int minute) {
-										mTimeTb.setTag(new Boolean(true));
+										mTimeTb.setTag(Boolean.valueOf(true));
 										mTimeTb
 												.setText(view
 														.getContext()
@@ -334,7 +334,7 @@ public final class EditScreen extends Activity {
 								if ((Boolean) (mTimeTb.getTag()) == false) {
 									mTimeTb.setChecked(false);
 								}
-								mTimeTb.setTag(new Boolean(false));
+								mTimeTb.setTag(Boolean.valueOf(false));
 							}
 						});
 						if (!(mDateTb.isChecked())) {
@@ -458,9 +458,14 @@ public final class EditScreen extends Activity {
 					});
 					ll.addView(b);
 					final TextView tv = new TextView(EditScreen.this);
-					tv.setText(DAYS[sDayOfWeek != -1 ? sDayOfWeek
-							: (sDayOfWeek = Calendar.getInstance().get(
-									Calendar.DAY_OF_WEEK) - 2)]);
+					if (sDayOfWeek == -1) {
+						sDayOfWeek = Calendar.getInstance().get(
+								Calendar.DAY_OF_WEEK) - 2;
+						if (sDayOfWeek < 0) {
+							sDayOfWeek += 7;
+						}
+					}
+					tv.setText(DAYS[sDayOfWeek]);
 					tv.setGravity(Gravity.CENTER_HORIZONTAL);
 					tv.setTextSize(18);
 					b = new Button(EditScreen.this);

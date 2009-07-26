@@ -246,7 +246,11 @@ public final class ToDoListDB implements DB {
 			// checking if the Tag-ToDo folder exists on the sdcard
 			File f = new File("/sdcard/Tag-ToDo_data/");
 			if (f.exists() == false) {
+				try{
 				f.mkdirs();
+				}catch(Exception e){
+					
+				}
 			}
 
 			Utils.copy(new File("/data/data/com.android.todo/databases"),

@@ -126,8 +126,16 @@ final class Utils {
 							+ encodedTimeDif * 60000;
 				}
 			} else {
-				while (c.get(Calendar.DAY_OF_WEEK)-2 != dayOfWeek) {
+				int d=c.get(Calendar.DAY_OF_WEEK)-2;
+				if (d<0){
+					d+=7;
+				}
+				while (d != dayOfWeek) {
 					c.setTimeInMillis(c.getTimeInMillis() + 86400000);
+					d=c.get(Calendar.DAY_OF_WEEK)-2;
+					if (d<0){
+						d+=7;
+					}
 				}
 				if (encodedTimeDif > 0) {// in the past
 					return c.getTimeInMillis() + encodedTimeDif * 60000;

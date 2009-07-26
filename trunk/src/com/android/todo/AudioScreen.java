@@ -48,7 +48,11 @@ public final class AudioScreen extends Activity {
 		// checking if the necessary folders exist on the sdcard
 		File f = new File("/sdcard/Tag-ToDo_data/audio/");
 		if (f.exists() == false) {
-			f.mkdirs();
+			try {
+				f.mkdirs();
+			} catch (Exception e) {
+				Utils.showDialog(R.string.notification, R.string.audio_recording_impossible, this);
+			}
 		}
 
 		mEntry = savedInstanceState != null ? savedInstanceState
