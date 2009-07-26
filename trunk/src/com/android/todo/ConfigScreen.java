@@ -34,6 +34,7 @@ public final class ConfigScreen extends Activity {
   public static final String BACKUP_SDCARD = "backupSD";
   public static final String PRIORITY_MAX = "priorityMax";
   public static final String VISUAL_PRIORITY = "visualPriority";
+  public static final String CHECKED_LIMIT = "listSizeLimit";
 
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mCloseButton, mHelpButton;
@@ -117,17 +118,21 @@ public final class ConfigScreen extends Activity {
     tv.setPadding(0, 15, 0, 0);
     tv.setTextSize(16);
     tv.setText(R.string.configuration_3_priority);
-    ll.addView(tv);
     LinearLayout priorityLayout = new LinearLayout(this);
     priorityLayout.setOrientation(LinearLayout.VERTICAL);
+    LinearLayout textLayout = new LinearLayout(this);
+    textLayout.setOrientation(LinearLayout.HORIZONTAL);
+    textLayout.addView(tv);
     final TextView maxTv = new TextView(this);
     maxTv.setMinimumWidth(50);
+    priorityLayout.addView(textLayout);
     final SeekBar sMax = new SeekBar(this);
     sMax.setMax(101);
     sMax.setProgress(settings.getInt(PRIORITY_MAX, 100));
     maxTv.setTextSize(17);
     maxTv.setPadding(5, 3, 0, 0);
     maxTv.setText(Integer.toString(sMax.getProgress()));
+    textLayout.addView(maxTv);
     sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
       public void onProgressChanged(SeekBar seekBar, int progress,
           boolean fromUser) {
@@ -143,7 +148,43 @@ public final class ConfigScreen extends Activity {
       }
     });
     priorityLayout.addView(sMax);
-    priorityLayout.addView(maxTv);
+    ll.addView(priorityLayout);
+
+    // setting the checked tasks limit
+    tv = new TextView(this);
+    tv.setTextSize(16);
+    tv.setText(R.string.size_change);
+    priorityLayout = new LinearLayout(this); // reusing priorityLayout
+    // object
+    priorityLayout.setOrientation(LinearLayout.VERTICAL);
+    textLayout = new LinearLayout(this); //also reusing textLayout
+    textLayout.setOrientation(LinearLayout.HORIZONTAL);
+    textLayout.addView(tv);
+    final TextView limitTv = new TextView(this);
+    limitTv.setMinimumWidth(50);
+    priorityLayout.addView(textLayout);
+    final SeekBar sLimit = new SeekBar(this);
+    sLimit.setMax(5000);
+    sLimit.setProgress(settings.getInt(CHECKED_LIMIT, 100));
+    limitTv.setTextSize(17);
+    limitTv.setPadding(5, 3, 0, 0);
+    limitTv.setText(Integer.toString(sLimit.getProgress()));
+    textLayout.addView(limitTv);
+    sLimit.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+      public void onProgressChanged(SeekBar seekBar, int progress,
+          boolean fromUser) {
+        limitTv.setText(Integer.toString(progress));
+      }
+
+      public void onStartTrackingTouch(SeekBar seekBar) {
+      }
+
+      public void onStopTrackingTouch(SeekBar seekBar) {
+        editor.putInt(CHECKED_LIMIT, seekBar.getProgress());
+        editor.commit();
+      }
+    });
+    priorityLayout.addView(sLimit);
     ll.addView(priorityLayout);
 
     mUserEdit = (EditText) findViewById(R.id.usernameEdit);

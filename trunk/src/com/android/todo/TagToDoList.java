@@ -875,14 +875,14 @@ public class TagToDoList extends Activity {
    */
   private void changeSizeLimit(int direction) {
     final SharedPreferences.Editor editor = mSettings.edit();
-    int currentLimit = mSettings.getInt("listSizeLimit", 50);
+    int currentLimit = mSettings.getInt(ConfigScreen.CHECKED_LIMIT, 50);
     int newLimit = direction * 10 + currentLimit;
     if (newLimit < 0) {
       newLimit = 0;
     } else if (newLimit > 5000) {
       newLimit = 5000;
     }
-    editor.putInt("listSizeLimit", newLimit);
+    editor.putInt(ConfigScreen.CHECKED_LIMIT, newLimit);
     editor.commit();
 
     final Dialog d = new Dialog(TagToDoList.this);
@@ -923,7 +923,7 @@ public class TagToDoList extends Activity {
             newValue = 5000;
           }
           tv.setText(newValue + "");
-          editor.putInt("listSizeLimit", newValue);
+          editor.putInt(ConfigScreen.CHECKED_LIMIT, newValue);
           editor.commit();
           handler.postDelayed(task, 1500);
         } else if (keyCode == KeyEvent.KEYCODE_I) {
@@ -933,7 +933,7 @@ public class TagToDoList extends Activity {
             newValue = 0;
           }
           tv.setText(newValue + "");
-          editor.putInt("listSizeLimit", newValue);
+          editor.putInt(ConfigScreen.CHECKED_LIMIT, newValue);
           editor.commit();
           handler.postDelayed(task, 1500);
         }

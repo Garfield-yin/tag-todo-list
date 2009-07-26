@@ -11,7 +11,7 @@
 <string name="menu_new_entry">Add a new task to the list</string>
 <string name="menu_instructions">Instructions</string>
 <string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
-<string name="size_change">Finished tasks limit:</string>
+<string name="size_change">Checked tasks limit:</string>
 <string name="backup_fail">The todo list couldn\'t be backed up on the SD card for some reason. Are you sure there\'s an SD card in there?</string>
 <string name="backup_import_fail">The todo list couldn\'t be imported for some reason. Are you sure there is a backup on the card, or that an SD card is inserted?</string>
 
