@@ -14,7 +14,7 @@ import android.provider.Contacts;
 /**
  * This is a class which actually performs the action found in a text
  */
-public final class Action {
+public final class Action {				
 	private ArrayList<String> CALLS = new ArrayList<String>();
 	private ArrayList<String> MOVES = new ArrayList<String>();
 	private ArrayList<String> BUYS = new ArrayList<String>();
@@ -137,7 +137,9 @@ public final class Action {
 				i = new Intent(
 						Intent.ACTION_VIEW,
 						Uri
-								.parse("http://www.amazon.com/gp/search?ie=UTF8&keywords="+URLEncoder.encode(mTarget,"UTF-8")+"&tag=tagtodo-20&index=blended&linkCode=ur2&camp=1789&creative=9325"));
+								.parse("http://www.amazon.com/gp/search?ie=UTF8&keywords="
+										+ URLEncoder.encode(mTarget, "UTF-8")
+										+ "&tag=tagtodo-20&index=blended&linkCode=ur2&camp=1789&creative=9325"));
 				c.startActivity(i);
 			} catch (UnsupportedEncodingException e) {
 			}

@@ -5,13 +5,13 @@ import android.os.Bundle;
 import android.view.View;
 
 class GraphicsActivity extends Activity {
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+  }
 
-	@Override
-	public void setContentView(View view) {
-		super.setContentView(view);
-	}
+  @Override
+  public void setContentView(View view) {
+    super.setContentView(view);
+  }
 }

@@ -28,277 +28,260 @@ import com.android.todo.sync.GoogleCalendar;
  * This activity represents a configuration screen
  */
 public final class ConfigScreen extends Activity {
-	public static final String GOOGLE_CALENDAR = "googleCalendar";
-	public static final String GOOGLE_USERNAME = "googleUsername";
-	public static final String GOOGLE_PASSWORD = "googlePassword";
-	public static final String BACKUP_SDCARD = "backupSD";
-	public static final String PRIORITY_MAX = "priorityMax";
-	public static final String VISUAL_PRIORITY = "visualPriority";
+  public static final String GOOGLE_CALENDAR = "googleCalendar";
+  public static final String GOOGLE_USERNAME = "googleUsername";
+  public static final String GOOGLE_PASSWORD = "googlePassword";
+  public static final String BACKUP_SDCARD = "backupSD";
+  public static final String PRIORITY_MAX = "priorityMax";
+  public static final String VISUAL_PRIORITY = "visualPriority";
 
-	private EditText mUserEdit, mPassEdit;
-	private Button mConfirmButton, mCloseButton, mHelpButton;
+  private EditText mUserEdit, mPassEdit;
+  private Button mConfirmButton, mCloseButton, mHelpButton;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setTitle(R.string.configuration_screen_title);
-		setContentView(R.layout.configuration);
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setTitle(R.string.configuration_screen_title);
+    setContentView(R.layout.configuration);
 
-		mCloseButton = (Button) findViewById(R.id.closeConfigurationButton);
-		mCloseButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				finish();
-			}
-		});
+    mCloseButton = (Button) findViewById(R.id.closeConfigurationButton);
+    mCloseButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        finish();
+      }
+    });
 
-		mHelpButton = (Button) findViewById(R.id.websiteButton);
-		mHelpButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent myIntent = new Intent(Intent.ACTION_VIEW);
-				myIntent.setData(Uri.parse(v.getContext().getString(
-						R.string.url_help)));
-				startActivity(myIntent);
-			}
-		});
+    mHelpButton = (Button) findViewById(R.id.websiteButton);
+    mHelpButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        Intent myIntent = new Intent(Intent.ACTION_VIEW);
+        myIntent
+            .setData(Uri.parse(v.getContext().getString(R.string.url_help)));
+        startActivity(myIntent);
+      }
+    });
 
-		LinearLayout ll = (LinearLayout) findViewById(R.id.optionsLayout);
-		ll.setGravity(Gravity.FILL_HORIZONTAL);
-		final SharedPreferences settings = getSharedPreferences(
-				TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
-		final SharedPreferences.Editor editor = settings.edit();
+    LinearLayout ll = (LinearLayout) findViewById(R.id.optionsLayout);
+    ll.setGravity(Gravity.FILL_HORIZONTAL);
+    final SharedPreferences settings = getSharedPreferences(
+        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
+    final SharedPreferences.Editor editor = settings.edit();
 
-		// sync TO Google Calendar
-		CheckBox cb = new CheckBox(this);
-		cb.setChecked(settings.getBoolean(GOOGLE_CALENDAR, false));
-		cb.setText(R.string.configuration_1_gcal);
-		cb
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						editor.putBoolean(GOOGLE_CALENDAR, isChecked);
-						if (!(isChecked)) {
-							editor.putString(GOOGLE_USERNAME, "");
-							editor.putString(GOOGLE_PASSWORD, "");
-						}
-						editor.commit();
-						mUserEdit.setText(settings.getString(GOOGLE_USERNAME,
-								getString(R.string.username)));
-						mPassEdit.setText(settings.getString(GOOGLE_PASSWORD,
-								getString(R.string.password)));
-						showLogin(isChecked);
-					}
-				});
-		ll.addView(cb);
+    // sync TO Google Calendar
+    CheckBox cb = new CheckBox(this);
+    cb.setChecked(settings.getBoolean(GOOGLE_CALENDAR, false));
+    cb.setText(R.string.configuration_1_gcal);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putBoolean(GOOGLE_CALENDAR, isChecked);
+        if (!(isChecked)) {
+          editor.putString(GOOGLE_USERNAME, "");
+          editor.putString(GOOGLE_PASSWORD, "");
+        }
+        editor.commit();
+        mUserEdit.setText(settings.getString(GOOGLE_USERNAME,
+            getString(R.string.username)));
+        mPassEdit.setText(settings.getString(GOOGLE_PASSWORD,
+            getString(R.string.password)));
+        showLogin(isChecked);
+      }
+    });
+    ll.addView(cb);
 
-		// backup on the SD card every time app closes
-		cb = new CheckBox(this);
-		cb.setChecked(settings.getBoolean(BACKUP_SDCARD, false));
-		cb.setText(R.string.configuration_2_backup);
-		cb
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						editor.putBoolean(BACKUP_SDCARD, isChecked);
-						editor.commit();
-					}
-				});
-		ll.addView(cb);
-		
-		// visually distinguish tasks by priority
-		cb = new CheckBox(this);
-		cb.setChecked(settings.getBoolean(VISUAL_PRIORITY, false));
-		cb.setText(R.string.configuration_4_shine);
-		cb
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						editor.putBoolean(VISUAL_PRIORITY, isChecked);
-						editor.commit();
-					}
-				});
-		ll.addView(cb);
+    // backup on the SD card every time app closes
+    cb = new CheckBox(this);
+    cb.setChecked(settings.getBoolean(BACKUP_SDCARD, false));
+    cb.setText(R.string.configuration_2_backup);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putBoolean(BACKUP_SDCARD, isChecked);
+        editor.commit();
+      }
+    });
+    ll.addView(cb);
 
-		// setting minimum and maximum priority for tasks
-		TextView tv = new TextView(this);
-		tv.setPadding(0, 15, 0, 0);
-		tv.setTextSize(16);
-		tv.setText(R.string.configuration_3_priority);
-		ll.addView(tv);
-		LinearLayout priorityLayout = new LinearLayout(this);
-		priorityLayout.setOrientation(LinearLayout.VERTICAL);
-		final TextView maxTv = new TextView(this);
-		maxTv.setMinimumWidth(50);
-		final SeekBar sMax = new SeekBar(this);
-		sMax.setMax(101);
-		sMax.setProgress(settings.getInt(PRIORITY_MAX, 100));
-		maxTv.setTextSize(17);
-		maxTv.setPadding(5, 3, 0, 0);
-		maxTv.setText(Integer.toString(sMax.getProgress()));
-		sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				maxTv.setText(Integer.toString(progress));
-			}
+    // visually distinguish tasks by priority
+    cb = new CheckBox(this);
+    cb.setChecked(settings.getBoolean(VISUAL_PRIORITY, false));
+    cb.setText(R.string.configuration_4_shine);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putBoolean(VISUAL_PRIORITY, isChecked);
+        editor.commit();
+      }
+    });
+    ll.addView(cb);
 
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
+    // setting minimum and maximum priority for tasks
+    TextView tv = new TextView(this);
+    tv.setPadding(0, 15, 0, 0);
+    tv.setTextSize(16);
+    tv.setText(R.string.configuration_3_priority);
+    ll.addView(tv);
+    LinearLayout priorityLayout = new LinearLayout(this);
+    priorityLayout.setOrientation(LinearLayout.VERTICAL);
+    final TextView maxTv = new TextView(this);
+    maxTv.setMinimumWidth(50);
+    final SeekBar sMax = new SeekBar(this);
+    sMax.setMax(101);
+    sMax.setProgress(settings.getInt(PRIORITY_MAX, 100));
+    maxTv.setTextSize(17);
+    maxTv.setPadding(5, 3, 0, 0);
+    maxTv.setText(Integer.toString(sMax.getProgress()));
+    sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+      public void onProgressChanged(SeekBar seekBar, int progress,
+          boolean fromUser) {
+        maxTv.setText(Integer.toString(progress));
+      }
 
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				editor.putInt(PRIORITY_MAX, seekBar.getProgress());
-				editor.commit();
-			}
-		});
-		priorityLayout.addView(sMax);
-		priorityLayout.addView(maxTv);
-		ll.addView(priorityLayout);
+      public void onStartTrackingTouch(SeekBar seekBar) {
+      }
 
-		mUserEdit = (EditText) findViewById(R.id.usernameEdit);
-		mUserEdit.setOnKeyListener(new View.OnKeyListener() {
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				switch (keyCode) {
-				case KeyEvent.KEYCODE_ENTER:
-					mPassEdit.requestFocus();
-					return true;
-				}
-				return false;
-			}
-		});
-		mUserEdit.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if (mUserEdit.getText().toString().equals(
-						getString(R.string.username))) {
-					mUserEdit.setText("");
-				}
-			}
-		});
-		mPassEdit = (EditText) findViewById(R.id.passwordEdit);
-		mPassEdit
-				.setTransformationMethod(new android.text.method.PasswordTransformationMethod());
-		mPassEdit.setInputType(InputType.TYPE_CLASS_TEXT
-				| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-		mPassEdit.setOnKeyListener(new View.OnKeyListener() {
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				switch (keyCode) {
-				case KeyEvent.KEYCODE_ENTER:
-					if (((EditText) v).getText().length() > 1) {
-						mConfirmButton.requestFocus();
-						return true;
-					}
-				}
-				return false;
-			}
-		});
-		mPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (mPassEdit.getText().toString().equals(
-						getString(R.string.password))) {
-					mPassEdit.setText("");
-				}
-			}
-		});
-		mConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
-		mConfirmButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				editor.putString(GOOGLE_USERNAME, mUserEdit.getText()
-						.toString());
-				editor.putString(GOOGLE_PASSWORD, mPassEdit.getText()
-						.toString());
-				editor.commit();
+      public void onStopTrackingTouch(SeekBar seekBar) {
+        editor.putInt(PRIORITY_MAX, seekBar.getProgress());
+        editor.commit();
+      }
+    });
+    priorityLayout.addView(sMax);
+    priorityLayout.addView(maxTv);
+    ll.addView(priorityLayout);
 
-				GoogleCalendar.setLogin(mUserEdit.getText().toString(),
-						mPassEdit.getText().toString());
-				boolean canAuthenticate = false;
+    mUserEdit = (EditText) findViewById(R.id.usernameEdit);
+    mUserEdit.setOnKeyListener(new View.OnKeyListener() {
+      public boolean onKey(View v, int keyCode, KeyEvent event) {
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_ENTER:
+          mPassEdit.requestFocus();
+          return true;
+        }
+        return false;
+      }
+    });
+    mUserEdit.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        if (mUserEdit.getText().toString().equals(getString(R.string.username))) {
+          mUserEdit.setText("");
+        }
+      }
+    });
+    mPassEdit = (EditText) findViewById(R.id.passwordEdit);
+    mPassEdit
+        .setTransformationMethod(new android.text.method.PasswordTransformationMethod());
+    mPassEdit.setInputType(InputType.TYPE_CLASS_TEXT
+        | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    mPassEdit.setOnKeyListener(new View.OnKeyListener() {
+      public boolean onKey(View v, int keyCode, KeyEvent event) {
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_ENTER:
+          if (((EditText) v).getText().length() > 1) {
+            mConfirmButton.requestFocus();
+            return true;
+          }
+        }
+        return false;
+      }
+    });
+    mPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+      public void onFocusChange(View v, boolean hasFocus) {
+        if (mPassEdit.getText().toString().equals(getString(R.string.password))) {
+          mPassEdit.setText("");
+        }
+      }
+    });
+    mConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
+    mConfirmButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        editor.putString(GOOGLE_USERNAME, mUserEdit.getText().toString());
+        editor.putString(GOOGLE_PASSWORD, mPassEdit.getText().toString());
+        editor.commit();
 
-				try {
-					canAuthenticate = GoogleCalendar.authenticate(true);
-				} catch (Exception e) {
-					canAuthenticate = false;
-				}
+        GoogleCalendar.setLogin(mUserEdit.getText().toString(), mPassEdit
+            .getText().toString());
+        boolean canAuthenticate = false;
 
-				if (canAuthenticate) {
-					boolean allTasksSynced = true;
-					Cursor dueEntries = new ToDoListDB(ConfigScreen.this)
-							.open().getAllDueEntries();
-					if (dueEntries.getCount() > 0) {
-						int title = dueEntries
-								.getColumnIndexOrThrow(ToDoListDB.KEY_NAME);
-						int year = dueEntries
-								.getColumnIndexOrThrow(ToDoListDB.KEY_DUE_YEAR);
-						int month = dueEntries
-								.getColumnIndexOrThrow(ToDoListDB.KEY_DUE_MONTH);
-						int day = dueEntries
-								.getColumnIndexOrThrow(ToDoListDB.KEY_DUE_DATE);
-						int hour = dueEntries
-								.getColumnIndexOrThrow(ToDoListDB.KEY_DUE_HOUR);
-						int minute = dueEntries
-								.getColumnIndexOrThrow(ToDoListDB.KEY_DUE_MINUTE);
-						dueEntries.moveToFirst();
-						do {
-							try {
-								allTasksSynced &= GoogleCalendar.createEvent(
-										dueEntries.getString(title), dueEntries
-												.getInt(year), dueEntries
-												.getInt(month), dueEntries
-												.getInt(day), dueEntries
-												.getInt(hour), dueEntries
-												.getInt(minute));
-							} catch (Exception e) {
-								allTasksSynced = false;
-							}
-						} while (dueEntries.moveToNext());
-					}
-					if (allTasksSynced) {
-						Utils.showDialog(R.string.notification,
-								R.string.login_sync_succes,
-								ConfigScreen.this);
-						showLogin(false);
-					} else {
-						Utils.showDialog(R.string.notification,
-								R.string.login_succes_sync_fail,
-								ConfigScreen.this);
-					}
-				} else {
-					Utils.showDialog(R.string.notification,
-							R.string.login_fail, ConfigScreen.this);
-				}
-			}
-		});
-	}
+        try {
+          canAuthenticate = GoogleCalendar.authenticate(true);
+        } catch (Exception e) {
+          canAuthenticate = false;
+        }
 
-	/**
-	 * Shows the login UI elements (basically an EditText for the username and
-	 * one for the password)
-	 * 
-	 * @param b
-	 *            if true, they will be showed, if not, they will be hidden
-	 */
-	public void showLogin(boolean b) {
-		int visibility = b ? View.VISIBLE : View.GONE;
-		mUserEdit.setVisibility(visibility);
-		mPassEdit.setVisibility(visibility);
-		mConfirmButton.setVisibility(visibility);
-		mCloseButton.setVisibility(8 - visibility);
-		mHelpButton.setVisibility(8 - visibility);
-	}
+        if (canAuthenticate) {
+          boolean allTasksSynced = true;
+          Cursor dueEntries = new ToDoListDB(ConfigScreen.this).open()
+              .getAllDueEntries();
+          if (dueEntries.getCount() > 0) {
+            int title = dueEntries.getColumnIndexOrThrow(ToDoListDB.KEY_NAME);
+            int year = dueEntries
+                .getColumnIndexOrThrow(ToDoListDB.KEY_DUE_YEAR);
+            int month = dueEntries
+                .getColumnIndexOrThrow(ToDoListDB.KEY_DUE_MONTH);
+            int day = dueEntries.getColumnIndexOrThrow(ToDoListDB.KEY_DUE_DATE);
+            int hour = dueEntries
+                .getColumnIndexOrThrow(ToDoListDB.KEY_DUE_HOUR);
+            int minute = dueEntries
+                .getColumnIndexOrThrow(ToDoListDB.KEY_DUE_MINUTE);
+            dueEntries.moveToFirst();
+            do {
+              try {
+                allTasksSynced &= GoogleCalendar.createEvent(dueEntries
+                    .getString(title), dueEntries.getInt(year), dueEntries
+                    .getInt(month), dueEntries.getInt(day), dueEntries
+                    .getInt(hour), dueEntries.getInt(minute));
+              } catch (Exception e) {
+                allTasksSynced = false;
+              }
+            } while (dueEntries.moveToNext());
+          }
+          if (allTasksSynced) {
+            Utils.showDialog(R.string.notification, R.string.login_sync_succes,
+                ConfigScreen.this);
+            showLogin(false);
+          } else {
+            Utils.showDialog(R.string.notification,
+                R.string.login_succes_sync_fail, ConfigScreen.this);
+          }
+        } else {
+          Utils.showDialog(R.string.notification, R.string.login_fail,
+              ConfigScreen.this);
+        }
+      }
+    });
+  }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
+  /**
+   * Shows the login UI elements (basically an EditText for the username and one
+   * for the password)
+   * 
+   * @param b
+   *          if true, they will be showed, if not, they will be hidden
+   */
+  public void showLogin(boolean b) {
+    int visibility = b ? View.VISIBLE : View.GONE;
+    mUserEdit.setVisibility(visibility);
+    mPassEdit.setVisibility(visibility);
+    mConfirmButton.setVisibility(visibility);
+    mCloseButton.setVisibility(8 - visibility);
+    mHelpButton.setVisibility(8 - visibility);
+  }
 
-	/**
-	 * @see same function in the TagToDoList class
-	 */
-	public boolean onKeyDown(int keyCode, KeyEvent msg) {
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_BACK:
-		case KeyEvent.KEYCODE_DEL:
-		case KeyEvent.KEYCODE_DPAD_RIGHT:
-			if (mCloseButton.getVisibility() == View.VISIBLE) {
-				finish();
-			}
-			break;
-		}
-		return false;
-	}
+  @Override
+  protected void onResume() {
+    super.onResume();
+  }
+
+  /**
+   * @see same function in the TagToDoList class
+   */
+  public boolean onKeyDown(int keyCode, KeyEvent msg) {
+    switch (keyCode) {
+    case KeyEvent.KEYCODE_BACK:
+    case KeyEvent.KEYCODE_DEL:
+    case KeyEvent.KEYCODE_DPAD_RIGHT:
+      if (mCloseButton.getVisibility() == View.VISIBLE) {
+        finish();
+      }
+      break;
+    }
+    return false;
+  }
 }
