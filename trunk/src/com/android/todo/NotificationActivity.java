@@ -89,7 +89,6 @@ public final class NotificationActivity extends Activity {
 
     // fetching the due entries from the database
     Cursor c = mDbHelper.getDueEntries();
-    startManagingCursor(c);
 
     LinearLayout el = mEntryLayout;
     el.removeAllViews();
@@ -114,6 +113,7 @@ public final class NotificationActivity extends Activity {
         el.addView(cb);
       } while (c.moveToPrevious());
     }
+    c.close();
   }
 
   /**

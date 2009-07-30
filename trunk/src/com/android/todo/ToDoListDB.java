@@ -224,6 +224,7 @@ public final class ToDoListDB implements DB {
     Cursor c = mDb.query(DATABASE_TAG_TABLE, new String[] { KEY_NAME },
         KEY_NAME + " = '" + tagName + "'", null, null, null, null);
     if (c.getCount() > 0) {
+      c.close();
       return false;
     }
 
@@ -231,7 +232,7 @@ public final class ToDoListDB implements DB {
     ContentValues args = new ContentValues();
     args.put(KEY_NAME, tagName);
     mDb.insert(DATABASE_TAG_TABLE, null, args);
-
+    c.close();
     return true;
   }
 
@@ -274,7 +275,9 @@ public final class ToDoListDB implements DB {
         null);
     if (c.getCount() > 0) {
       c.moveToFirst();
-      return c.getString(c.getColumnIndexOrThrow(KEY_PARENT));
+      String s = c.getString(c.getColumnIndexOrThrow(KEY_PARENT));
+      c.close();
+      return s;
     }
 
     // inserting the actual entry
@@ -283,7 +286,7 @@ public final class ToDoListDB implements DB {
     args.put(KEY_STATUS, 0);
     args.put(KEY_PARENT, tagName);
     mDb.insert(DATABASE_ENTRY_TABLE, null, args);
-
+    c.close();
     return null;
   }
 
@@ -318,6 +321,7 @@ public final class ToDoListDB implements DB {
         deleteEntry(entries.getString(entryName));
       } while (entries.moveToNext());
     }
+    entries.close();
   }
 
   /**
@@ -363,8 +367,11 @@ public final class ToDoListDB implements DB {
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
     try {
-      return entry.getInt(entry.getColumnIndexOrThrow(KEY_PRIORITY));
+      int p = entry.getInt(entry.getColumnIndexOrThrow(KEY_PRIORITY));
+      entry.close();
+      return p;
     } catch (Exception e) {
+      entry.close();
       return 50;
     }
   }
@@ -413,7 +420,10 @@ public final class ToDoListDB implements DB {
         null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return entry.getString(entry.getColumnIndexOrThrow(KEY_WRITTEN_NOTE));
+    String note = entry
+        .getString(entry.getColumnIndexOrThrow(KEY_WRITTEN_NOTE));
+    entry.close();
+    return note;
   }
 
   /**
@@ -429,9 +439,11 @@ public final class ToDoListDB implements DB {
         + " = '" + entryName + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return 372 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 31
+    int e = 372 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 31
         * entry.getInt(entry.getColumnIndex(KEY_DUE_MONTH))
         + entry.getInt(entry.getColumnIndex(KEY_DUE_DATE));
+    entry.close();
+    return e;
   }
 
   /**
@@ -446,7 +458,9 @@ public final class ToDoListDB implements DB {
         null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return entry.getInt(entry.getColumnIndex(KEY_DUE_DAY_OF_WEEK));
+    int d = entry.getInt(entry.getColumnIndex(KEY_DUE_DAY_OF_WEEK));
+    entry.close();
+    return d;
   }
 
   /**
@@ -462,8 +476,10 @@ public final class ToDoListDB implements DB {
         + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return 60 * entry.getInt(entry.getColumnIndex(KEY_DUE_HOUR))
+    int e = 60 * entry.getInt(entry.getColumnIndex(KEY_DUE_HOUR))
         + entry.getInt(entry.getColumnIndex(KEY_DUE_MINUTE));
+    entry.close();
+    return e;
   }
 
   /**
@@ -477,11 +493,14 @@ public final class ToDoListDB implements DB {
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     if (entry.getCount() == 0) {
+      entry.close();
       return false;
     }
     entry.moveToFirst();
     // the due date is given by the last bit of KEY_EXTRA_OPTIONS
-    return entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) % 2 == 1;
+    boolean b = entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) % 2 == 1;
+    entry.close();
+    return b;
   }
 
   /**
@@ -495,11 +514,14 @@ public final class ToDoListDB implements DB {
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     if (entry.getCount() == 0) {
+      entry.close();
       return false;
     }
     entry.moveToFirst();
     // the due time is given by the second last bit of KEY_EXTRA_OPTIONS
-    return (entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) >> 1) % 2 == 1;
+    boolean b = (entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) >> 1) % 2 == 1;
+    entry.close();
+    return b;
   }
 
   /**
@@ -523,7 +545,7 @@ public final class ToDoListDB implements DB {
         }
       } while (c.moveToNext());
     }
-
+    c.close();
     return unchecked;
   }
 
@@ -536,7 +558,9 @@ public final class ToDoListDB implements DB {
     Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_STATUS, KEY_PARENT }, KEY_STATUS + " = 0", null, null,
         null, null);
-    return c.getCount();
+    int count = c.getCount();
+    c.close();
+    return count;
   }
 
   /**
@@ -598,7 +622,8 @@ public final class ToDoListDB implements DB {
         editor.putBoolean("checkedTasksLimitAware", true);
         editor.commit();
       }
-
+      checkedC.close();
+      
       // also need to remove attached alarms, if any
       deleteAlarm(entryName);
     } else {
@@ -724,6 +749,7 @@ public final class ToDoListDB implements DB {
     args.put(KEY_EXTRA_OPTIONS, b ? (c.getInt(c
         .getColumnIndex(KEY_EXTRA_OPTIONS)) | 1) : (c.getInt(c
         .getColumnIndex(KEY_EXTRA_OPTIONS)) & 2));
+    c.close();
     return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
         + "'", null) > 0;
   }
@@ -746,6 +772,7 @@ public final class ToDoListDB implements DB {
     args.put(KEY_EXTRA_OPTIONS, b ? (c.getInt(c
         .getColumnIndex(KEY_EXTRA_OPTIONS)) | 2) : (c.getInt(c
         .getColumnIndex(KEY_EXTRA_OPTIONS)) & 5));
+    c.close();
     return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
         + "'", null) > 0;
   }
@@ -851,6 +878,8 @@ public final class ToDoListDB implements DB {
         updateEntry(aux, all.getInt(status) == 1 ? true : false);
       }
     } while (all.moveToNext());
+    c.close();
+    all.close();
   }
 
   /**
@@ -882,6 +911,7 @@ public final class ToDoListDB implements DB {
         deleteEntry(c.getString(name));
       } while (c.moveToNext());
     }
+    c.close();
   }
 
   public Cursor getUncheckedEntries() {

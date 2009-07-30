@@ -29,6 +29,7 @@ public final class BootReceiver extends BroadcastReceiver {
   public final static void setOldAlarms(Context context, DB dbHelper) {
     Cursor c = dbHelper.getUncheckedEntries();
     if (c.getCount() <= 0) {
+      c.close();
       return;
     }
     int name = c.getColumnIndex(BootDB.KEY_NAME);
@@ -55,6 +56,7 @@ public final class BootReceiver extends BroadcastReceiver {
         }
       }
     } while (c.moveToNext());
+    c.close();
   }
 }
 
@@ -173,7 +175,9 @@ final class BootDB implements DB {
         null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return entry.getInt(entry.getColumnIndex(KEY_DUE_DAY_OF_WEEK));
+    int d = entry.getInt(entry.getColumnIndex(KEY_DUE_DAY_OF_WEEK));
+    entry.close();
+    return d;
   }
 
   /**
@@ -189,9 +193,11 @@ final class BootDB implements DB {
         + " = '" + entryName + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return 372 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 31
+    int e = 372 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 31
         * entry.getInt(entry.getColumnIndex(KEY_DUE_MONTH))
         + entry.getInt(entry.getColumnIndex(KEY_DUE_DATE));
+    entry.close();
+    return e;
   }
 
   /**
@@ -207,8 +213,10 @@ final class BootDB implements DB {
         + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    return 60 * entry.getInt(entry.getColumnIndex(KEY_DUE_HOUR))
+    int e = 60 * entry.getInt(entry.getColumnIndex(KEY_DUE_HOUR))
         + entry.getInt(entry.getColumnIndex(KEY_DUE_MINUTE));
+    entry.close();
+    return e;
   }
 
   /**
@@ -222,11 +230,14 @@ final class BootDB implements DB {
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     if (entry.getCount() == 0) {
+      entry.close();
       return false;
     }
     entry.moveToFirst();
     // the due date is given by the last bit of KEY_EXTRA_OPTIONS
-    return entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) % 2 == 1;
+    boolean b = entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) % 2 == 1;
+    entry.close();
+    return b;
   }
 
   /**
@@ -240,11 +251,14 @@ final class BootDB implements DB {
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     if (entry.getCount() == 0) {
+      entry.close();
       return false;
     }
     entry.moveToFirst();
     // the due time is given by the second last bit of KEY_EXTRA_OPTIONS
-    return (entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) >> 1) % 2 == 1;
+    entry.close();
+    boolean b = (entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) >> 1) % 2 == 1;
+    return b;
   }
 
 }

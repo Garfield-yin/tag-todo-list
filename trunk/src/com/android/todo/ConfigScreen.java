@@ -273,6 +273,7 @@ public final class ConfigScreen extends Activity {
               }
             } while (dueEntries.moveToNext());
           }
+          dueEntries.close();
           if (allTasksSynced) {
             Utils.showDialog(R.string.notification, R.string.login_sync_succes,
                 ConfigScreen.this);

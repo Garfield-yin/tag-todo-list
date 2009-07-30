@@ -140,6 +140,7 @@ final class WidgetDB {
         }
       }
     }
+    dueDates.close();
     if (i < howMany) {
       Cursor entries = getEntries(null);
       if (entries.getCount() > 0) {
@@ -167,6 +168,7 @@ final class WidgetDB {
           }
         }
       }
+      entries.close();
     }
     return sb.toString();
   }

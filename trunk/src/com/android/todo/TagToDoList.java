@@ -245,8 +245,10 @@ public class TagToDoList extends Activity {
       }
     });
 
-    mDbHelper = new ToDoListDB(this);
-    mDbHelper.open();
+    if (mDbHelper == null) {
+      mDbHelper = new ToDoListDB(this);
+      mDbHelper.open();
+    }
 
     showDueTasks(true);
   }
@@ -261,7 +263,7 @@ public class TagToDoList extends Activity {
     // fetching the data from the database:
     Cursor c = mDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
         .getItem(selectedTag).toString() : null);
-    startManagingCursor(c);
+    // startManagingCursor(c);
 
     LinearLayout el = mEntryLayout;
     el.removeAllViews();
@@ -272,6 +274,7 @@ public class TagToDoList extends Activity {
       name = c.getColumnIndexOrThrow(ToDoListDB.KEY_NAME);
       value = c.getColumnIndexOrThrow(ToDoListDB.KEY_STATUS);
     } catch (Exception e) {
+      c.close();
       return;
     }
 
@@ -310,6 +313,7 @@ public class TagToDoList extends Activity {
     }
 
     mStatButton.setText(numberOfUnchecked + ""); // updating stats
+    c.close();
   }
 
   /**
@@ -456,7 +460,7 @@ public class TagToDoList extends Activity {
 
     Cursor c = mDbHelper.getAllTags();
     ArrayAdapter<CharSequence> taa = mTagsArrayAdapter;
-    startManagingCursor(c);
+    //startManagingCursor(c);
 
     c.moveToFirst();
     do {
@@ -464,6 +468,7 @@ public class TagToDoList extends Activity {
     } while (c.moveToNext());
 
     mTagSpinner.setAdapter(taa);
+    c.close();
   }
 
   /**
@@ -488,6 +493,8 @@ public class TagToDoList extends Activity {
     if (mSettings.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
       ToDoListDB.createBackup();
     }
+    mDbHelper.close();
+    mDbHelper = null;
     super.onDestroy();
   }
 
