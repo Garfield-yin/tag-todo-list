@@ -50,7 +50,7 @@ public final class ToDoListDB implements DB {
   private static final String DATABASE_NAME = "data";
   private static final String DATABASE_TAG_TABLE = "tags";
   private static final String DATABASE_ENTRY_TABLE = "entries";
-  private static final int DATABASE_VERSION = 80;
+  private static final int DATABASE_VERSION = 81;
   private static Context mCtx;
   private DatabaseHelper mDbHelper;
   private SQLiteDatabase mDb;
