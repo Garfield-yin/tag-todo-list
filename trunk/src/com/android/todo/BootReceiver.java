@@ -256,8 +256,8 @@ final class BootDB implements DB {
     }
     entry.moveToFirst();
     // the due time is given by the second last bit of KEY_EXTRA_OPTIONS
-    entry.close();
     boolean b = (entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) >> 1) % 2 == 1;
+    entry.close();
     return b;
   }
 
