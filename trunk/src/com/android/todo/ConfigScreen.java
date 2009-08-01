@@ -143,7 +143,8 @@ public final class ConfigScreen extends Activity {
       }
 
       public void onStopTrackingTouch(SeekBar seekBar) {
-        editor.putInt(PRIORITY_MAX, seekBar.getProgress());
+        int p = seekBar.getProgress();
+        editor.putInt(PRIORITY_MAX, p > 0 ? p : 1);
         editor.commit();
       }
     });
@@ -157,7 +158,7 @@ public final class ConfigScreen extends Activity {
     priorityLayout = new LinearLayout(this); // reusing priorityLayout
     // object
     priorityLayout.setOrientation(LinearLayout.VERTICAL);
-    textLayout = new LinearLayout(this); //also reusing textLayout
+    textLayout = new LinearLayout(this); // also reusing textLayout
     textLayout.setOrientation(LinearLayout.HORIZONTAL);
     textLayout.addView(tv);
     final TextView limitTv = new TextView(this);

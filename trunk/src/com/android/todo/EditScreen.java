@@ -144,12 +144,12 @@ public final class EditScreen extends Activity {
           : this.getString(R.string.priority);
       final TextView priorityTv = new TextView(this);
       priorityTv.setGravity(Gravity.CENTER);
-      int priority = creating ? 50 : mDbHelper
-          .getPriority(EditScreen.sParameter);
-      priorityTv.setText(mPriorityText + priority);
       mPrioritySb = new SeekBar(this);
       mPrioritySb.setMax(getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE).getInt(ConfigScreen.PRIORITY_MAX, 100) + 1);
+      int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
+          .getPriority(EditScreen.sParameter);
+      priorityTv.setText(mPriorityText + priority);
       mPrioritySb.setPadding(0, 0, 0, 10);
       mPrioritySb.setProgress(priority);
       mPrioritySb
