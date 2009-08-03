@@ -7,6 +7,9 @@ import java.io.File;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RemoteViews;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -495,6 +499,15 @@ public class TagToDoList extends Activity {
     }
     mDbHelper.close();
     mDbHelper = null;
+    RemoteViews rv = new RemoteViews(getPackageName(), R.layout.widget);
+    rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(
+        this, 0, new Intent(this, TagToDoList.class), 0));
+    WidgetDB dbHelper = new WidgetDB(this);
+    dbHelper.open();
+    rv.setTextViewText(R.id.widgetItem, dbHelper.getAutomaticTasks(3));
+    AppWidgetManager.getInstance(this).updateAppWidget(new ComponentName(this,
+        TagToDoWidget.class), rv);
+    dbHelper.close();
     super.onDestroy();
   }
 
