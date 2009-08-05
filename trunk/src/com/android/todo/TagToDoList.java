@@ -40,6 +40,8 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.android.todo.sync.GoogleCalendar;
 
@@ -74,6 +76,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_MOVE_ID = 7;
   public static final int ENTRY_WRITTEN_ID = 8;
   public static final int ENTRY_INSTANTACTION_ID = 9;
+  public static final int ENTRY_SUBTASK_ID = 10;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -264,32 +267,32 @@ public class TagToDoList extends Activity {
    *          index of the selected tab, as it will come from the spinner
    */
   private void selectTag(int selectedTag) {
-    // fetching the data from the database:
-    Cursor c = mDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
-        .getItem(selectedTag).toString() : null);
-    // startManagingCursor(c);
-
-    LinearLayout el = mEntryLayout;
+    final LinearLayout el = mEntryLayout;
     el.removeAllViews();
-    CheckBox cb;
-    int name;
-    int value;
-    try {
-      name = c.getColumnIndexOrThrow(ToDoListDB.KEY_NAME);
-      value = c.getColumnIndexOrThrow(ToDoListDB.KEY_STATUS);
-    } catch (Exception e) {
-      c.close();
-      return;
-    }
-
-    Boolean checked;
-    int numberOfUnchecked = 0;
-    CompoundButton.OnCheckedChangeListener ccl = new CompoundButton.OnCheckedChangeListener() {
+    final OnCheckedChangeListener ccl = new OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         mDbHelper.updateEntry(buttonView.getText().toString(), isChecked);
         selectTag(mTagSpinner.getSelectedItemPosition());
       }
     };
+    mStatButton.setText(processDepth(el, ccl, selectedTag, 0, null) /*
+                                                               * starting from
+                                                               * level 0
+                                                               */+ ""); // updating
+    // stats
+  }
+
+  public int processDepth(LinearLayout el, OnCheckedChangeListener ccl,
+      int selectedTag, int depth, String superTask) {
+    Cursor c = mDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
+        .getItem(selectedTag).toString() : null, depth, superTask);
+    CheckBox cb;
+    int name = c.getColumnIndex(ToDoListDB.KEY_NAME);
+    int value = c.getColumnIndex(ToDoListDB.KEY_STATUS);
+    int subtasks = c.getColumnIndex(ToDoListDB.KEY_SUBTASKS);
+
+    Boolean checked;
+    int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
     final ToDoListDB dbHelper = mDbHelper;
     if (c.getCount() > 0) {
@@ -312,12 +315,20 @@ public class TagToDoList extends Activity {
         cb.setChecked(checked);
         cb.setOnCheckedChangeListener(ccl);
         registerForContextMenu(cb);
+        if (depth > 0) {
+          LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
+              LayoutParams.WRAP_CONTENT);
+          lp.leftMargin = depth * 30;
+          cb.setLayoutParams(lp);
+        }
         el.addView(cb);
+        if (c.getInt(subtasks) > 0) {
+          numberOfUnchecked += processDepth(el, ccl, selectedTag, depth + 1, c.getString(name));
+        }
       } while (c.moveToPrevious());
     }
-
-    mStatButton.setText(numberOfUnchecked + ""); // updating stats
     c.close();
+    return numberOfUnchecked;
   }
 
   /**
@@ -421,6 +432,7 @@ public class TagToDoList extends Activity {
     Intent i = new Intent(this, EditScreen.class);
     i.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
         mTagSpinner.getSelectedItemPosition()).toString());
+    i.putExtra(ToDoListDB.KEY_SUPERTASK, "");
     i.setAction(ACTIVITY_CREATE_ENTRY + "");
     startActivity(i);
   }
@@ -464,7 +476,7 @@ public class TagToDoList extends Activity {
 
     Cursor c = mDbHelper.getAllTags();
     ArrayAdapter<CharSequence> taa = mTagsArrayAdapter;
-    //startManagingCursor(c);
+    // startManagingCursor(c);
 
     c.moveToFirst();
     do {
@@ -500,13 +512,13 @@ public class TagToDoList extends Activity {
     mDbHelper.close();
     mDbHelper = null;
     RemoteViews rv = new RemoteViews(getPackageName(), R.layout.widget);
-    rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(
-        this, 0, new Intent(this, TagToDoList.class), 0));
+    rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(this,
+        0, new Intent(this, TagToDoList.class), 0));
     WidgetDB dbHelper = new WidgetDB(this);
     dbHelper.open();
     rv.setTextViewText(R.id.widgetItem, dbHelper.getAutomaticTasks(3));
-    AppWidgetManager.getInstance(this).updateAppWidget(new ComponentName(this,
-        TagToDoWidget.class), rv);
+    AppWidgetManager.getInstance(this).updateAppWidget(
+        new ComponentName(this, TagToDoWidget.class), rv);
     dbHelper.close();
     super.onDestroy();
   }
@@ -586,6 +598,7 @@ public class TagToDoList extends Activity {
       mContextAction = a;
       menu.add(0, ENTRY_INSTANTACTION_ID, 0, possibleAction);
     }
+    menu.add(0, ENTRY_SUBTASK_ID, 0, R.string.entry_subtask_add);
     menu.add(0, ENTRY_EDIT_ID, 0, R.string.entry_edit);
     menu.add(0, ENTRY_REMOVE_ID, 0, R.string.entry_delete);
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_notes);
@@ -615,6 +628,14 @@ public class TagToDoList extends Activity {
    */
   private boolean changeTask(int selectedItem) {
     switch (selectedItem) {
+    case ENTRY_SUBTASK_ID:
+      Intent i0 = new Intent(this, EditScreen.class);
+      i0.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
+          mTagSpinner.getSelectedItemPosition()).toString());
+      i0.putExtra(ToDoListDB.KEY_SUPERTASK, mContextEntry);
+      i0.setAction(ACTIVITY_CREATE_ENTRY + "");
+      startActivity(i0);
+      break;
     case ENTRY_EDIT_ID:
       Intent i1 = new Intent(this, EditScreen.class);
       i1.putExtra(ToDoListDB.KEY_NAME, mContextEntry);

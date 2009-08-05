@@ -31,6 +31,7 @@
 <!-- Task menu -->
 <string name="entry_group_notes">+ Notes</string>
 <string name="entry_group_move">+ Move</string>
+<string name="entry_subtask_add">Add subtask</string>
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
 <string name="entry_move">Move to another tag</string>

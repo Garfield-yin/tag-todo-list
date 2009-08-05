@@ -22,20 +22,6 @@
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:layout_weight="1" />
 
-			<!--
-				<LinearLayout android:layout_marginTop="-5px"
-				android:orientation="horizontal" android:layout_width="fill_parent"
-				android:layout_height="wrap_content"> <ImageButton
-				android:id="@+id/widgetLeft" android:src="@drawable/back"
-				android:background="#0000" android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="-8px" /> <ImageButton
-				android:id="@+id/widgetRight" android:src="@drawable/forward"
-				android:background="#0000" android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="-15px" /> </LinearLayout>
-			-->
-
 		</LinearLayout>
 
 	</LinearLayout>

@@ -57,6 +57,7 @@ public final class EditScreen extends Activity {
   private LinearLayout mDateTimeLayout;
 
   private static String sParameter;
+  private static String sSuperTask;
   private static String mPriorityText;
   private ToDoListDB mDbHelper;
   private static String mMonthsString;
@@ -123,13 +124,23 @@ public final class EditScreen extends Activity {
     mConfirmButton = (Button) findViewById(R.id.confirmButton);
     mCancelButton = (Button) findViewById(R.id.cancelButton);
 
-    sParameter = savedInstanceState != null ? savedInstanceState
-        .getString(ToDoListDB.KEY_NAME) : null;
+    if (savedInstanceState != null) {
+      sParameter = savedInstanceState.getString(ToDoListDB.KEY_NAME);
+      sSuperTask = savedInstanceState.getString(ToDoListDB.KEY_SUPERTASK);
+    } else {
+      sParameter = null;
+      sSuperTask = null;
+    }
 
     if (sParameter == null) {
       Bundle extras = getIntent().getExtras();
-      sParameter = extras != null ? extras.getString(ToDoListDB.KEY_NAME)
-          : null;
+      if (extras != null) {
+        sParameter = extras.getString(ToDoListDB.KEY_NAME);
+        sSuperTask = extras.getString(ToDoListDB.KEY_SUPERTASK);
+      } else {
+        sParameter = null;
+        sSuperTask = null;
+      }
     }
 
     final String action = getIntent().getAction();
@@ -343,6 +354,9 @@ public final class EditScreen extends Activity {
           mDbHelper.updateTag(EditScreen.sParameter, name);
         } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
           String result = mDbHelper.createEntry(EditScreen.sParameter, name);
+          if (sSuperTask!=null && sSuperTask !=""){
+            mDbHelper.setSuperTask(name, sSuperTask);
+          }
           if (result != null) {
             showMessage(view.getContext().getString(R.string.entry_existent)
                 .toString()

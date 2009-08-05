@@ -30,6 +30,7 @@
 <!-- Task menu -->
 <string name="entry_group_notes">+ Notes</string>
 <string name="entry_group_move">+ Déplacer</string>
+<string name="entry_subtask_add">Ajouter une sous-tâche</string>
 <string name="entry_edit">Modifier cette tâche</string>
 <string name="entry_delete">Supprimer cette tâche</string>
 <string name="entry_move">Déplacer vers une étiquette</string>

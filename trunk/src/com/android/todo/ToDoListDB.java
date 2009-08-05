@@ -44,13 +44,17 @@ public final class ToDoListDB implements DB {
   public static final String KEY_DUE_DAY_OF_WEEK = "dueday";
   // priority key name
   public static final String KEY_PRIORITY = "priority";
+  // keys useful for the subtasks feature
+  public static final String KEY_DEPTH = "depth";
+  public static final String KEY_SUPERTASK = "supertask";
+  public static final String KEY_SUBTASKS = "subtasks";
   // a helpful id
   public static final String KEY_ROWID = "_id";
 
   private static final String DATABASE_NAME = "data";
   private static final String DATABASE_TAG_TABLE = "tags";
   private static final String DATABASE_ENTRY_TABLE = "entries";
-  private static final int DATABASE_VERSION = 81;
+  private static final int DATABASE_VERSION = 82;
   private static Context mCtx;
   private DatabaseHelper mDbHelper;
   private SQLiteDatabase mDb;
@@ -108,6 +112,7 @@ public final class ToDoListDB implements DB {
       onUpgrade(db, 75, 76);
       onUpgrade(db, 76, 78);
       onUpgrade(db, 78, 79);
+      onUpgrade(db, 81, 82);
     }
 
     @Override
@@ -170,6 +175,25 @@ public final class ToDoListDB implements DB {
         try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DUE_DAY_OF_WEEK + " INTEGER DEFAULT -1");
+        } catch (SQLiteException e) {
+        }
+      }
+
+      // upgrade to db v82 (corresponding to app v1.7.0) or bigger;
+      // 1 column needs to be added for the depth of the task (part of the
+      // subtask feature)
+      // 1 column needs to be added for the parent of the eventual subtask (not
+      // the tag, but the supertask)
+      // 1 column needs to be added for the number of subtasks of a certain task
+      // (just primary level)
+      if (oldVersion < 82 && newVersion >= 82) {
+        try {
+          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
+              + KEY_DEPTH + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
+              + KEY_SUPERTASK + " TEXT");
+          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
+              + KEY_SUBTASKS + " INTEGER DEFAULT 0");
         } catch (SQLiteException e) {
         }
       }
@@ -340,18 +364,31 @@ public final class ToDoListDB implements DB {
    * @param tag
    *          for which to get all the to-do list entries. If null, all the
    *          entries from all the tags will be returned.
+   * @param depth
+   *          of tasks (depth 0 is a task, >0 is a subtask). If -1, all tasks,
+   *          no matter the depth, will be returned.
+   * @param superTask
+   *          filters to subtasks of a certain supertask. If null, this filter
+   *          won't exist.
    * @return Cursor over all entries in a tag
    */
-  public Cursor getEntries(String tag) {
+  public Cursor getEntries(String tag, int depth, String superTask) {
 
-    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS, KEY_PARENT }, (tag != null ? KEY_PARENT + " = '" + tag
-        + "' " : "1=1 ")
-        + "ORDER BY "
-        + KEY_STATUS
-        + " DESC"
-        + PRIORITY_ORDER_TOKEN
-        + DUEDATE_ORDER_TOKEN + ALPHABET_ORDER_TOKEN, null, null, null, null);
+    return mDb
+        .query(
+            DATABASE_ENTRY_TABLE,
+            new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_PARENT,
+                KEY_SUBTASKS },
+            ((tag != null ? KEY_PARENT + " = '" + tag + "' " : "1=1 ")
+                + (depth != -1 ? "AND " + KEY_DEPTH + " = " + depth + " " : "") + (superTask != null ? "AND " + KEY_SUPERTASK
+                + " = '" + superTask + "' "
+                : ""))
+                + "ORDER BY "
+                + KEY_STATUS
+                + " DESC"
+                + PRIORITY_ORDER_TOKEN
+                + DUEDATE_ORDER_TOKEN + ALPHABET_ORDER_TOKEN, null, null, null,
+            null);
   }
 
   /**
@@ -623,7 +660,7 @@ public final class ToDoListDB implements DB {
         editor.commit();
       }
       checkedC.close();
-      
+
       // also need to remove attached alarms, if any
       deleteAlarm(entryName);
     } else {
@@ -846,6 +883,30 @@ public final class ToDoListDB implements DB {
   }
 
   /**
+   * The given task will be subordinate to the new supertask.
+   * 
+   * @param task
+   * @param superTask
+   */
+  public void setSuperTask(String task, String superTask) {
+    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+        KEY_DEPTH, KEY_SUBTASKS }, KEY_NAME + " = '" + superTask + "'", null,
+        null, null, null);
+    c.moveToFirst();
+    ContentValues args = new ContentValues();
+    args.put(KEY_SUPERTASK, superTask);
+    args.put(KEY_DEPTH, c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
+    mDb
+        .update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'",
+            null);
+    args = new ContentValues();
+    args.put(KEY_SUBTASKS, c.getInt(c.getColumnIndex(KEY_SUBTASKS)) + 1);
+    mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + superTask + "'",
+        null);
+    c.close();
+  }
+
+  /**
    * Pushes the specified entry at the bottom of the (checked/unchecked) entry
    * list
    * 
@@ -903,7 +964,7 @@ public final class ToDoListDB implements DB {
    *          name of the tag to clear of tasks
    */
   public void deleteEntries(String tag) {
-    Cursor c = getEntries(tag);
+    Cursor c = getEntries(tag, -1, null);
     if (c.getCount() > 0) {
       int name = c.getColumnIndexOrThrow(KEY_NAME);
       c.moveToFirst();

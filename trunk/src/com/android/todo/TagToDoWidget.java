@@ -228,7 +228,7 @@ abstract interface CursorProvider {
 class GeneralProvider implements CursorProvider {
 
   public Cursor getCursor() {
-    return TagToDoList.getDbHelper().getEntries(null);
+    return TagToDoList.getDbHelper().getEntries(null, -1, null);
   }
 
   public int getNameId() {
