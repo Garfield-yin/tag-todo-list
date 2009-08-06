@@ -354,7 +354,7 @@ public final class EditScreen extends Activity {
           mDbHelper.updateTag(EditScreen.sParameter, name);
         } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
           String result = mDbHelper.createEntry(EditScreen.sParameter, name);
-          if (sSuperTask!=null && sSuperTask !=""){
+          if (sSuperTask!=null && sSuperTask.length()>0){
             mDbHelper.setSuperTask(name, sSuperTask);
           }
           if (result != null) {

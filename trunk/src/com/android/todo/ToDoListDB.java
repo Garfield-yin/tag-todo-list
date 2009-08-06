@@ -380,8 +380,8 @@ public final class ToDoListDB implements DB {
             new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_PARENT,
                 KEY_SUBTASKS },
             ((tag != null ? KEY_PARENT + " = '" + tag + "' " : "1=1 ")
-                + (depth != -1 ? "AND " + KEY_DEPTH + " = " + depth + " " : "") + (superTask != null ? "AND " + KEY_SUPERTASK
-                + " = '" + superTask + "' "
+                + (depth != -1 ? "AND " + KEY_DEPTH + " = " + depth + " " : "") + (superTask != null ? "AND "
+                + KEY_SUPERTASK + " = '" + superTask + "' "
                 : ""))
                 + "ORDER BY "
                 + KEY_STATUS
@@ -620,19 +620,16 @@ public final class ToDoListDB implements DB {
   }
 
   /**
-   * Updates the specified entry with the specified checked status
+   * Wrapper to the second definition of the updateEntry method
    * 
    * @param entryName
-   *          the name of the entry to be modified
    * @param checked
-   *          the new checked/unchecked status of that task
-   * @return true if successfully updated
+   * @return
    */
-  public boolean updateEntry(String entryName, boolean checked) {
-    ContentValues args = new ContentValues();
-    args.put(KEY_STATUS, checked ? 1 : 0);
-    mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'",
-        null);
+  public void updateEntry(String entryName, boolean checked) {
+    updateEntry(entryName, checked, null); // actual task
+    updateEntry(entryName, checked, Boolean.TRUE); // subtasks
+    updateEntry(entryName, checked, Boolean.FALSE); // supertasks too
 
     if (checked) {
       // removing entries if their number surpasses a certain limit;
@@ -683,8 +680,80 @@ public final class ToDoListDB implements DB {
         }
       }
     }
+  }
 
-    return true;
+  /**
+   * Updates the specified entry with the specified checked status. Can be
+   * applied for subtasks and supertasks as well.
+   * 
+   * @param entryName
+   *          the name of the entry to be modified
+   * @param checked
+   *          the new checked/unchecked status of that task
+   * @param goDown
+   *          applies the same status to subtasks, if true. If false, it goes
+   *          up, to supertasks. If null, only refers to the present task.
+   * @return true if successfully updated
+   */
+  private void updateEntry(String entryName, boolean checked, Boolean goDown) {
+    if (goDown == null) {
+      ContentValues args = new ContentValues();
+      args.put(KEY_STATUS, checked ? 1 : 0);
+      mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
+          + "'", null);
+    } else if (goDown.equals(Boolean.TRUE)) {
+      // applying the same to subtasks
+      Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+          KEY_SUPERTASK }, KEY_SUPERTASK + "='" + entryName + "'", null, null,
+          null, null);
+      if (c.getCount() > 0) {
+        final int name = c.getColumnIndex(KEY_NAME);
+        c.moveToFirst();
+        do {
+          updateEntry(c.getString(name), checked, null);
+          updateEntry(c.getString(name), checked, Boolean.TRUE);
+        } while (c.moveToNext());
+      }
+      c.close();
+    } else {
+      // must do the same with supertasks
+      Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+          KEY_SUPERTASK }, KEY_NAME + "='" + entryName + "'", null, null, null,
+          null);
+      if (c.getCount() > 0) {
+        c.moveToFirst();
+        if (!checked) {
+          updateEntry(c.getString(c.getColumnIndex(KEY_SUPERTASK)), false, null);
+          updateEntry(c.getString(c.getColumnIndex(KEY_SUPERTASK)), false,
+              Boolean.FALSE);
+        } else {
+          // must only check the supertask if all its subtasks are checked
+          Cursor subTasksOfSuperTaskC = mDb.query(DATABASE_ENTRY_TABLE,
+              new String[] { KEY_NAME, KEY_SUPERTASK, KEY_STATUS },
+              KEY_SUPERTASK + "='"
+                  + c.getString(c.getColumnIndex(KEY_SUPERTASK)) + "'", null,
+              null, null, null);
+          if (subTasksOfSuperTaskC.getCount() > 0) {
+            final int status = subTasksOfSuperTaskC.getColumnIndex(KEY_STATUS);
+            boolean allChecked = true;
+            subTasksOfSuperTaskC.moveToFirst();
+            do {
+              if (subTasksOfSuperTaskC.getInt(status) == 0) {
+                allChecked = false;
+              }
+            } while (subTasksOfSuperTaskC.moveToNext());
+            if (allChecked) {
+              updateEntry(c.getString(c.getColumnIndex(KEY_SUPERTASK)), true,
+                  null);
+              updateEntry(c.getString(c.getColumnIndex(KEY_SUPERTASK)), true,
+                  Boolean.FALSE);
+            }
+          }
+          subTasksOfSuperTaskC.close();
+        }
+      }
+      c.close();
+    }
   }
 
   /**
@@ -883,7 +952,9 @@ public final class ToDoListDB implements DB {
   }
 
   /**
-   * The given task will be subordinate to the new supertask.
+   * The given task will be subordinate to the new supertask. The supertask will
+   * also be made false. ASSUMPTION: this function is called when the task isn't
+   * checked
    * 
    * @param task
    * @param superTask
@@ -904,6 +975,8 @@ public final class ToDoListDB implements DB {
     mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + superTask + "'",
         null);
     c.close();
+    updateEntry(superTask, false, null);
+    updateEntry(superTask, false, Boolean.FALSE);
   }
 
   /**
@@ -951,6 +1024,26 @@ public final class ToDoListDB implements DB {
    *          name of the entry to delete
    */
   public void deleteEntry(String name) {
+    // decrementing the subtask count of the supertask
+    Cursor subC = mDb.query(true, DATABASE_ENTRY_TABLE, new String[] {
+        KEY_NAME, KEY_SUPERTASK }, KEY_NAME + " = '" + name + "'", null, null,
+        null, null, null);
+    subC.moveToFirst();
+    Cursor supC = mDb.query(true, DATABASE_ENTRY_TABLE, new String[] {
+        KEY_NAME, KEY_SUBTASKS }, KEY_NAME + " = '"
+        + subC.getString(subC.getColumnIndex(KEY_SUPERTASK)) + "'", null, null,
+        null, null, null);
+    if (supC.getCount() > 0) {
+      supC.moveToFirst();
+      ContentValues args = new ContentValues();
+      args
+          .put(KEY_SUBTASKS, supC.getInt(supC.getColumnIndex(KEY_SUBTASKS)) - 1);
+      mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '"
+          + subC.getString(subC.getColumnIndex(KEY_SUPERTASK)) + "'", null);
+    }
+    supC.close();
+    subC.close();
+
     mDb.delete(DATABASE_ENTRY_TABLE, KEY_NAME + "='" + name + "'", null);
     mCtx.deleteFile(Utils.getImageName(name));
     new File(Utils.getAudioName(name)).delete();

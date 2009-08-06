@@ -794,6 +794,13 @@ public class TagToDoList extends Activity {
         changeTask(ENTRY_DOWN_ID);
       }
       break;
+    case (KeyEvent.KEYCODE_PERIOD):
+      if (mActiveEntry > -1) {
+        mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+            .getText().toString();
+        changeTask(ENTRY_SUBTASK_ID);
+      }
+      break;
     case (KeyEvent.KEYCODE_H):
       showHelpScreen();
       break;
