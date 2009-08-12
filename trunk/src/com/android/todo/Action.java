@@ -12,7 +12,7 @@ import android.net.Uri;
 import android.provider.Contacts;
 
 /**
- * This is a class which actually performs the action found in a text
+ * This is a class which actually performs the action found in a text.
  */
 public final class Action {
   private ArrayList<String> CALLS = new ArrayList<String>();

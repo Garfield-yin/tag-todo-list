@@ -15,7 +15,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -130,7 +129,7 @@ public final class ToDoListDB implements DB {
               + KEY_DUE_MONTH + " INTEGER");
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DUE_DATE + " INTEGER");
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
           // if we are here, it means there has been a downgrade and
           // then an upgrade, we don't need to delete the columns, but
           // we need to prevent an actual exception
@@ -143,7 +142,7 @@ public final class ToDoListDB implements DB {
         try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_WRITTEN_NOTE + " TEXT");
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
         }
       }
 
@@ -165,7 +164,7 @@ public final class ToDoListDB implements DB {
               + KEY_DUE_HOUR + " INTEGER");
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DUE_MINUTE + " INTEGER");
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
         }
       }
 
@@ -175,7 +174,7 @@ public final class ToDoListDB implements DB {
         try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DUE_DAY_OF_WEEK + " INTEGER DEFAULT -1");
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
         }
       }
 
@@ -194,7 +193,7 @@ public final class ToDoListDB implements DB {
               + KEY_SUPERTASK + " TEXT");
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_SUBTASKS + " INTEGER DEFAULT 0");
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
         }
       }
 

@@ -191,7 +191,7 @@ public final class EditScreen extends Activity {
       mDateTb.setTextOff(this.getString(R.string.edit_task_no_date));
       if (mDbHelper.isDueDateSet(EditScreen.sParameter)) {
         int encodedDate = mDbHelper.getDueDate(EditScreen.sParameter);
-        mMonthsString = this.getString(R.string.months).toString();
+        mMonthsString = this.getString(R.string.months);
         mDateTb.setTextOn(this.getString(R.string.edit_task_date_set) + " "
             + mMonthsString.split(" ")[encodedDate / 31 % 12] + " "
             + (encodedDate % 31) + ", " + (encodedDate / 372));
@@ -359,7 +359,6 @@ public final class EditScreen extends Activity {
           }
           if (result != null) {
             showMessage(view.getContext().getString(R.string.entry_existent)
-                .toString()
                 + " '" + result + "'");
             return;
           }

@@ -50,8 +50,11 @@ this for the open source project every time you test):
 - increase database version (necessary to circumvent alarm
 removal by Android on app update)
 - export signed package
+- publish on Android Market
+- upload to FTP site and Google Code
+- blog post about changes
 
 I'll be happy to answer any questions at:
 http://teodorfilimon.com/android/Tag-ToDo-List/contact.html
 
-This file was last updated on July 25, 2009.
+This file was last updated on August 11, 2009.

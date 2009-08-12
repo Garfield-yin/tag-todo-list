@@ -107,7 +107,7 @@ final class WidgetDB {
    * @throws SQLException
    *           if the database could be neither opened or created
    */
-  public WidgetDB open() throws SQLException {
+  public WidgetDB open() {
     mDbHelper = new DatabaseHelper(mCtx);
     mDb = mDbHelper.getWritableDatabase();
     return this;
@@ -217,9 +217,9 @@ final class WidgetDB {
  * This is how a specific data (cursor) provider will look.
  */
 abstract interface CursorProvider {
-  public Cursor getCursor();
+  Cursor getCursor();
 
-  public int getNameId();
+  int getNameId();
 }
 
 /**

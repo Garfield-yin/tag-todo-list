@@ -141,6 +141,7 @@ public final class GoogleCalendar {
     BufferedReader in = new BufferedReader(new InputStreamReader(uc
         .getInputStream()));
     if (uc.getResponseCode() == HttpsURLConnection.HTTP_FORBIDDEN) {
+      in.close();
       return false;
     }
     // only the 3rd parameter (Auth) is of interest
