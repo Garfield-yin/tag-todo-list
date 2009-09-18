@@ -86,10 +86,12 @@ public class TagToDoList extends Activity {
   // Flags
   public static boolean SYNC_GCAL;
   public static boolean SHINY_PRIORITY;
+  public static boolean BLIND_MODE;
 
-  private static ToDoListDB mDbHelper;
-  private static SharedPreferences mSettings;
-  private static Context mContext = null;
+  public static TTS sTts; // text to speech
+  private static ToDoListDB sDbHelper;
+  private static SharedPreferences sSettings;
+  private static Context sContext = null;
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
   private ArrayAdapter<CharSequence> mTagsArrayAdapter;
@@ -169,7 +171,7 @@ public class TagToDoList extends Activity {
         tvCount1.setTextColor(Color.YELLOW);
         tvCount1.setPadding(1, 20, 0, 0);
         tvCount1.setGravity(1);
-        String s = mDbHelper.countUncheckedEntries(mTagsArrayAdapter.getItem(
+        String s = sDbHelper.countUncheckedEntries(mTagsArrayAdapter.getItem(
             mTagSpinner.getSelectedItemPosition()).toString())
             + "";
         tvCount1.setText(s);
@@ -190,7 +192,7 @@ public class TagToDoList extends Activity {
         tvCount2.setTextColor(Color.YELLOW);
         tvCount2.setPadding(1, 20, 0, 20);
         tvCount2.setGravity(1);
-        s = mDbHelper.countUncheckedEntries() + "";
+        s = sDbHelper.countUncheckedEntries() + "";
         tvCount2.setText(s);
         tr2.addView(tvCount2);
 
@@ -252,9 +254,8 @@ public class TagToDoList extends Activity {
       }
     });
 
-    if (mDbHelper == null) {
-      mDbHelper = new ToDoListDB(this);
-      mDbHelper.open();
+    if (sDbHelper == null) {
+      sDbHelper = new ToDoListDB(this).open();
     }
 
     showDueTasks(true);
@@ -271,20 +272,21 @@ public class TagToDoList extends Activity {
     el.removeAllViews();
     final OnCheckedChangeListener ccl = new OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mDbHelper.updateEntry(buttonView.getText().toString(), isChecked);
+        sDbHelper.updateEntry(buttonView.getText().toString(), isChecked);
         selectTag(mTagSpinner.getSelectedItemPosition());
       }
     };
     mStatButton.setText(processDepth(el, ccl, selectedTag, 0, null) /*
-                                                               * starting from
-                                                               * level 0
-                                                               */+ ""); // updating
+                                                                     * starting
+                                                                     * from
+                                                                     * level 0
+                                                                     */+ ""); // updating
     // stats
   }
 
   public int processDepth(LinearLayout el, OnCheckedChangeListener ccl,
       int selectedTag, int depth, String superTask) {
-    Cursor c = mDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
+    Cursor c = sDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
         .getItem(selectedTag).toString() : null, depth, superTask);
     CheckBox cb;
     int name = c.getColumnIndex(ToDoListDB.KEY_NAME);
@@ -294,7 +296,7 @@ public class TagToDoList extends Activity {
     Boolean checked;
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
-    final ToDoListDB dbHelper = mDbHelper;
+    final ToDoListDB dbHelper = sDbHelper;
     if (c.getCount() > 0) {
       c.moveToLast();
       do {
@@ -323,7 +325,8 @@ public class TagToDoList extends Activity {
         }
         el.addView(cb);
         if (c.getInt(subtasks) > 0) {
-          numberOfUnchecked += processDepth(el, ccl, selectedTag, depth + 1, c.getString(name));
+          numberOfUnchecked += processDepth(el, ccl, selectedTag, depth + 1, c
+              .getString(name));
         }
       } while (c.moveToPrevious());
     }
@@ -474,7 +477,7 @@ public class TagToDoList extends Activity {
     mTagsArrayAdapter
         .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-    Cursor c = mDbHelper.getAllTags();
+    Cursor c = sDbHelper.getAllTags();
     ArrayAdapter<CharSequence> taa = mTagsArrayAdapter;
     // startManagingCursor(c);
 
@@ -491,26 +494,29 @@ public class TagToDoList extends Activity {
    * Copies a database copy from the SD card over the existing database
    */
   public static final void importBackupSD() {
-    mDbHelper.close();
+    sDbHelper.close();
     try {
       Utils.copy(new File("/sdcard/Tag-ToDo_data/database_backup"), new File(
           "/data/data/com.android.todo/databases"));
     } catch (Exception e) {
       Utils.showDialog(R.string.notification, R.string.backup_import_fail,
-          mContext);
+          sContext);
     }
-    mDbHelper = new ToDoListDB(mContext);
-    mDbHelper.open();
-    mContext = null;
+    sDbHelper = new ToDoListDB(sContext);
+    sDbHelper.open();
+    sContext = null;
   }
 
   @Override
   protected void onDestroy() {
-    if (mSettings.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
+    if (sSettings.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
       ToDoListDB.createBackup();
     }
-    mDbHelper.close();
-    mDbHelper = null;
+    if (BLIND_MODE) {
+      sTts.shutdown();
+    }
+    sDbHelper.close();
+    sDbHelper = null;
     RemoteViews rv = new RemoteViews(getPackageName(), R.layout.widget);
     rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(this,
         0, new Intent(this, TagToDoList.class), 0));
@@ -537,7 +543,7 @@ public class TagToDoList extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    mSettings = getSharedPreferences(PREFS_NAME, 0);
+    sSettings = getSharedPreferences(PREFS_NAME, 0);
     populateFields();
   }
 
@@ -558,29 +564,34 @@ public class TagToDoList extends Activity {
   private void populateFields() {
     fillTagData();
 
-    setPrioritySort(mSettings.getInt(PRIORITY_SORT, 0));
-    setAlphabeticalSort(mSettings.getInt(ALPHABET_SORT, 0));
-    setDueDateSort(mSettings.getInt(DUEDATE_SORT, 0));
+    setPrioritySort(sSettings.getInt(PRIORITY_SORT, 0));
+    setAlphabeticalSort(sSettings.getInt(ALPHABET_SORT, 0));
+    setDueDateSort(sSettings.getInt(DUEDATE_SORT, 0));
 
     // Is a Google Calendar sync enabled?
-    if (SYNC_GCAL = mSettings.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
-      GoogleCalendar.setLogin(mSettings.getString(ConfigScreen.GOOGLE_USERNAME,
-          ""), mSettings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+    if (SYNC_GCAL = sSettings.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
+      GoogleCalendar.setLogin(sSettings.getString(ConfigScreen.GOOGLE_USERNAME,
+          ""), sSettings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
     }
 
     // do we visually distinguish tasks by priority?
-    if (SHINY_PRIORITY = mSettings.getBoolean(ConfigScreen.VISUAL_PRIORITY,
+    if (SHINY_PRIORITY = sSettings.getBoolean(ConfigScreen.VISUAL_PRIORITY,
         false)) {
-      mMaxPriority = mSettings.getInt(ConfigScreen.PRIORITY_MAX, 100);
+      mMaxPriority = sSettings.getInt(ConfigScreen.PRIORITY_MAX, 100);
       // selectTag(mTagSpinner.getSelectedItemPosition());
     }
 
     // Restore the last selected tag
-    int lastSelectedTag = mSettings.getInt("lastSelectedTag", 0);
+    int lastSelectedTag = sSettings.getInt("lastSelectedTag", 0);
     if (lastSelectedTag >= mTagSpinner.getCount()) {
       lastSelectedTag = 0;
     }
     mTagSpinner.setSelection(lastSelectedTag, true);
+
+    if (BLIND_MODE = sSettings.getBoolean(ConfigScreen.BLIND_MODE, false)) {
+      sTts = new TTS(this, mTagsArrayAdapter.getItem(
+          mTagSpinner.getSelectedItemPosition()).toString());
+    }
   }
 
   /**
@@ -643,7 +654,7 @@ public class TagToDoList extends Activity {
       startActivity(i1);
       break;
     case ENTRY_REMOVE_ID:
-      mDbHelper.deleteEntry(mContextEntry);
+      sDbHelper.deleteEntry(mContextEntry);
       selectTag(mTagSpinner.getSelectedItemPosition());
       break;
     case ENTRY_GRAPHICAL_ID:
@@ -658,7 +669,7 @@ public class TagToDoList extends Activity {
       startActivity(i3);
       break;
     case ENTRY_DOWN_ID:
-      mDbHelper.pushEntryDown(mContextEntry);
+      sDbHelper.pushEntryDown(mContextEntry);
       selectTag(mTagSpinner.getSelectedItemPosition());
       break;
     case ENTRY_MOVE_ID:
@@ -669,7 +680,7 @@ public class TagToDoList extends Activity {
           .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> arg0, View arg1,
                 int arg2, long arg3) {
-              mDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
+              sDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
                   .getItem(arg2).toString());
               arg0.setOnItemSelectedListener(l);
               arg0.setSelection(p);
@@ -716,6 +727,10 @@ public class TagToDoList extends Activity {
       if (msg.isAltPressed()) {
         mTagSpinner.setSelection(Utils.iterate(mTagSpinner
             .getSelectedItemPosition(), mTagSpinner.getCount(), 1));
+        if (BLIND_MODE) {
+          sTts.speak(mTagsArrayAdapter.getItem(
+              mTagSpinner.getSelectedItemPosition()).toString());
+        }
       } else {
         selectAnotherEntry(1);
       }
@@ -724,6 +739,10 @@ public class TagToDoList extends Activity {
       if (msg.isAltPressed()) {
         mTagSpinner.setSelection(Utils.iterate(mTagSpinner
             .getSelectedItemPosition(), mTagSpinner.getCount(), -1));
+        if (BLIND_MODE) {
+          sTts.speak(mTagsArrayAdapter.getItem(
+              mTagSpinner.getSelectedItemPosition()).toString());
+        }
       } else {
         selectAnotherEntry(-1);
       }
@@ -746,7 +765,18 @@ public class TagToDoList extends Activity {
       }
       break;
     case (KeyEvent.KEYCODE_S):
-      mStatButton.performClick();
+      final Cursor c = sDbHelper.getEntries(null, -1, null);
+      final StringBuilder sb = new StringBuilder();
+      if (c.getCount() > 0) {
+        final int name = c.getColumnIndex(ToDoListDB.KEY_NAME);
+        c.moveToFirst();
+        do {
+          sb.append(c.getString(name));
+          sb.append(' ');
+        } while (c.moveToNext());
+      }
+      c.close();
+      new TTS(this, sb.toString());
       break;
     case (KeyEvent.KEYCODE_D):
       if (msg.isAltPressed()) {
@@ -838,9 +868,22 @@ public class TagToDoList extends Activity {
         changeTask(ENTRY_WRITTEN_ID);
       }
       break;
+    case (KeyEvent.KEYCODE_V):
+      if (BLIND_MODE = !BLIND_MODE) {
+        sTts = new TTS(this,
+            getString(R.string.visually_challenged_mode_enabled));
+      } else {
+        Utils.showDialog(R.string.notification,
+            R.string.visually_challenged_mode_disabled, this);
+        sTts.shutdown();
+      }
+      final SharedPreferences.Editor e = sSettings.edit();
+      e.putBoolean(ConfigScreen.BLIND_MODE, BLIND_MODE);
+      e.commit();
+      break;
     case (KeyEvent.KEYCODE_B):
-      mContext = this;
-      Intent i = new Intent(this, ConfirmationScreen.class);
+      sContext = this;
+      final Intent i = new Intent(this, ConfirmationScreen.class);
       i.setAction(ACTIVITY_BACKUP_IMPORT + "");
       startActivity(i);
       break;
@@ -875,6 +918,10 @@ public class TagToDoList extends Activity {
         increment);
     CheckBox cb = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)));
     cb.setBackgroundColor(Color.DKGRAY);
+    if (BLIND_MODE) {
+      sTts.speak(cb.getText().toString()
+          + (cb.isChecked() ? ')' + getString(R.string.checked) : ""));
+    }
     if (cb.getTop() < mScrollView.getScrollY()
         || cb.getTop() > mScrollView.getScrollY() + mScrollView.getHeight()) {
       mScrollView.smoothScrollTo(0, cb.getTop());
@@ -890,7 +937,7 @@ public class TagToDoList extends Activity {
    * @return false, if there are no due tasks
    */
   private boolean showDueTasks(boolean showDialog) {
-    Cursor dueEntries = mDbHelper.getDueEntries();
+    Cursor dueEntries = sDbHelper.getDueEntries();
     if (dueEntries.getCount() > 0) {
       if (showDialog) {
         dueEntries.moveToFirst();
@@ -922,8 +969,8 @@ public class TagToDoList extends Activity {
    *          is positive (+1) if we want an increase
    */
   private void changeSizeLimit(int direction) {
-    final SharedPreferences.Editor editor = mSettings.edit();
-    int currentLimit = mSettings.getInt(ConfigScreen.CHECKED_LIMIT, 50);
+    final SharedPreferences.Editor editor = sSettings.edit();
+    int currentLimit = sSettings.getInt(ConfigScreen.CHECKED_LIMIT, 50);
     int newLimit = direction * 10 + currentLimit;
     if (newLimit < 0) {
       newLimit = 0;
@@ -996,7 +1043,7 @@ public class TagToDoList extends Activity {
    * @return a handle to the DbHelper
    */
   public static ToDoListDB getDbHelper() {
-    return mDbHelper;
+    return sDbHelper;
   }
 
   /**
@@ -1019,7 +1066,7 @@ public class TagToDoList extends Activity {
 
     final CheckBox priorityDown = new CheckBox(this);
     final CheckBox priorityUp = new CheckBox(this);
-    switch (mSettings.getInt(PRIORITY_SORT, 0)) {
+    switch (sSettings.getInt(PRIORITY_SORT, 0)) {
     case 1:
       priorityDown.setChecked(true);
       break;
@@ -1057,7 +1104,7 @@ public class TagToDoList extends Activity {
     final CheckBox dateDown = new CheckBox(this);
     final CheckBox dateUp = new CheckBox(this);
     row = new LinearLayout(this);
-    switch (mSettings.getInt(DUEDATE_SORT, 0)) {
+    switch (sSettings.getInt(DUEDATE_SORT, 0)) {
     case 1:
       dateDown.setChecked(true);
       break;
@@ -1095,7 +1142,7 @@ public class TagToDoList extends Activity {
     final CheckBox alphabetDown = new CheckBox(this);
     final CheckBox alphabetUp = new CheckBox(this);
     row = new LinearLayout(this);
-    switch (mSettings.getInt(ALPHABET_SORT, 0)) {
+    switch (sSettings.getInt(ALPHABET_SORT, 0)) {
     case 1:
       alphabetDown.setChecked(true);
       break;
@@ -1130,7 +1177,7 @@ public class TagToDoList extends Activity {
     b.setOnClickListener(new View.OnClickListener() {
       public void onClick(View arg0) {
         d.dismiss();
-        SharedPreferences.Editor editor = mSettings.edit();
+        SharedPreferences.Editor editor = sSettings.edit();
 
         if (priorityDown.isChecked()) {
           setPrioritySort(1);

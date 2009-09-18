@@ -35,6 +35,7 @@ public final class ConfigScreen extends Activity {
   public static final String PRIORITY_MAX = "priorityMax";
   public static final String VISUAL_PRIORITY = "visualPriority";
   public static final String CHECKED_LIMIT = "listSizeLimit";
+  public static final String BLIND_MODE = "blindMode";
 
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mCloseButton, mHelpButton;

@@ -14,6 +14,11 @@
 <string name="size_change">Checked tasks limit:</string>
 <string name="backup_fail">The todo list couldn\'t be backed up on the SD card for some reason. Are you sure there\'s an SD card in there?</string>
 <string name="backup_import_fail">The todo list couldn\'t be imported for some reason. Are you sure there is a backup on the card, or that an SD card is inserted?</string>
+<string name="visually_challenged_mode_disabled">Visually Challenged mode disabled</string>
+
+<!-- Spoken (actually spoken by the TTS engine!!) -->
+<string name="visually_challenged_mode_enabled">Visually Challenged mode enabled</string>
+<string name="checked">checked</string>
 
 <!-- Sorting tasks -->
 <string name="sort">Sort</string>

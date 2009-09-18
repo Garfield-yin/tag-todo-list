@@ -320,10 +320,10 @@ public final class ToDoListDB implements DB {
    */
   public void deleteAlarm(String entryName) {
     if (isDueTimeSet(entryName)) {
-      PendingIntent pi = PendingIntent
-          .getBroadcast(mCtx, entryName.hashCode(), Utils.getAlarmIntent(
-              new Intent(mCtx, AlarmReceiver.class), entryName), 0);
-      ((AlarmManager) mCtx.getSystemService(Context.ALARM_SERVICE)).cancel(pi);
+      ((AlarmManager) mCtx.getSystemService(Context.ALARM_SERVICE))
+          .cancel(PendingIntent.getBroadcast(mCtx, entryName.hashCode(),
+              Utils.getAlarmIntent(new Intent(mCtx, AlarmReceiver.class),
+                  entryName), 0));
     }
   }
 

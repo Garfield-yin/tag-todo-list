@@ -44,10 +44,8 @@ public final class ConfirmationScreen extends Activity {
           setResult(RESULT_OK);
           finish();
         } else if (mAction.equals(TagToDoList.ACTIVITY_INSTRUCTIONS + "")) {
-          Intent myIntent = new Intent(Intent.ACTION_VIEW);
-          myIntent.setData(Uri.parse(view.getContext().getString(
-              R.string.url_help)));
-          startActivity(myIntent);
+          startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(view
+              .getContext().getString(R.string.url_help))));
         } else if (mAction.equals(TagToDoList.ACTIVITY_CLEAR_ENTRIES + "")) {
           mDbHelper.deleteEntries(mTagName);
           setResult(RESULT_OK);

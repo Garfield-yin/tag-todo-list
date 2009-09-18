@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Contacts;
+import android.webkit.WebView;
 
 /**
  * This is a class which actually performs the action found in a text.
@@ -26,13 +27,13 @@ public final class Action {
    * represents the target of the action however they want.
    */
   private abstract class Performer {
-    protected String[] mWords;
-    protected int mCurrentIndex;
+    // protected String[] mWords;
+    // protected int mCurrentIndex;
     protected String mTarget = null;
 
     public Performer(String[] words, int currentIndex) {
-      mWords = words;
-      mCurrentIndex = currentIndex;
+      // mWords = words;
+      // mCurrentIndex = currentIndex;
 
       final String[] endMarks = { ".", "!", ";" };
 
@@ -106,9 +107,8 @@ public final class Action {
     }
 
     public void perform(Context c) {
-      Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q="
-          + mTarget));
-      c.startActivity(i);
+      c.startActivity(new Intent(Intent.ACTION_VIEW, Uri
+          .parse(WebView.SCHEME_GEO + mTarget)));
     }
 
     public String toString() {

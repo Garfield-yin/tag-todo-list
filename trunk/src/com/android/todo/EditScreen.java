@@ -354,7 +354,7 @@ public final class EditScreen extends Activity {
           mDbHelper.updateTag(EditScreen.sParameter, name);
         } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
           String result = mDbHelper.createEntry(EditScreen.sParameter, name);
-          if (sSuperTask!=null && sSuperTask.length()>0){
+          if (sSuperTask != null && sSuperTask.length() > 0) {
             mDbHelper.setSuperTask(name, sSuperTask);
           }
           if (result != null) {
@@ -529,6 +529,9 @@ public final class EditScreen extends Activity {
       if (action.equals(TagToDoList.ACTIVITY_CREATE_TAG + "")) {
         mTaskText.setText(R.string.create_tag);
       }
+    }
+    if (TagToDoList.BLIND_MODE) {
+      new TTS(this, mTaskText.getText().toString());
     }
   }
 
