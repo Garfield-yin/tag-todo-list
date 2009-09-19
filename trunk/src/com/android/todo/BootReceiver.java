@@ -100,7 +100,7 @@ final class BootDB implements DB {
 
   private static final String DATABASE_NAME = "data";
   private static final String DATABASE_ENTRY_TABLE = "entries";
-  private static final int DATABASE_VERSION = 77;
+  private static final int DATABASE_VERSION = 82;
   private static Context mCtx;
   private DatabaseHelper mDbHelper;
   private SQLiteDatabase mDb;

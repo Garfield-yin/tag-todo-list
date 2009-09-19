@@ -162,6 +162,10 @@ public final class ToDoListDB implements DB {
         try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DUE_HOUR + " INTEGER");
+        } catch (Exception e) {
+        }
+
+        try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DUE_MINUTE + " INTEGER");
         } catch (Exception e) {
@@ -189,6 +193,9 @@ public final class ToDoListDB implements DB {
         try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_DEPTH + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
+        try {
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
               + KEY_SUPERTASK + " TEXT");
           db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
