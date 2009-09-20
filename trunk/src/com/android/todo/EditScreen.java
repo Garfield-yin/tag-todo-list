@@ -12,6 +12,7 @@ import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,7 +37,10 @@ import android.widget.TimePicker;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.android.todo.speech.TTS;
 import com.android.todo.sync.GoogleCalendar;
+import com.android.todo.widget.TagToDoWidget;
+import com.android.todo.widget.WidgetChange;
 
 /**
  * This is another activity (basically an editing screen). It will allow the

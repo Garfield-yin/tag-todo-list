@@ -27,7 +27,7 @@ import android.widget.TextView;
 /**
  * A class that contains some helper functions
  */
-final class Utils {
+public final class Utils {
 
   /**
    * This function iterates the received value unless the iterated value is

@@ -128,6 +128,9 @@
 <string name="amazon">sur Amazon</string>
 <string name="find">trouve</string>
 
+<!-- Widget -->
+<string name="no_tasks">aucune tâche de plus dans ce ettiquete</string>
+
 <!-- General -->
 <string name="confirm">OK</string>
 <string name="cancel">Annuler</string>

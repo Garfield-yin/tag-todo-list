@@ -7,9 +7,7 @@ import java.io.File;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +32,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RemoteViews;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -43,7 +40,9 @@ import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout.LayoutParams;
 
+import com.android.todo.speech.TTS;
 import com.android.todo.sync.GoogleCalendar;
+import com.android.todo.widget.TagToDoWidget;
 
 /**
  * This is the main activity. It shows the main UI elements, including the ToDo
@@ -517,15 +516,8 @@ public class TagToDoList extends Activity {
     }
     sDbHelper.close();
     sDbHelper = null;
-    RemoteViews rv = new RemoteViews(getPackageName(), R.layout.widget);
-    rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(this,
-        0, new Intent(this, TagToDoList.class), 0));
-    WidgetDB dbHelper = new WidgetDB(this);
-    dbHelper.open();
-    rv.setTextViewText(R.id.widgetItem, dbHelper.getAutomaticTasks(3));
-    AppWidgetManager.getInstance(this).updateAppWidget(
-        new ComponentName(this, TagToDoWidget.class), rv);
-    dbHelper.close();
+    
+    TagToDoWidget.onUpdate(this, AppWidgetManager.getInstance(this));
     super.onDestroy();
   }
 

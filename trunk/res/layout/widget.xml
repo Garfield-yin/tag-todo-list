@@ -26,7 +26,7 @@
 				android:layout_width="fill_parent" android:paddingRight="11px"
 				android:layout_height="wrap_content">
 
-				<Button android:id="@+id/checkButton" android:text="√"
+				<Button android:id="@+id/cicleButton" android:text="≥"
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
 					android:width="37px" />
 
@@ -40,26 +40,31 @@
 
 	</LinearLayout>
 
-	<TextView android:id="@+id/widgetItem" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_marginLeft="22px"
-		android:maxHeight="66px" android:layout_marginRight="10px"
-		android:textColor="#000000" />
-
 	<TextView android:id="@+id/tagItem" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:layout_marginLeft="22px"
-		android:maxHeight="10px" android:layout_marginRight="10px"
-		android:textColor="#000000" android:background="#000000" />
+		android:height="12px" android:layout_marginRight="10px"
+		android:textColor="#000000" android:textStyle="bold" android:textSize="10sp" />
+
+	<TextView android:id="@+id/widgetItem" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_marginLeft="22px"
+		android:height="64px" android:layout_marginRight="10px"
+		android:textColor="#000000" />
 
 	<LinearLayout android:orientation="horizontal"
 		android:paddingLeft="13px" android:layout_width="fill_parent"
-		android:paddingRight="12px" android:layout_height="wrap_content">
+		android:paddingRight="12px" android:layout_height="wrap_content"
+		android:layout_weight="1">
 
-		<Button android:id="@+id/previousTaskButton" android:text="&lt;"
+		<Button android:id="@+id/checkButton" android:text="√"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:width="37px" android:layout_weight="1" />
+			android:width="24px" android:layout_weight="1" />
+
+		<Button android:id="@+id/addTaskButton" android:text="+"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:width="24px" android:layout_weight="1" />
 
 		<Button android:id="@+id/nextTaskButton" android:text="&gt;"
-			android:width="37px" android:layout_width="fill_parent"
+			android:width="24px" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:layout_weight="1" />
 
 	</LinearLayout>

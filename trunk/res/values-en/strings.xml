@@ -135,8 +135,7 @@
 <string name="find">find</string>
 
 <!-- Widget -->
-<string name="all_tasks">All tasks</string>
-<string name="due_dates">Due dates</string>
+<string name="no_tasks">no more tasks in this tag</string>
 
 <!-- General -->
 <string name="confirm">OK</string>

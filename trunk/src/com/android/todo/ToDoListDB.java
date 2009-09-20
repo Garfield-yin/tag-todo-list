@@ -53,7 +53,7 @@ public final class ToDoListDB implements DB {
   private static final String DATABASE_NAME = "data";
   private static final String DATABASE_TAG_TABLE = "tags";
   private static final String DATABASE_ENTRY_TABLE = "entries";
-  private static final int DATABASE_VERSION = 82;
+  private static final int DATABASE_VERSION = 82; // @see WidgetDB and BootDB
   private static Context mCtx;
   private DatabaseHelper mDbHelper;
   private SQLiteDatabase mDb;
@@ -1023,6 +1023,43 @@ public final class ToDoListDB implements DB {
   }
 
   /**
+   * Deletes all the entries in the given tag.
+   * 
+   * @param name
+   *          name of the tag to clear of tasks
+   */
+  public void deleteEntries(String tag) {
+    Cursor c = getEntries(tag, -1, null);
+    if (c.getCount() > 0) {
+      int name = c.getColumnIndexOrThrow(KEY_NAME);
+      c.moveToFirst();
+      do {
+        deleteEntry(c.getString(name));
+      } while (c.moveToNext());
+    }
+    c.close();
+  }
+
+  /**
+   * @return entries which are not checked
+   */
+  public Cursor getUncheckedEntries() {
+    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+        KEY_STATUS }, KEY_STATUS + " = 0", null, null, null, null);
+  }
+
+  /**
+   * @param parent
+   *          tag
+   * @return entries which are not checked from a certain tag
+   */
+  public Cursor getUncheckedEntries(String tag) {
+    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME, KEY_STATUS,
+        KEY_PARENT }, (tag != null ? KEY_PARENT + " = '" + tag + "' AND " : "")
+        + KEY_STATUS + " = 0", null, null, null, null);
+  }
+
+  /**
    * Deletes the entry with the given name. Also deletes the associated
    * graphical or audio notes and alarms if there are any.
    * 
@@ -1054,28 +1091,5 @@ public final class ToDoListDB implements DB {
     mCtx.deleteFile(Utils.getImageName(name));
     new File(Utils.getAudioName(name)).delete();
     deleteAlarm(name);
-  }
-
-  /**
-   * Deletes all the entries in the given tag.
-   * 
-   * @param name
-   *          name of the tag to clear of tasks
-   */
-  public void deleteEntries(String tag) {
-    Cursor c = getEntries(tag, -1, null);
-    if (c.getCount() > 0) {
-      int name = c.getColumnIndexOrThrow(KEY_NAME);
-      c.moveToFirst();
-      do {
-        deleteEntry(c.getString(name));
-      } while (c.moveToNext());
-    }
-    c.close();
-  }
-
-  public Cursor getUncheckedEntries() {
-    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS }, KEY_STATUS + " = 0", null, null, null, null);
   }
 }

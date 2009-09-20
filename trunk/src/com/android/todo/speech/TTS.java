@@ -1,6 +1,6 @@
 //class made by Teo ( www.teodorfilimon.com ). More about the app in readme.txt
 
-package com.android.todo;
+package com.android.todo.speech;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;

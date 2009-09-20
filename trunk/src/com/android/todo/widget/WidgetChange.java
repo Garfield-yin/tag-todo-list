@@ -1,0 +1,169 @@
+package com.android.todo.widget;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.widget.RemoteViews;
+
+import com.android.todo.R;
+import com.android.todo.TagToDoList;
+import com.android.todo.ToDoListDB;
+import com.android.todo.Utils;
+
+/**
+ * This is an activity used process user actions on the widget
+ */
+public final class WidgetChange extends BroadcastReceiver {
+  private static int sTag, sTask;
+  private static Cursor sTagCursor;
+  private static Cursor sTaskCursor;
+  private static ToDoListDB sDbHelper;
+  private static Timer sTimer;
+  private static SharedPreferences sSettings;
+
+  private final static String CICLE_ON = "widgetCicle";
+
+  public final static void refresh(final RemoteViews rv, final Context c) {
+    // initializing logic
+    sTag = 0;
+    sTask = 0;
+    sDbHelper = new ToDoListDB(c).open();
+    sTagCursor = sDbHelper.getAllTags();
+    if (sTimer != null) {
+      sTimer.cancel();
+      sTimer = null;
+    }
+
+    // initializing UI
+    sTagCursor.moveToPosition(sTag);
+    final String tag = sTagCursor.getString(sTagCursor
+        .getColumnIndex(ToDoListDB.KEY_NAME));
+    rv.setTextViewText(R.id.tagItem, tag);
+    sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+    if (sTaskCursor.getCount() > 0) {
+      sTaskCursor.moveToPosition(sTask);
+      rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+          .getColumnIndex(ToDoListDB.KEY_NAME)));
+    } else {
+      rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
+    }
+    sSettings = c.getSharedPreferences(TagToDoList.PREFS_NAME, 0);
+    if (sSettings.getBoolean(CICLE_ON, false)) {
+      WidgetChange.cicle(c);
+    }
+  }
+
+  @Override
+  public void onReceive(final Context c, final Intent intent) {
+    final RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
+    switch (intent.getExtras().getInt(ToDoListDB.KEY_NAME)) {
+    case R.id.nextTaskButton:
+      sTaskCursor.moveToPosition(sTask = Utils.iterate(sTask, sTaskCursor
+          .getCount(), 1));
+      rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+          .getColumnIndex(ToDoListDB.KEY_NAME)));
+      break;
+    case R.id.nextTagButton:
+      sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
+          .getCount(), 1));
+      final String tag = sTagCursor.getString(sTagCursor
+          .getColumnIndex(ToDoListDB.KEY_NAME));
+      rv.setTextViewText(R.id.tagItem, tag);
+      sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+      if (sTaskCursor.getCount() > 0) {
+        sTaskCursor.moveToFirst();
+        rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+            .getColumnIndex(ToDoListDB.KEY_NAME)));
+      } else {
+        rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
+      }
+      sTask = 0;
+      break;
+    case R.id.cicleButton:
+      WidgetChange.cicle(c);
+      return;
+    case R.id.addTaskButton:
+      
+      break;
+    case R.id.checkButton:
+      sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
+          .getColumnIndex(ToDoListDB.KEY_NAME)), true);
+      WidgetChange.refresh(rv, c);
+      break;
+    }
+    AppWidgetManager.getInstance(c).updateAppWidget(
+        new ComponentName(c, TagToDoWidget.class), rv);
+    if (sTimer != null) {
+      sTimer.cancel();
+      sTimer = null;
+    }
+  }
+
+  /**
+   * Cicles through tasks and tags automatically
+   * 
+   * @param c
+   *          = context
+   */
+  private final static void cicle(final Context c) {
+    final SharedPreferences.Editor e = sSettings.edit();
+    if (sTimer != null) {
+      sTimer.cancel();
+      sTimer = null;
+      e.putBoolean(CICLE_ON, false);
+      e.commit();
+      return;
+    }
+
+    e.putBoolean(CICLE_ON, true);
+    e.commit();
+
+    /*
+     * A TimerTask that will be given to a timer. It's responsible with
+     * refreshing the seekbar.
+     */
+    final class CicleTask extends TimerTask {
+      // private Context mContext;
+
+      public CicleTask() {
+        // mContext=c;
+      }
+
+      public void run() {
+        final RemoteViews rv = new RemoteViews(c.getPackageName(),
+            R.layout.widget);
+        sTask = Utils.iterate(sTask, sTaskCursor.getCount(), 1);
+        if (sTask > 0) {
+          sTaskCursor.moveToPosition(sTask);
+        } else {
+          sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
+              .getCount(), 1));
+          final String tag = sTagCursor.getString(sTagCursor
+              .getColumnIndex(ToDoListDB.KEY_NAME));
+          rv.setTextViewText(R.id.tagItem, tag);
+          sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+          if (sTaskCursor.getCount() > 0) {
+            sTaskCursor.moveToFirst();
+            rv.setTextViewText(R.id.widgetItem, sTaskCursor
+                .getString(sTaskCursor.getColumnIndex(ToDoListDB.KEY_NAME)));
+          } else {
+            rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
+          }
+          sTask = 0;
+        }
+        rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+            .getColumnIndex(ToDoListDB.KEY_NAME)));
+        AppWidgetManager.getInstance(c).updateAppWidget(
+            new ComponentName(c, TagToDoWidget.class), rv);
+      }
+    }
+    (sTimer = new Timer()).schedule(new CicleTask(), 2000, 5000);
+  }
+}
