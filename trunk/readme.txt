@@ -51,7 +51,7 @@ this for the open source project every time you test):
 removal by Android on app update)
 - export signed package
 - publish on Android Market
-- upload to FTP site and Google Code
+- upload .apk to Google Code
 - blog post about changes
 
 I'll be happy to answer any questions at:

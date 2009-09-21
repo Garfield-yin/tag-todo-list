@@ -384,6 +384,9 @@ public final class EditScreen extends Activity {
           if (dateSet) {
             syncToWeb(name);
           }
+          if (getIntent().getExtras().getBoolean(WidgetChange.WIDGET_INITIATED, false)){
+            TagToDoWidget.onUpdate(view.getContext(), AppWidgetManager.getInstance(view.getContext()));
+          }
         } else if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
           mDbHelper.updateEntry(EditScreen.sParameter, name);
           mDbHelper.setPriority(EditScreen.sParameter, mPrioritySb

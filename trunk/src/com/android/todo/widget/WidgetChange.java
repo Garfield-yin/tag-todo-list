@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.widget.RemoteViews;
 
+import com.android.todo.EditScreen;
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
 import com.android.todo.ToDoListDB;
@@ -21,7 +22,7 @@ import com.android.todo.Utils;
  * This is an activity used process user actions on the widget
  */
 public final class WidgetChange extends BroadcastReceiver {
-  private static int sTag, sTask;
+  private static int sTag = 0, sTask = 0;
   private static Cursor sTagCursor;
   private static Cursor sTaskCursor;
   private static ToDoListDB sDbHelper;
@@ -29,11 +30,15 @@ public final class WidgetChange extends BroadcastReceiver {
   private static SharedPreferences sSettings;
 
   private final static String CICLE_ON = "widgetCicle";
+  public final static String WIDGET_INITIATED = "widgetInitiated";
 
   public final static void refresh(final RemoteViews rv, final Context c) {
     // initializing logic
-    sTag = 0;
+    // sTag = 0;
     sTask = 0;
+    if (sDbHelper != null) {
+      sDbHelper.close();
+    }
     sDbHelper = new ToDoListDB(c).open();
     sTagCursor = sDbHelper.getAllTags();
     if (sTimer != null) {
@@ -65,10 +70,12 @@ public final class WidgetChange extends BroadcastReceiver {
     final RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
     switch (intent.getExtras().getInt(ToDoListDB.KEY_NAME)) {
     case R.id.nextTaskButton:
-      sTaskCursor.moveToPosition(sTask = Utils.iterate(sTask, sTaskCursor
-          .getCount(), 1));
-      rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-          .getColumnIndex(ToDoListDB.KEY_NAME)));
+      if (sTaskCursor.getCount() > 0) {
+        sTaskCursor.moveToPosition(sTask = Utils.iterate(sTask, sTaskCursor
+            .getCount(), 1));
+        rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+            .getColumnIndex(ToDoListDB.KEY_NAME)));
+      }
       break;
     case R.id.nextTagButton:
       sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
@@ -90,12 +97,19 @@ public final class WidgetChange extends BroadcastReceiver {
       WidgetChange.cicle(c);
       return;
     case R.id.addTaskButton:
-      
+      c.startActivity(new Intent(c, EditScreen.class).putExtra(
+          WIDGET_INITIATED, true).setAction(
+          TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoListDB.KEY_NAME,
+          sTagCursor.getString(sTagCursor.getColumnIndex(ToDoListDB.KEY_NAME)))
+          .putExtra(ToDoListDB.KEY_SUPERTASK, "").addFlags(
+              Intent.FLAG_ACTIVITY_NEW_TASK));
       break;
     case R.id.checkButton:
-      sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
-          .getColumnIndex(ToDoListDB.KEY_NAME)), true);
-      WidgetChange.refresh(rv, c);
+      if (sTaskCursor.getCount() > 0) {
+        sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
+            .getColumnIndex(ToDoListDB.KEY_NAME)), true);
+        WidgetChange.refresh(rv, c);
+      }
       break;
     }
     AppWidgetManager.getInstance(c).updateAppWidget(

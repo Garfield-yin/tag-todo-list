@@ -757,18 +757,7 @@ public class TagToDoList extends Activity {
       }
       break;
     case (KeyEvent.KEYCODE_S):
-      final Cursor c = sDbHelper.getEntries(null, -1, null);
-      final StringBuilder sb = new StringBuilder();
-      if (c.getCount() > 0) {
-        final int name = c.getColumnIndex(ToDoListDB.KEY_NAME);
-        c.moveToFirst();
-        do {
-          sb.append(c.getString(name));
-          sb.append(' ');
-        } while (c.moveToNext());
-      }
-      c.close();
-      new TTS(this, sb.toString());
+      mStatButton.performClick();
       break;
     case (KeyEvent.KEYCODE_D):
       if (msg.isAltPressed()) {
