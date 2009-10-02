@@ -541,6 +541,12 @@ public final class EditScreen extends Activity {
       new TTS(this, mTaskText.getText().toString());
     }
   }
+  
+  @Override
+  protected void onDestroy(){
+    mDbHelper.close();
+    super.onDestroy();
+  }
 
   // What's this about? Where do i read it?
   @Override
