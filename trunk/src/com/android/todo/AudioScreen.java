@@ -31,12 +31,12 @@ public final class AudioScreen extends Activity {
   private Button mAudioExitButton;
   private Button mAudioRecordButton;
   private Button mReplayButton = null;
-  private static String mEntry = null;
-  private static boolean mStatus = false;
+  private static String sEntry = null;
+  private static boolean sStatus = false;
   private static boolean RECORDING_STATE;
-  private static MediaRecorder mRecorder;
-  private static MediaPlayer mPlayer = null;
-  private static Timer mSeekBarTimer = null;
+  private static MediaRecorder sRecorder;
+  private static MediaPlayer sPlayer = null;
+  private static Timer sSeekBarTimer = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -55,15 +55,15 @@ public final class AudioScreen extends Activity {
       }
     }
 
-    mEntry = savedInstanceState != null ? savedInstanceState
+    sEntry = savedInstanceState != null ? savedInstanceState
         .getString(ToDoListDB.KEY_NAME) : null;
 
     Bundle extras = getIntent().getExtras();
-    if (mEntry == null) {
-      mEntry = extras != null ? extras.getString(ToDoListDB.KEY_NAME) : null;
+    if (sEntry == null) {
+      sEntry = extras != null ? extras.getString(ToDoListDB.KEY_NAME) : null;
     }
 
-    mStatus = extras != null ? extras.getBoolean(ToDoListDB.KEY_STATUS) : false;
+    sStatus = extras != null ? extras.getBoolean(ToDoListDB.KEY_STATUS) : false;
 
     final LinearLayout ll = (LinearLayout) findViewById(R.id.audioNoteLayout);
 
@@ -98,14 +98,14 @@ public final class AudioScreen extends Activity {
       }
 
       public void onStopTrackingTouch(SeekBar seekBar) {
-        if (mPlayer != null) {
-          mPlayer.seekTo(sb.getProgress() * 1000);
-          mPlayer.start();
+        if (sPlayer != null) {
+          sPlayer.seekTo(sb.getProgress() * 1000);
+          sPlayer.start();
         }
       }
     });
     ll.addView(sb);
-    mPlayer = new MediaPlayer();
+    sPlayer = new MediaPlayer();
 
     mAudioExitButton = (Button) findViewById(R.id.audioExitButton);
     mAudioRecordButton = (Button) findViewById(R.id.audioRecordButton);
@@ -149,26 +149,26 @@ public final class AudioScreen extends Activity {
           if (mReplayButton != null) {
             ll.removeView(mReplayButton);
           }
-          if (mSeekBarTimer != null) {
-            mSeekBarTimer.cancel();
+          if (sSeekBarTimer != null) {
+            sSeekBarTimer.cancel();
           }
 
-          (mSeekBarTimer = new Timer()).schedule(new SeekBarTask(mPlayer
+          (sSeekBarTimer = new Timer()).schedule(new SeekBarTask(sPlayer
               .getDuration(), true), 0, 1000);
 
-          mPlayer.stop();
-          mRecorder = new MediaRecorder();
-          mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-          mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-          mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-          mRecorder.setOutputFile(Utils.getAudioName(mEntry));
+          sPlayer.stop();
+          sRecorder = new MediaRecorder();
+          sRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+          sRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+          sRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+          sRecorder.setOutputFile(Utils.getAudioName(sEntry));
           try {
-            mRecorder.prepare();
+            sRecorder.prepare();
           } catch (Exception e1) {
             // TODO Auto-generated catch block
           }
           try {
-            mRecorder.start();
+            sRecorder.start();
           } catch (Exception e) {
             // mSeekBarTimer.cancel();
             ((Button) view).performClick();
@@ -176,15 +176,15 @@ public final class AudioScreen extends Activity {
                 AudioScreen.this);
           }
         } else {
-          mSeekBarTimer.cancel();
+          sSeekBarTimer.cancel();
           try {
-            mRecorder.stop();
-            mRecorder.release();
+            sRecorder.stop();
+            sRecorder.release();
           } catch (Exception e) {
             return;
           }
           Intent i = new Intent(AudioScreen.this, AudioScreen.class);
-          i.putExtra(ToDoListDB.KEY_NAME, mEntry);
+          i.putExtra(ToDoListDB.KEY_NAME, sEntry);
           i.putExtra(ToDoListDB.KEY_STATUS, false);
           startActivity(i);
           finish();
@@ -193,34 +193,34 @@ public final class AudioScreen extends Activity {
     });
 
     try {
-      mPlayer.setDataSource(Utils.getAudioName(mEntry));
-      mPlayer.prepare();
-      if (!(mStatus)) {
+      sPlayer.setDataSource(Utils.getAudioName(sEntry));
+      sPlayer.prepare();
+      if (!(sStatus)) {
         mReplayButton = new Button(this);
         mReplayButton.setText(R.string.audio_replay);
         mReplayButton.setOnClickListener(new View.OnClickListener() {
           public void onClick(View v) {
             ll.removeView(v);
-            if (mSeekBarTimer != null) {
-              mSeekBarTimer.cancel();
+            if (sSeekBarTimer != null) {
+              sSeekBarTimer.cancel();
             }
-            (mSeekBarTimer = new Timer()).schedule(new SeekBarTask(mPlayer
+            (sSeekBarTimer = new Timer()).schedule(new SeekBarTask(sPlayer
                 .getDuration(), false), 0, 1000);
 
-            mPlayer
+            sPlayer
                 .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                   public void onCompletion(MediaPlayer mp) {
                     sb.setProgress(sb.getMax());
                   }
                 });
-            mPlayer.start();
+            sPlayer.start();
           }
         });
         ll.addView(mReplayButton);
         throw new Exception();
       }
     } catch (Exception e) {
-      if (mStatus) {
+      if (sStatus) {
         sb.setVisibility(4);
       }
       return;
@@ -231,12 +231,12 @@ public final class AudioScreen extends Activity {
     // if we are here, it means that an audio file has been found AND it
     // needs to be played
 
-    mPlayer.start();
+    sPlayer.start();
 
-    (mSeekBarTimer = new Timer()).schedule(new SeekBarTask(mPlayer
+    (sSeekBarTimer = new Timer()).schedule(new SeekBarTask(sPlayer
         .getDuration(), false), 0, 1000);
 
-    mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    sPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
       public void onCompletion(MediaPlayer mp) {
         sb.setProgress(sb.getMax());
       }
@@ -255,7 +255,7 @@ public final class AudioScreen extends Activity {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putString(ToDoListDB.KEY_NAME, mEntry);
+    outState.putString(ToDoListDB.KEY_NAME, sEntry);
   }
 
   @Override
@@ -277,9 +277,9 @@ public final class AudioScreen extends Activity {
     if (RECORDING_STATE) {
       mAudioRecordButton.performClick();
     }
-    mPlayer.stop();
-    if (mSeekBarTimer != null) {
-      mSeekBarTimer.cancel();
+    sPlayer.stop();
+    if (sSeekBarTimer != null) {
+      sSeekBarTimer.cancel();
     }
   }
 

@@ -8,26 +8,55 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 
 /**
  * This is an activity used to process status bar notification activations
  */
 public final class AlarmReceiver extends BroadcastReceiver {
+  private static MediaPlayer sPlayer;
+  private static int sCounter;
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    NotificationManager manager = (NotificationManager) context
+    final NotificationManager manager = (NotificationManager) context
         .getSystemService(Context.NOTIFICATION_SERVICE);
-    String task = intent.getStringExtra(ToDoListDB.KEY_NAME);
-    Notification notification = new Notification(R.drawable.small_icon, task,
-        System.currentTimeMillis());
-    PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+    final String task = intent.getStringExtra(ToDoListDB.KEY_NAME);
+    final Notification notification = new Notification(R.drawable.small_icon,
+        task, System.currentTimeMillis());
+    final PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
         new Intent(context, TagToDoList.class), 0);
     notification.setLatestEventInfo(context, context.getString(R.string.alarm),
         task, contentIntent);
-    notification.flags = Notification.FLAG_INSISTENT;
-    notification.sound = (Uri) intent.getParcelableExtra("Ringtone");
+    notification.flags = Notification.FLAG_AUTO_CANCEL;
+    // notification.sound = (Uri) intent.getParcelableExtra("Ringtone");
+    
+    /**
+     * Makes the alarm sound separately. We only want it to ring a few times, so
+     * that it doesn't drain the user's battery in case he doesn't have the phone.
+     */
+    sCounter = 0;
+    sPlayer = new MediaPlayer();
+    try {
+      sPlayer.setDataSource(context, (Uri) intent.getParcelableExtra("Ringtone"));
+      sPlayer.prepare();
+    } catch (Exception e) {
+      // if we can't play sound, no point in doing anything else since the user
+      // already has a notification onscreen
+      return;
+    }
+    sPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+      public void onCompletion(MediaPlayer mp) {
+        if (sCounter++ < 28) {
+          mp.start();
+        }else{
+          mp.release();
+        }
+      }
+    });
+    sPlayer.start();
+    
     notification.vibrate = (long[]) intent.getExtras().get("vibrationPatern");
     manager.notify(2, notification);
   }
