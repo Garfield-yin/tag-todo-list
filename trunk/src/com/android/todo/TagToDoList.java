@@ -1174,11 +1174,9 @@ public class TagToDoList extends Activity {
         if (alphabetDown.isChecked()) {
           setAlphabeticalSort(1);
           editor.putInt(ALPHABET_SORT, 1);
-          fillTagData();
         } else if (alphabetUp.isChecked()) {
           setAlphabeticalSort(2);
           editor.putInt(ALPHABET_SORT, 2);
-          fillTagData();
         } else {
           setAlphabeticalSort(3);
           editor.putInt(ALPHABET_SORT, 0);
@@ -1196,6 +1194,7 @@ public class TagToDoList extends Activity {
         }
 
         editor.commit();
+        fillTagData();
       }
     });
 

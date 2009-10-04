@@ -37,7 +37,7 @@ import android.widget.TimePicker;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-import com.android.todo.speech.TTS;
+import com.android.todo.speech.OneTimeTTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
 import com.android.todo.widget.WidgetChange;
@@ -538,7 +538,7 @@ public final class EditScreen extends Activity {
       }
     }
     if (TagToDoList.BLIND_MODE) {
-      new TTS(this, mTaskText.getText().toString());
+      new OneTimeTTS(this, mTaskText.getText().toString());
     }
   }
   

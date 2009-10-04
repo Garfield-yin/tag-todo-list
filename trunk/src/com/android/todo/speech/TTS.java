@@ -9,8 +9,8 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 /**
  * Handles speech
  */
-public final class TTS implements OnInitListener {
-  private TextToSpeech mTts;
+public class TTS implements OnInitListener {
+  protected TextToSpeech mTts;
   private String mText;
 
   /**

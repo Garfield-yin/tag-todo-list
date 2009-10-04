@@ -30,16 +30,17 @@ public final class TagToDoWidget extends AppWidgetProvider {
       AppWidgetManager appWidgetManager) {
     RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget);
     rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(
-        context, 0, new Intent(context, TagToDoList.class), 0));
+        context, 0, new Intent(context, TagToDoList.class),
+        Intent.FLAG_ACTIVITY_NEW_TASK));
     rv.setOnClickPendingIntent(R.id.nextTagButton, PendingIntent.getBroadcast(
         context, 1, new Intent(context, WidgetChange.class).putExtra(
             ToDoListDB.KEY_NAME, R.id.nextTagButton), 0));
     rv.setOnClickPendingIntent(R.id.nextTaskButton, PendingIntent.getBroadcast(
         context, 2, new Intent(context, WidgetChange.class).putExtra(
             ToDoListDB.KEY_NAME, R.id.nextTaskButton), 0));
-    rv.setOnClickPendingIntent(R.id.addTaskButton, PendingIntent
-        .getBroadcast(context, 3, new Intent(context, WidgetChange.class)
-            .putExtra(ToDoListDB.KEY_NAME, R.id.addTaskButton), 0));
+    rv.setOnClickPendingIntent(R.id.addTaskButton, PendingIntent.getBroadcast(
+        context, 3, new Intent(context, WidgetChange.class).putExtra(
+            ToDoListDB.KEY_NAME, R.id.addTaskButton), 0));
     rv.setOnClickPendingIntent(R.id.checkButton, PendingIntent.getBroadcast(
         context, 4, new Intent(context, WidgetChange.class).putExtra(
             ToDoListDB.KEY_NAME, R.id.checkButton), 0));
