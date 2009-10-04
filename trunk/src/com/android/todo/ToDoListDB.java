@@ -361,7 +361,7 @@ public final class ToDoListDB implements DB {
    */
   public Cursor getAllTags() {
     return mDb.query(DATABASE_TAG_TABLE, new String[] { KEY_ROWID, KEY_NAME },
-        null, null, null, null, null);
+        null, null, null, null, ALPHABET_ORDER_TOKEN != "" ? ALPHABET_ORDER_TOKEN.substring(2) : "");
   }
 
   /**
