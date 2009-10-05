@@ -42,12 +42,12 @@
 
 	<TextView android:id="@+id/tagItem" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:layout_marginLeft="22px"
-		android:height="12px" android:layout_marginRight="10px"
+		android:height="14px" android:layout_marginRight="10px"
 		android:textColor="#000000" android:textStyle="bold" android:textSize="10sp" />
 
 	<TextView android:id="@+id/widgetItem" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:layout_marginLeft="22px"
-		android:height="64px" android:layout_marginRight="10px"
+		android:height="62px" android:layout_marginRight="10px"
 		android:textColor="#000000" />
 
 	<LinearLayout android:orientation="horizontal"

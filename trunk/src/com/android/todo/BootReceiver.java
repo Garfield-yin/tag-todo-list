@@ -61,6 +61,8 @@ public final class BootReceiver extends BroadcastReceiver {
 }
 
 interface DB {
+  public static final int DATABASE_VERSION = 84;
+  
   boolean isDueDateSet(String task);
 
   boolean isDueTimeSet(String task);
@@ -100,7 +102,6 @@ final class BootDB implements DB {
 
   private static final String DATABASE_NAME = "data";
   private static final String DATABASE_ENTRY_TABLE = "entries";
-  private static final int DATABASE_VERSION = 83;
   private static Context mCtx;
   private DatabaseHelper mDbHelper;
   private SQLiteDatabase mDb;
