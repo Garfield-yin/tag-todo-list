@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+		<string name="app_name">Music Queue</string>
+		<string name="clear_queue">Vider la file</string>
+		<string name="settings">Paramètres</string>
+		<string name="help">Aide</string>
+		<string name="enqueue_all">Mettre toutes les chansons dans la file</string>
+		<string name="enqueued">Mis en file</string>
+		<string name="play_now">Jouer maintenant</string>
+		<string name="remove">Retirer</string>
+		<string name="cancel">Annuler</string>
+		<string name="songs_enqueued">liste des chansons:</string>
+		<string name="no_enqueued_songs">Aucune chanson dans la file. La prochaine chanson sera prise au hasard. Basculer en mode paysage pour choisir des chansons.</string>
+		<string name="no_songs_text">Aucune chanson trouv�e. La carte SD est-elle enfonc�e ?</string>
+		<string name="enable_headset">Prise en charge du casque audio</string>
+		<string name="show_albums">Afficher le nom des albums en mode paysage</string>
+		<string name="ok">OK</string>
+		<string name="visit_website">Plus d\'informations</string>
+		<string name="website">http://code.google.com/p/musicqueueproject/</string>
+		<string name="help_text">Music Queue diffère de la plupart des autres lecteurs multimédias:\n alors que beaucoup continuer d\utiliser encore et toujours une interface vielle et dépassée, nous nous démarquons en proposant une interface audacieuse et ciblée pour une utilisation nomade.\n\nPar exemple:\n- Réagencement des 5 prochaines chansons par glisser-déposé.\n- Retrait d'une chanson par un balayage sur l'écran.\n- Repeuplement de la liste par simple clic.\n- Filtrage des chansons par simple bascule en mode paysage.\n\n Nous espérons que vous apprécierez ce mode de fonctionnement radicalement nouveau.\n Bonne écoute!\n\n\n(Appuyez sur \"Plus d'informations\" pour des informations complémentaires et pour visualiser une petite vidéo de démonstration.</string>
+		<string name="single_song_enqueued">chanson mise dans la file:</string>
+</resources>
