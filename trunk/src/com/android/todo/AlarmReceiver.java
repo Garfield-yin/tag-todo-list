@@ -26,7 +26,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final Notification notification = new Notification(R.drawable.small_icon,
         task, System.currentTimeMillis());
     final PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-        new Intent(context, TagToDoList.class), 0);
+        new Intent(context, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
     notification.setLatestEventInfo(context, context.getString(R.string.alarm),
         task, contentIntent);
     notification.flags = Notification.FLAG_AUTO_CANCEL;

@@ -50,9 +50,9 @@ this for the open source project every time you test):
 - increase database version (necessary to circumvent alarm
 removal by Android on app update) // this is done in BootDB
 - export signed package
-- upload .apk to Google Code
 - blog post about changes
 - publish on Android Market
+- upload .apk to Google Code
 
 I'll be happy to answer any questions at:
 http://teodorfilimon.com/android/Tag-ToDo-List/contact.html
