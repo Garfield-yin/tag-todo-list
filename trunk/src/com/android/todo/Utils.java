@@ -84,7 +84,7 @@ public final class Utils {
    * @return the new intent (actually the same, just updated)
    */
   public final static Intent getAlarmIntent(Intent intent, String task) {
-    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
     intent.putExtra(ToDoListDB.KEY_NAME, task);
     intent.putExtra("Ringtone", Uri
         .parse("android.resource://com.android.todo/" + R.raw.beep));
