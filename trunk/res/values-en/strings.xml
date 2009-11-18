@@ -110,6 +110,7 @@
 <string name="configuration_2_backup">Backup todo list on SD card every time the app closes</string>
 <string name="configuration_3_priority">Maximum priority for tasks:</string>
 <string name="configuration_4_shine">Visually distinguish tasks by their priority (consumes a bit more resources)</string>
+<string name="configuration_5_stats">Allow anonymous collection of usage stats once a month</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

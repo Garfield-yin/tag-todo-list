@@ -36,6 +36,7 @@ public final class ConfigScreen extends Activity {
   public static final String VISUAL_PRIORITY = "visualPriority";
   public static final String CHECKED_LIMIT = "listSizeLimit";
   public static final String BLIND_MODE = "blindMode";
+  public static final String USAGE_STATS = "usageStats";
 
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mCloseButton, mHelpButton;
@@ -69,8 +70,20 @@ public final class ConfigScreen extends Activity {
         TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
     final SharedPreferences.Editor editor = settings.edit();
 
-    // sync TO Google Calendar
+    // usage stats
     CheckBox cb = new CheckBox(this);
+    cb.setChecked(settings.getBoolean(USAGE_STATS, false));
+    cb.setText(R.string.configuration_5_stats);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putBoolean(USAGE_STATS, isChecked);
+        editor.commit();
+      }
+    });
+    ll.addView(cb);
+
+    // sync TO Google Calendar
+    cb = new CheckBox(this);
     cb.setChecked(settings.getBoolean(GOOGLE_CALENDAR, false));
     cb.setText(R.string.configuration_1_gcal);
     cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

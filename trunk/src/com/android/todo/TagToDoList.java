@@ -3,6 +3,7 @@
 package com.android.todo;
 
 import java.io.File;
+import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -43,6 +44,7 @@ import android.widget.LinearLayout.LayoutParams;
 import com.android.todo.speech.TTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 /**
  * This is the main activity. It shows the main UI elements, including the ToDo
@@ -86,11 +88,13 @@ public class TagToDoList extends Activity {
   public static boolean SYNC_GCAL;
   public static boolean SHINY_PRIORITY;
   public static boolean BLIND_MODE;
+  public static boolean USAGE_STATS;
 
   public static TTS sTts; // text to speech
   private static ToDoListDB sDbHelper;
   private static SharedPreferences sSettings;
   private static Context sContext = null;
+  private static GoogleAnalyticsTracker sTracker = null;
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
   private ArrayAdapter<CharSequence> mTagsArrayAdapter;
@@ -128,7 +132,7 @@ public class TagToDoList extends Activity {
         mAddEntryButton.setText(R.string.go_back);
         mAddEntryButton.setOnClickListener(null);
         mAddEntryButton.setOnTouchListener(new View.OnTouchListener() {
-          public boolean onTouch(View arg0, MotionEvent arg1) {
+          public boolean onTouch(View arg0, MotionEvent me) {
             mTagSpinner.setVisibility(View.VISIBLE);
             configButton.setVisibility(View.VISIBLE);
             selectTag(mTagSpinner.getSelectedItemPosition());
@@ -139,6 +143,10 @@ public class TagToDoList extends Activity {
                 createEntry();
               }
             });
+            if (USAGE_STATS) {
+              sTracker.trackEvent(Analytics.PRESS, Analytics.ADD_TASK_BUTTON,
+                  Analytics.X, (int) me.getX());
+            }
             return true;
           }
         });
@@ -514,9 +522,20 @@ public class TagToDoList extends Activity {
     if (BLIND_MODE) {
       sTts.shutdown();
     }
+
+    if (USAGE_STATS) {
+      int month = Calendar.getInstance().get(Calendar.MONTH);
+      if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
+        sTracker.dispatch();
+        sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
+            .commit();
+      }
+      sTracker.stop();
+    }
+
     sDbHelper.close();
     sDbHelper = null;
-    
+
     TagToDoWidget.onUpdate(this, AppWidgetManager.getInstance(this));
     super.onDestroy();
   }
@@ -583,6 +602,13 @@ public class TagToDoList extends Activity {
     if (BLIND_MODE = sSettings.getBoolean(ConfigScreen.BLIND_MODE, false)) {
       sTts = new TTS(this, mTagsArrayAdapter.getItem(
           mTagSpinner.getSelectedItemPosition()).toString());
+    }
+
+    // instantiate usage stats tracker (if it's the case)
+    if (sTracker == null
+        && (USAGE_STATS = sSettings.getBoolean(ConfigScreen.USAGE_STATS, false))) {
+      sTracker = GoogleAnalyticsTracker.getInstance();
+      sTracker.start(Analytics.UA_CODE, this);
     }
   }
 
