@@ -8,7 +8,7 @@
 <string name="menu_create_tag">Create a new tag</string>
 <string name="menu_delete_tag">Delete this tag</string>
 <string name="menu_edit_tag">Rename this tag</string>
-<string name="menu_new_entry">Add a new task to the list</string>
+<string name="menu_new_entry">Add a new task</string>
 <string name="menu_instructions">Instructions</string>
 <string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
 <string name="size_change">Checked tasks limit:</string>
@@ -93,7 +93,7 @@
 <string name="months">January February March April May June July August September October November December</string>
 <string name="notification_view_info_short">More about this screen</string>
 <string name="notification_view_info_long">This screen shows you tasks that are due today or earlier.\n\nYou can go back to the normal todo list view by pressing 'Go back'.\n\nAlso, you can access this screen from the normal view by pressing the U key.\n</string>
-<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 50 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 50 checked tasks). You can change it by closing this note and pressing O or I.\n\nThis message appeared because the next checked task will reach the limit :)</string>
+<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 45 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 45 checked tasks). You can change it by closing this note and pressing O or I.\n\nThis message appeared because the next checked task will reach the limit :)</string>
 <string name="alarm">Tag-ToDo-List alarm</string>
 <string name="daily">Daily</string>
 <string name="weekly">Weekly</string>
@@ -110,6 +110,7 @@
 <string name="configuration_2_backup">Backup todo list on SD card every time the app closes</string>
 <string name="configuration_3_priority">Maximum priority for tasks:</string>
 <string name="configuration_4_shine">Visually distinguish tasks by their priority (consumes a bit more resources)</string>
+<string name="configuration_5_stats">Allow anonymous collection of usage stats once a month</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

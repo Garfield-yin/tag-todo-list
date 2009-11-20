@@ -7,7 +7,7 @@
 <string name="menu_create_tag">Créer une étiquette</string>
 <string name="menu_delete_tag">Suprimer l\'étiquette</string>
 <string name="menu_edit_tag">Renommer l\'étiquette</string>
-<string name="menu_new_entry">Ajouter une nouvelle tâche</string>
+<string name="menu_new_entry">Nouvelle tâche</string>
 <string name="menu_instructions">Instructions</string>
 <string name="impossible_tag_deletion">Vous ne pouvez pas supprimer la dernière ettiquete,\nmais vous pouvez le renommer dans le menu.\n</string>
 <string name="size_change">Limite des tâches terminées</string>

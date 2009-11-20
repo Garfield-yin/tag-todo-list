@@ -3,7 +3,6 @@
 package com.android.todo;
 
 import java.io.File;
-import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -143,10 +142,6 @@ public class TagToDoList extends Activity {
                 createEntry();
               }
             });
-            if (USAGE_STATS) {
-              sTracker.trackEvent(Analytics.PRESS, Analytics.ADD_TASK_BUTTON,
-                  Analytics.X, (int) me.getX());
-            }
             return true;
           }
         });
@@ -249,6 +244,12 @@ public class TagToDoList extends Activity {
     mAddEntryButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         createEntry();
+        if (USAGE_STATS) {
+          // we log the action, pressed button, action trigger and the existing
+          // number of tasks #EventLogSyntax
+          sTracker.trackEvent(Analytics.PRESS, Analytics.ADD_TASK_BUTTON,
+              Analytics.INTERFACE, mEntryLayout.getChildCount());
+        }
       }
     });
 
@@ -486,7 +487,6 @@ public class TagToDoList extends Activity {
 
     Cursor c = sDbHelper.getAllTags();
     ArrayAdapter<CharSequence> taa = mTagsArrayAdapter;
-    // startManagingCursor(c);
 
     c.moveToFirst();
     do {
@@ -524,12 +524,12 @@ public class TagToDoList extends Activity {
     }
 
     if (USAGE_STATS) {
-      int month = Calendar.getInstance().get(Calendar.MONTH);
-      if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
-        sTracker.dispatch();
-        sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
-            .commit();
-      }
+      // int month = Calendar.getInstance().get(Calendar.MONTH);
+      // if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
+      sTracker.dispatch();
+      // sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
+      // .commit();
+      // }
       sTracker.stop();
     }
 
@@ -609,6 +609,7 @@ public class TagToDoList extends Activity {
         && (USAGE_STATS = sSettings.getBoolean(ConfigScreen.USAGE_STATS, false))) {
       sTracker = GoogleAnalyticsTracker.getInstance();
       sTracker.start(Analytics.UA_CODE, this);
+      sTracker.trackPageView(Analytics.VIEW_MAIN);
     }
   }
 
