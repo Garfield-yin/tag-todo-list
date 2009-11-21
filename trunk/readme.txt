@@ -53,8 +53,8 @@ removal by Android on app update)
 - export signed package
 - upload and test .apk on emulator
 - commit code changes to the open-source project
-- blog post about changes
 - publish on Android Market
+- blog post about changes
 - upload .apk to Google Code
 - upload .apk to Tag-ToDo-List website
 
