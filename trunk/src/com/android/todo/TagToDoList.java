@@ -3,6 +3,7 @@
 package com.android.todo;
 
 import java.io.File;
+import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -524,12 +525,12 @@ public class TagToDoList extends Activity {
     }
 
     if (USAGE_STATS) {
-      // int month = Calendar.getInstance().get(Calendar.MONTH);
-      // if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
-      sTracker.dispatch();
-      // sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
-      // .commit();
-      // }
+      final int month = Calendar.getInstance().get(Calendar.MONTH);
+      if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
+        sTracker.dispatch();
+        sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
+            .commit();
+      }
       sTracker.stop();
     }
 

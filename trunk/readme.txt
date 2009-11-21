@@ -48,11 +48,15 @@ this for the open source project every time you test):
 - copy strings.xml from values-en to values
 - increase version code and version name
 - increase database version (necessary to circumvent alarm
-removal by Android on app update) // this is done in BootDB
+removal by Android on app update)
+// this is done in the DB interface
 - export signed package
+- upload and test .apk on emulator
+- commit code changes to the open-source project
 - blog post about changes
 - publish on Android Market
 - upload .apk to Google Code
+- upload .apk to Tag-ToDo-List website
 
 I'll be happy to answer any questions at:
 http://teodorfilimon.com/android/Tag-ToDo-List/contact.html
