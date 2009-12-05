@@ -26,7 +26,7 @@ public final class BootReceiver extends BroadcastReceiver {
     dbHelper.close();
   }
 
-  public final static void setOldAlarms(Context context, DB dbHelper) {
+  public final static void setOldAlarms(Context context, IDB dbHelper) {
     Cursor c = dbHelper.getUncheckedEntries();
     if (c.getCount() <= 0) {
       c.close();
@@ -60,7 +60,7 @@ public final class BootReceiver extends BroadcastReceiver {
   }
 }
 
-interface DB {
+interface IDB {
   public static final int DATABASE_VERSION = 85;
   
   boolean isDueDateSet(String task);
@@ -79,7 +79,7 @@ interface DB {
 /**
  * Same DB as ToDoListDB.java
  */
-final class BootDB implements DB {
+final class BootDB implements IDB {
 
   // name for tags and entries
   public static final String KEY_NAME = "name";

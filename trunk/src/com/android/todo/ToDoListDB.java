@@ -22,7 +22,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * contains 2 tables. One of them is called "tags", the other one is called
  * "entries". An entry is what the user visually perceives as a task.
  */
-public final class ToDoListDB implements DB {
+public final class ToDoListDB implements IDB {
 
   // name for tags and entries
   public static final String KEY_NAME = "name";
@@ -50,9 +50,9 @@ public final class ToDoListDB implements DB {
   // a helpful id
   public static final String KEY_ROWID = "_id";
 
-  private static final String DATABASE_NAME = "data";
-  private static final String DATABASE_TAG_TABLE = "tags";
-  private static final String DATABASE_ENTRY_TABLE = "entries";
+  private static final String DB_NAME = "data";
+  private static final String DB_TAG_TABLE = "tags";
+  private static final String DB_ENTRY_TABLE = "entries";
   private static Context mCtx;
   private DatabaseHelper mDbHelper;
   private SQLiteDatabase mDb;
@@ -65,7 +65,7 @@ public final class ToDoListDB implements DB {
   private class DatabaseHelper extends SQLiteOpenHelper {
 
     DatabaseHelper(Context context) {
-      super(context, DATABASE_NAME, null, DATABASE_VERSION);
+      super(context, DB_NAME, null, DATABASE_VERSION);
       mCtx = context;
       res = context.getResources();
     }
@@ -75,31 +75,31 @@ public final class ToDoListDB implements DB {
       Resources r = res;
 
       // creating the tag and entry tables and inserting a default tag
-      db.execSQL("CREATE TABLE " + DATABASE_TAG_TABLE + " (" + KEY_ROWID
+      db.execSQL("CREATE TABLE " + DB_TAG_TABLE + " (" + KEY_ROWID
           + " integer primary key autoincrement, " + KEY_NAME
           + " text not null);");
-      db.execSQL("INSERT INTO " + DATABASE_TAG_TABLE + " (" + KEY_NAME
+      db.execSQL("INSERT INTO " + DB_TAG_TABLE + " (" + KEY_NAME
           + ") VALUES ('" + r.getString(R.string.default_content_tag1) + "')");
-      db.execSQL("INSERT INTO " + DATABASE_TAG_TABLE + " (" + KEY_NAME
+      db.execSQL("INSERT INTO " + DB_TAG_TABLE + " (" + KEY_NAME
           + ") VALUES ('" + r.getString(R.string.default_content_tag2) + "')");
 
-      db.execSQL("CREATE TABLE " + DATABASE_ENTRY_TABLE + " (" + KEY_ROWID
+      db.execSQL("CREATE TABLE " + DB_ENTRY_TABLE + " (" + KEY_ROWID
           + " integer primary key autoincrement, " + KEY_NAME
           + " text not null, " + KEY_STATUS + " integer, " + KEY_PARENT
           + " text not null);");
-      db.execSQL("INSERT INTO " + DATABASE_ENTRY_TABLE + " (" + KEY_NAME + ", "
+      db.execSQL("INSERT INTO " + DB_ENTRY_TABLE + " (" + KEY_NAME + ", "
           + KEY_STATUS + ", " + KEY_PARENT + ") VALUES ('"
           + r.getString(R.string.default_content_entry4) + "',0,'"
           + r.getString(R.string.default_content_tag2) + "')");
-      db.execSQL("INSERT INTO " + DATABASE_ENTRY_TABLE + " (" + KEY_NAME + ", "
+      db.execSQL("INSERT INTO " + DB_ENTRY_TABLE + " (" + KEY_NAME + ", "
           + KEY_STATUS + ", " + KEY_PARENT + ") VALUES ('"
           + r.getString(R.string.default_content_entry3) + "',0,'"
           + r.getString(R.string.default_content_tag1) + "')");
-      db.execSQL("INSERT INTO " + DATABASE_ENTRY_TABLE + " (" + KEY_NAME + ", "
+      db.execSQL("INSERT INTO " + DB_ENTRY_TABLE + " (" + KEY_NAME + ", "
           + KEY_STATUS + ", " + KEY_PARENT + ") VALUES ('"
           + r.getString(R.string.default_content_entry2) + "',0,'"
           + r.getString(R.string.default_content_tag1) + "')");
-      db.execSQL("INSERT INTO " + DATABASE_ENTRY_TABLE + " (" + KEY_NAME + ", "
+      db.execSQL("INSERT INTO " + DB_ENTRY_TABLE + " (" + KEY_NAME + ", "
           + KEY_STATUS + ", " + KEY_PARENT + ") VALUES ('"
           + r.getString(R.string.default_content_entry1) + "',0,'"
           + r.getString(R.string.default_content_tag1) + "')");
@@ -120,14 +120,14 @@ public final class ToDoListDB implements DB {
       // future extra options).
       if (oldVersion < 74 && newVersion >= 74) {
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
               + KEY_EXTRA_OPTIONS + " INTEGER");
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_DUE_YEAR + " INTEGER");
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_DUE_MONTH + " INTEGER");
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_DUE_DATE + " INTEGER");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_YEAR
+              + " INTEGER");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_MONTH
+              + " INTEGER");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_DATE
+              + " INTEGER");
         } catch (Exception e) {
           // if we are here, it means there has been a downgrade and
           // then an upgrade, we don't need to delete the columns, but
@@ -139,7 +139,7 @@ public final class ToDoListDB implements DB {
       // a column needs to be added for written notes
       if (oldVersion < 75 && newVersion >= 75) {
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
               + KEY_WRITTEN_NOTE + " TEXT");
         } catch (Exception e) {
         }
@@ -149,8 +149,8 @@ public final class ToDoListDB implements DB {
       // one column needs to be added for task priority
       if (oldVersion < 76 && newVersion >= 76) {
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_PRIORITY + " INTEGER DEFAULT 50");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_PRIORITY
+              + " INTEGER DEFAULT 50");
         } catch (Exception e) {
         }
       }
@@ -159,14 +159,14 @@ public final class ToDoListDB implements DB {
       // 2 columns need to be added for entry times
       if (oldVersion < 78 && newVersion >= 78) {
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_DUE_HOUR + " INTEGER");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_HOUR
+              + " INTEGER");
         } catch (Exception e) {
         }
 
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_DUE_MINUTE + " INTEGER");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_MINUTE
+              + " INTEGER");
         } catch (Exception e) {
         }
       }
@@ -175,7 +175,7 @@ public final class ToDoListDB implements DB {
       // 1 column needs to be added for the due day of the week
       if (oldVersion < 79 && newVersion >= 79) {
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
               + KEY_DUE_DAY_OF_WEEK + " INTEGER DEFAULT -1");
         } catch (Exception e) {
         }
@@ -184,21 +184,23 @@ public final class ToDoListDB implements DB {
       // upgrade to db v82 (corresponding to app v1.7.0) or bigger;
       // 1 column needs to be added for the depth of the task (part of the
       // subtask feature)
-      // 1 column needs to be added for the parent of the eventual subtask (not
+      // 1 column needs to be added for the parent of the eventual subtask
+      // (not
       // the tag, but the supertask)
-      // 1 column needs to be added for the number of subtasks of a certain task
+      // 1 column needs to be added for the number of subtasks of a
+      // certain task
       // (just primary level)
       if (oldVersion < 82 && newVersion >= 82) {
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_DEPTH + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DEPTH
+              + " INTEGER DEFAULT 0");
         } catch (Exception e) {
         }
         try {
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_SUPERTASK + " TEXT");
-          db.execSQL("ALTER TABLE " + DATABASE_ENTRY_TABLE + " ADD "
-              + KEY_SUBTASKS + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_SUPERTASK
+              + " TEXT");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_SUBTASKS
+              + " INTEGER DEFAULT 0");
         } catch (Exception e) {
         }
       }
@@ -250,8 +252,8 @@ public final class ToDoListDB implements DB {
    * @return true if insertion went ok, false if such a tag already exists
    */
   public boolean createTag(String tagName) {
-    Cursor c = mDb.query(DATABASE_TAG_TABLE, new String[] { KEY_NAME },
-        KEY_NAME + " = '" + tagName + "'", null, null, null, null);
+    Cursor c = mDb.query(DB_TAG_TABLE, new String[] { KEY_NAME }, KEY_NAME
+        + " = '" + tagName + "'", null, null, null, null);
     if (c.getCount() > 0) {
       c.close();
       return false;
@@ -260,7 +262,7 @@ public final class ToDoListDB implements DB {
     // inserting the actual tag
     ContentValues args = new ContentValues();
     args.put(KEY_NAME, tagName);
-    mDb.insert(DATABASE_TAG_TABLE, null, args);
+    mDb.insert(DB_TAG_TABLE, null, args);
     c.close();
     return true;
   }
@@ -299,9 +301,8 @@ public final class ToDoListDB implements DB {
    */
   public String createEntry(String tagName, String entryName) {
     // checking for duplicate entries
-    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
-        KEY_PARENT }, KEY_NAME + " = '" + entryName + "'", null, null, null,
-        null);
+    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_PARENT },
+        KEY_NAME + " = '" + entryName + "'", null, null, null, null);
     if (c.getCount() > 0) {
       c.moveToFirst();
       String s = c.getString(c.getColumnIndexOrThrow(KEY_PARENT));
@@ -314,7 +315,7 @@ public final class ToDoListDB implements DB {
     args.put(KEY_NAME, entryName);
     args.put(KEY_STATUS, 0);
     args.put(KEY_PARENT, tagName);
-    mDb.insert(DATABASE_ENTRY_TABLE, null, args);
+    mDb.insert(DB_ENTRY_TABLE, null, args);
     c.close();
     return null;
   }
@@ -340,8 +341,8 @@ public final class ToDoListDB implements DB {
    *          name of the tag to be deleted
    */
   public void deleteTag(String name) {
-    mDb.delete(DATABASE_TAG_TABLE, KEY_NAME + "='" + name + "'", null);
-    Cursor entries = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+    mDb.delete(DB_TAG_TABLE, KEY_NAME + "='" + name + "'", null);
+    Cursor entries = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_PARENT }, KEY_PARENT + " = '" + name + "'", null, null, null, null);
     if (entries.getCount() > 0) {
       entries.moveToFirst();
@@ -359,8 +360,9 @@ public final class ToDoListDB implements DB {
    * @return Cursor over all tags
    */
   public Cursor getAllTags() {
-    return mDb.query(DATABASE_TAG_TABLE, new String[] { KEY_ROWID, KEY_NAME },
-        null, null, null, null, ALPHABET_ORDER_TOKEN != "" ? ALPHABET_ORDER_TOKEN.substring(2) : "");
+    return mDb.query(DB_TAG_TABLE, new String[] { KEY_ROWID, KEY_NAME }, null,
+        null, null, null, ALPHABET_ORDER_TOKEN != "" ? ALPHABET_ORDER_TOKEN
+            .substring(2) : "");
   }
 
   /**
@@ -381,7 +383,7 @@ public final class ToDoListDB implements DB {
 
     return mDb
         .query(
-            DATABASE_ENTRY_TABLE,
+            DB_ENTRY_TABLE,
             new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_PARENT,
                 KEY_SUBTASKS },
             ((tag != null ? KEY_PARENT + " = '" + tag + "' " : "1=1 ")
@@ -403,7 +405,7 @@ public final class ToDoListDB implements DB {
    * @return priority
    */
   public int getPriority(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_PRIORITY }, KEY_NAME + " = '" + entryName + "'", null,
         null, null, null);
     // for now, assuming we have a task named like this :)
@@ -428,7 +430,7 @@ public final class ToDoListDB implements DB {
     GregorianCalendar gc = new GregorianCalendar();
     int year = gc.get(GregorianCalendar.YEAR);
     int month = gc.get(GregorianCalendar.MONTH);
-    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+    return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS }, KEY_EXTRA_OPTIONS + " = 1 AND " + KEY_STATUS
         + " = 0 AND (" + KEY_DUE_YEAR + " < " + year + " OR (" + KEY_DUE_YEAR
         + " = " + year + " AND (" + KEY_DUE_MONTH + " < " + month + " OR ("
@@ -444,7 +446,7 @@ public final class ToDoListDB implements DB {
    * @return Cursor
    */
   public Cursor getAllDueEntries() {
-    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+    return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE },
         KEY_EXTRA_OPTIONS + " = 1 AND " + KEY_STATUS + " = 0", null, null,
         null, null);
@@ -457,7 +459,7 @@ public final class ToDoListDB implements DB {
    * @return written note
    */
   public String getWrittenNote(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_WRITTEN_NOTE }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -476,7 +478,7 @@ public final class ToDoListDB implements DB {
    * @return encoded date
    */
   public int getDueDate(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE }, KEY_NAME
         + " = '" + entryName + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -495,7 +497,7 @@ public final class ToDoListDB implements DB {
    * @return
    */
   public int getDueDayOfWeek(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_DAY_OF_WEEK }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -513,7 +515,7 @@ public final class ToDoListDB implements DB {
    * @return encoded date
    */
   public int getDueTime(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_HOUR, KEY_DUE_MINUTE }, KEY_NAME + " = '" + entryName
         + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -531,7 +533,7 @@ public final class ToDoListDB implements DB {
    * @return true, if a due date has been set
    */
   public boolean isDueDateSet(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     if (entry.getCount() == 0) {
@@ -552,7 +554,7 @@ public final class ToDoListDB implements DB {
    * @return true, if a due time has been set
    */
   public boolean isDueTimeSet(String entryName) {
-    Cursor entry = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
+    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     if (entry.getCount() == 0) {
@@ -574,9 +576,9 @@ public final class ToDoListDB implements DB {
    * @return number of unchecked entries (tasks left to do)
    */
   public int countUncheckedEntries(String tag) {
-    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_STATUS, KEY_PARENT }, KEY_PARENT + " = '" + tag + "'",
-        null, null, null, null);
+    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+        KEY_STATUS, KEY_PARENT }, KEY_PARENT + " = '" + tag + "'", null, null,
+        null, null);
     int value = c.getColumnIndexOrThrow(KEY_STATUS);
     int unchecked = 0;
     if (c.getCount() > 0) {
@@ -597,9 +599,8 @@ public final class ToDoListDB implements DB {
    * @return number of unchecked entries (tasks left to do)
    */
   public int countUncheckedEntries() {
-    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_STATUS, KEY_PARENT }, KEY_STATUS + " = 0", null, null,
-        null, null);
+    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+        KEY_STATUS, KEY_PARENT }, KEY_STATUS + " = 0", null, null, null, null);
     int count = c.getCount();
     c.close();
     return count;
@@ -616,12 +617,13 @@ public final class ToDoListDB implements DB {
   public boolean updateTag(String tagName, String newName) {
     ContentValues args1 = new ContentValues();
     args1.put(KEY_PARENT, newName);
-    mDb.update(DATABASE_ENTRY_TABLE, args1,
-        KEY_PARENT + " = '" + tagName + "'", null);
+    mDb
+        .update(DB_ENTRY_TABLE, args1, KEY_PARENT + " = '" + tagName + "'",
+            null);
     ContentValues args2 = new ContentValues();
     args2.put(KEY_NAME, newName);
-    return mDb.update(DATABASE_TAG_TABLE, args2, KEY_NAME + " = '" + tagName
-        + "'", null) > 0;
+    return mDb.update(DB_TAG_TABLE, args2, KEY_NAME + " = '" + tagName + "'",
+        null) > 0;
   }
 
   /**
@@ -639,8 +641,8 @@ public final class ToDoListDB implements DB {
     if (checked) {
       // removing entries if their number surpasses a certain limit;
       // the removed entries can only be checked ones (finished)
-      Cursor checkedC = mDb.query(DATABASE_ENTRY_TABLE, new String[] {
-          KEY_NAME, KEY_STATUS }, KEY_STATUS + " = 1", null, null, null, null);
+      Cursor checkedC = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+          KEY_STATUS }, KEY_STATUS + " = 1", null, null, null, null);
       SharedPreferences settings = mCtx.getSharedPreferences(
           TagToDoList.PREFS_NAME, 50);
       int limit = settings.getInt("listSizeLimit", 50);
@@ -704,11 +706,11 @@ public final class ToDoListDB implements DB {
     if (goDown == null) {
       ContentValues args = new ContentValues();
       args.put(KEY_STATUS, checked ? 1 : 0);
-      mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-          + "'", null);
+      mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'",
+          null);
     } else if (goDown.equals(Boolean.TRUE)) {
       // applying the same to subtasks
-      Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+      Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
           KEY_SUPERTASK }, KEY_SUPERTASK + "='" + entryName + "'", null, null,
           null, null);
       if (c.getCount() > 0) {
@@ -722,7 +724,7 @@ public final class ToDoListDB implements DB {
       c.close();
     } else {
       // must do the same with supertasks
-      Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+      Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
           KEY_SUPERTASK }, KEY_NAME + "='" + entryName + "'", null, null, null,
           null);
       if (c.getCount() > 0) {
@@ -732,12 +734,12 @@ public final class ToDoListDB implements DB {
           updateEntry(c.getString(c.getColumnIndex(KEY_SUPERTASK)), false,
               Boolean.FALSE);
         } else {
-          // must only check the supertask if all its subtasks are checked
-          Cursor subTasksOfSuperTaskC = mDb.query(DATABASE_ENTRY_TABLE,
-              new String[] { KEY_NAME, KEY_SUPERTASK, KEY_STATUS },
-              KEY_SUPERTASK + "='"
-                  + c.getString(c.getColumnIndex(KEY_SUPERTASK)) + "'", null,
-              null, null, null);
+          // must only check the supertask if all its subtasks are
+          // checked
+          Cursor subTasksOfSuperTaskC = mDb.query(DB_ENTRY_TABLE, new String[] {
+              KEY_NAME, KEY_SUPERTASK, KEY_STATUS }, KEY_SUPERTASK + "='"
+              + c.getString(c.getColumnIndex(KEY_SUPERTASK)) + "'", null, null,
+              null, null);
           if (subTasksOfSuperTaskC.getCount() > 0) {
             final int status = subTasksOfSuperTaskC.getColumnIndex(KEY_STATUS);
             boolean allChecked = true;
@@ -762,19 +764,27 @@ public final class ToDoListDB implements DB {
   }
 
   /**
-   * Updates the specified entry with the specified new name
+   * Updates the specified entry with the specified new name.
    * 
    * @param entryName
-   *          the name of the entry to be modified
+   *          The name of the entry to be modified
    * @param newName
-   *          the new name
+   *          The new name
    * @return true if successfully updated
    */
-  public boolean updateEntry(String entryName, String newName) {
+  public void updateEntry(String entryName, String newName) {
     ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'", null);
+    final Cursor subtasks = getEntries(null, 1, entryName);
+    if (subtasks.getCount() > 0) {
+      final int name = subtasks.getColumnIndex(KEY_NAME);
+      subtasks.moveToFirst();
+      do {
+        setSuperTask(subtasks.getString(name), newName);
+      } while (subtasks.moveToNext());
+    }
+    subtasks.close();
   }
 
   /**
@@ -789,8 +799,8 @@ public final class ToDoListDB implements DB {
   public boolean updateEntryParent(String entryName, String newParent) {
     ContentValues args = new ContentValues();
     args.put(KEY_PARENT, newParent);
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -808,8 +818,8 @@ public final class ToDoListDB implements DB {
     args.put(KEY_DUE_MONTH, month);
     args.put(KEY_DUE_DATE, date);
     // args.put(KEY_EXTRA_OPTIONS, 1);
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -825,8 +835,8 @@ public final class ToDoListDB implements DB {
     ContentValues args = new ContentValues();
     args.put(KEY_DUE_HOUR, hour);
     args.put(KEY_DUE_MINUTE, minute);
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -838,8 +848,7 @@ public final class ToDoListDB implements DB {
   public void updateEntry(String entryName, int dayOfWeek) {
     ContentValues args = new ContentValues();
     args.put(KEY_DUE_DAY_OF_WEEK, dayOfWeek);
-    mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'",
-        null);
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'", null);
   }
 
   /**
@@ -851,7 +860,7 @@ public final class ToDoListDB implements DB {
    * @return
    */
   public boolean setDueDate(String entryName, boolean b) {
-    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'", null, null,
         null, null);
     c.moveToFirst();
@@ -861,8 +870,8 @@ public final class ToDoListDB implements DB {
         .getColumnIndex(KEY_EXTRA_OPTIONS)) | 1) : (c.getInt(c
         .getColumnIndex(KEY_EXTRA_OPTIONS)) & 2));
     c.close();
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -874,7 +883,7 @@ public final class ToDoListDB implements DB {
    * @return
    */
   public boolean setDueTime(String entryName, boolean b) {
-    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'", null, null,
         null, null);
     c.moveToFirst();
@@ -884,8 +893,8 @@ public final class ToDoListDB implements DB {
         .getColumnIndex(KEY_EXTRA_OPTIONS)) | 2) : (c.getInt(c
         .getColumnIndex(KEY_EXTRA_OPTIONS)) & 5));
     c.close();
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -898,8 +907,8 @@ public final class ToDoListDB implements DB {
   public boolean setPriority(String entryName, int priority) {
     ContentValues args = new ContentValues();
     args.put(KEY_PRIORITY, priority);
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -912,8 +921,8 @@ public final class ToDoListDB implements DB {
   public boolean setWrittenNote(String entryName, String note) {
     ContentValues args = new ContentValues();
     args.put(KEY_WRITTEN_NOTE, note);
-    return mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName
-        + "'", null) > 0;
+    return mDb.update(DB_ENTRY_TABLE, args,
+        KEY_NAME + " = '" + entryName + "'", null) > 0;
   }
 
   /**
@@ -965,20 +974,17 @@ public final class ToDoListDB implements DB {
    * @param superTask
    */
   public void setSuperTask(String task, String superTask) {
-    Cursor c = mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
-        KEY_DEPTH, KEY_SUBTASKS }, KEY_NAME + " = '" + superTask + "'", null,
-        null, null, null);
+    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_DEPTH,
+        KEY_SUBTASKS }, KEY_NAME + " = '" + superTask + "'", null, null, null,
+        null);
     c.moveToFirst();
     ContentValues args = new ContentValues();
     args.put(KEY_SUPERTASK, superTask);
     args.put(KEY_DEPTH, c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
-    mDb
-        .update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'",
-            null);
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'", null);
     args = new ContentValues();
     args.put(KEY_SUBTASKS, c.getInt(c.getColumnIndex(KEY_SUBTASKS)) + 1);
-    mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '" + superTask + "'",
-        null);
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + superTask + "'", null);
     c.close();
     updateEntry(superTask, false, null);
     updateEntry(superTask, false, Boolean.FALSE);
@@ -992,7 +998,7 @@ public final class ToDoListDB implements DB {
    *          the name of the entry to be pushed down
    */
   public void pushEntryDown(String entryName) {
-    Cursor c = mDb.query(true, DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+    Cursor c = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_PARENT, KEY_STATUS }, KEY_NAME + " = '" + entryName + "'", null,
         null, null, null, null);
     int name = c.getColumnIndexOrThrow(KEY_NAME);
@@ -1001,11 +1007,11 @@ public final class ToDoListDB implements DB {
     c.moveToFirst();
     String newParent = c.getString(parent);
     boolean newStatus = c.getInt(status) == 1 ? true : false;
-    Cursor all = mDb.query(true, DATABASE_ENTRY_TABLE, new String[] { KEY_NAME,
+    Cursor all = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_PARENT, KEY_STATUS }, KEY_PARENT + " = '" + newParent + "'", null,
         null, null, null, null);
     all.moveToFirst();
-    mDb.delete(DATABASE_ENTRY_TABLE, KEY_PARENT + "='" + newParent + "'", null);
+    mDb.delete(DB_ENTRY_TABLE, KEY_PARENT + "='" + newParent + "'", null);
     String aux;
     createEntry(newParent, entryName);
     updateEntry(entryName, newStatus);
@@ -1043,7 +1049,7 @@ public final class ToDoListDB implements DB {
    * @return entries which are not checked
    */
   public Cursor getUncheckedEntries() {
-    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+    return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS }, KEY_STATUS + " = 0", null, null, null, null);
   }
 
@@ -1053,7 +1059,7 @@ public final class ToDoListDB implements DB {
    * @return entries which are not checked from a certain tag
    */
   public Cursor getUncheckedEntries(String tag) {
-    return mDb.query(DATABASE_ENTRY_TABLE, new String[] { KEY_NAME, KEY_STATUS,
+    return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_STATUS,
         KEY_PARENT }, (tag != null ? KEY_PARENT + " = '" + tag + "' AND " : "")
         + KEY_STATUS + " = 0", null, null, null, null);
   }
@@ -1067,12 +1073,12 @@ public final class ToDoListDB implements DB {
    */
   public void deleteEntry(String name) {
     // decrementing the subtask count of the supertask
-    Cursor subC = mDb.query(true, DATABASE_ENTRY_TABLE, new String[] {
-        KEY_NAME, KEY_SUPERTASK }, KEY_NAME + " = '" + name + "'", null, null,
-        null, null, null);
+    Cursor subC = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
+        KEY_SUPERTASK }, KEY_NAME + " = '" + name + "'", null, null, null,
+        null, null);
     subC.moveToFirst();
-    Cursor supC = mDb.query(true, DATABASE_ENTRY_TABLE, new String[] {
-        KEY_NAME, KEY_SUBTASKS }, KEY_NAME + " = '"
+    Cursor supC = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
+        KEY_SUBTASKS }, KEY_NAME + " = '"
         + subC.getString(subC.getColumnIndex(KEY_SUPERTASK)) + "'", null, null,
         null, null, null);
     if (supC.getCount() > 0) {
@@ -1080,13 +1086,13 @@ public final class ToDoListDB implements DB {
       ContentValues args = new ContentValues();
       args
           .put(KEY_SUBTASKS, supC.getInt(supC.getColumnIndex(KEY_SUBTASKS)) - 1);
-      mDb.update(DATABASE_ENTRY_TABLE, args, KEY_NAME + " = '"
+      mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '"
           + subC.getString(subC.getColumnIndex(KEY_SUPERTASK)) + "'", null);
     }
     supC.close();
     subC.close();
 
-    mDb.delete(DATABASE_ENTRY_TABLE, KEY_NAME + "='" + name + "'", null);
+    mDb.delete(DB_ENTRY_TABLE, KEY_NAME + "='" + name + "'", null);
     mCtx.deleteFile(Utils.getImageName(name));
     new File(Utils.getAudioName(name)).delete();
     deleteAlarm(name);
