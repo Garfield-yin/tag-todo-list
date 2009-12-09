@@ -61,7 +61,7 @@ public final class BootReceiver extends BroadcastReceiver {
 }
 
 interface IDB {
-  public static final int DATABASE_VERSION = 85;
+  public static final int DATABASE_VERSION = 86;
   
   boolean isDueDateSet(String task);
 

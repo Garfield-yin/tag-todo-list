@@ -22,7 +22,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     final NotificationManager manager = (NotificationManager) context
         .getSystemService(Context.NOTIFICATION_SERVICE);
-    final String task = intent.getStringExtra(ToDoListDB.KEY_NAME);
+    final String task = intent.getStringExtra(ToDoDB.KEY_NAME);
     final Notification notification = new Notification(R.drawable.small_icon,
         task, System.currentTimeMillis());
     final PendingIntent contentIntent = PendingIntent.getActivity(context, 0,

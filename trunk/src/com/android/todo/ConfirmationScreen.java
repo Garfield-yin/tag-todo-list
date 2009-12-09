@@ -19,7 +19,7 @@ public final class ConfirmationScreen extends Activity {
   private TextView mMessage;
   private Button mFirstButton, mSecondButton;
   private String mTagName, mAction;
-  private ToDoListDB mDbHelper;
+  private ToDoDB mDbHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +30,11 @@ public final class ConfirmationScreen extends Activity {
     mSecondButton = (Button) findViewById(R.id.secondButton);
 
     mTagName = savedInstanceState != null ? savedInstanceState
-        .getString(ToDoListDB.KEY_NAME) : null;
+        .getString(ToDoDB.KEY_NAME) : null;
 
     if (mTagName == null) {
       Bundle extras = getIntent().getExtras();
-      mTagName = extras != null ? extras.getString(ToDoListDB.KEY_NAME) : null;
+      mTagName = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
     }
 
     mFirstButton.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +93,7 @@ public final class ConfirmationScreen extends Activity {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putString(ToDoListDB.KEY_NAME, mTagName);
+    outState.putString(ToDoDB.KEY_NAME, mTagName);
   }
 
   @Override
@@ -109,7 +109,7 @@ public final class ConfirmationScreen extends Activity {
   protected void onResume() {
     super.onResume();
     mAction = getIntent().getAction();
-    mDbHelper = new ToDoListDB(this);
+    mDbHelper = new ToDoDB(this);
     mDbHelper.open();
     populateFields();
   }

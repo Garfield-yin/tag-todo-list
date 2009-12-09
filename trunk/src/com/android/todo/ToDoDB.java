@@ -22,7 +22,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * contains 2 tables. One of them is called "tags", the other one is called
  * "entries". An entry is what the user visually perceives as a task.
  */
-public final class ToDoListDB implements IDB {
+public final class ToDoDB implements IDB {
 
   // name for tags and entries
   public static final String KEY_NAME = "name";
@@ -47,6 +47,10 @@ public final class ToDoListDB implements IDB {
   public static final String KEY_DEPTH = "depth";
   public static final String KEY_SUPERTASK = "supertask";
   public static final String KEY_SUBTASKS = "subtasks";
+  // some flags to see if there are certain types of notes
+  public static final String KEY_NOTE_IS_WRITTEN = "iswrittennote";
+  public static final String KEY_NOTE_IS_GRAPHICAL = "isgraphicalnote";
+  public static final String KEY_NOTE_IS_AUDIO = "isaudionote";
   // a helpful id
   public static final String KEY_ROWID = "_id";
 
@@ -111,6 +115,7 @@ public final class ToDoListDB implements IDB {
       onUpgrade(db, 76, 78);
       onUpgrade(db, 78, 79);
       onUpgrade(db, 81, 82);
+      onUpgrade(db, 85, 86);
     }
 
     @Override
@@ -205,6 +210,64 @@ public final class ToDoListDB implements IDB {
         }
       }
 
+      // upgrade to db v86 (corresponding to app v1.8.0) or bigger;
+      // 3 columns have been added, as boolean flags (but still int), to see
+      // whether there are certain types of notes
+      if (oldVersion < 86 && newVersion >= 86) {
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+              + KEY_NOTE_IS_WRITTEN + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+              + KEY_NOTE_IS_GRAPHICAL + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+              + KEY_NOTE_IS_AUDIO + " INTEGER DEFAULT 0");
+          final Cursor c = db.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_WRITTEN_NOTE },
+              null, null, null, null, null);
+          if (c.getCount() > 0) {
+            c.moveToFirst();
+            do {
+              final String taskName = c.getString(0);
+
+              // checking for a written note
+              final String writtenNote = c.getString(1);
+              if (!"".equals(writtenNote) && writtenNote != null) {
+                final ContentValues args = new ContentValues();
+                args.put(KEY_NOTE_IS_WRITTEN, 1);
+                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
+              }
+
+              // checking for a graphical note
+              boolean found = true;
+              try {
+                mCtx.openFileInput(Utils.getImageName(taskName));
+              } catch (Exception e) {
+                found = false;
+              }
+              if (found) {
+                final ContentValues args = new ContentValues();
+                args.put(KEY_NOTE_IS_GRAPHICAL, 1);
+                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
+              }
+
+              // checking for an audio note
+              found = true;
+              try {
+                mCtx.openFileInput(Utils.getAudioName(taskName));
+              } catch (Exception e) {
+                found = false;
+              }
+              if (found) {
+                final ContentValues args = new ContentValues();
+                args.put(KEY_NOTE_IS_AUDIO, 1);
+                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
+              }
+            } while (c.moveToNext());
+          }
+          c.close();
+        } catch (Exception e) {
+        }
+      }
+
       // must be last:
       FLAG_UPDATED = true;
     }
@@ -216,7 +279,7 @@ public final class ToDoListDB implements IDB {
    * @param ctx
    *          the Context within which to work
    */
-  public ToDoListDB(Context ctx) {
+  public ToDoDB(Context ctx) {
     mCtx = ctx;
   }
 
@@ -230,7 +293,7 @@ public final class ToDoListDB implements IDB {
    * @throws SQLException
    *           if the database could be neither opened or created
    */
-  public ToDoListDB open() throws SQLException {
+  public ToDoDB open() throws SQLException {
     mDbHelper = new DatabaseHelper(mCtx);
     mDb = mDbHelper.getWritableDatabase();
     if (FLAG_UPDATED) {
@@ -379,7 +442,7 @@ public final class ToDoListDB implements IDB {
    *          won't exist.
    * @return Cursor over all entries in a tag
    */
-  public Cursor getEntries(String tag, int depth, String superTask) {
+  public final Cursor getEntries(String tag, int depth, String superTask) {
 
     return mDb
         .query(
@@ -396,6 +459,23 @@ public final class ToDoListDB implements IDB {
                 + PRIORITY_ORDER_TOKEN
                 + DUEDATE_ORDER_TOKEN + ALPHABET_ORDER_TOKEN, null, null, null,
             null);
+  }
+
+  /**
+   * Returns the value of the given key on the given task
+   * 
+   * @param task
+   * @param key
+   * @return
+   */
+  public final int getFlag(final String task, final String key) {
+    final Cursor tasks = mDb.query(DB_ENTRY_TABLE,
+        new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
+        null, null, null);
+    tasks.moveToFirst();
+    final int value = tasks.getInt(1);
+    tasks.close();
+    return value;
   }
 
   /**
@@ -598,12 +678,25 @@ public final class ToDoListDB implements IDB {
    * 
    * @return number of unchecked entries (tasks left to do)
    */
-  public int countUncheckedEntries() {
+  public final int countUncheckedEntries() {
     Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS, KEY_PARENT }, KEY_STATUS + " = 0", null, null, null, null);
     int count = c.getCount();
     c.close();
     return count;
+  }
+
+  /**
+   * Sets the given flag on the given task with the given value.
+   * 
+   * @param task
+   * @param key
+   * @param value
+   */
+  public final void setFlag(final String task, final String key, final int value) {
+    final ContentValues args = new ContentValues();
+    args.put(key, value);
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'", null);
   }
 
   /**
@@ -614,13 +707,13 @@ public final class ToDoListDB implements IDB {
    * @param newName
    * @return true if the tag was successfully updated, false otherwise
    */
-  public boolean updateTag(String tagName, String newName) {
-    ContentValues args1 = new ContentValues();
+  public boolean updateTag(final String tagName, final String newName) {
+    final ContentValues args1 = new ContentValues();
     args1.put(KEY_PARENT, newName);
     mDb
         .update(DB_ENTRY_TABLE, args1, KEY_PARENT + " = '" + tagName + "'",
             null);
-    ContentValues args2 = new ContentValues();
+    final ContentValues args2 = new ContentValues();
     args2.put(KEY_NAME, newName);
     return mDb.update(DB_TAG_TABLE, args2, KEY_NAME + " = '" + tagName + "'",
         null) > 0;
@@ -658,7 +751,7 @@ public final class ToDoListDB implements IDB {
       } else if (checkedC.getCount() == limit - 1
           && !(settings.getBoolean("checkedTasksLimitAware", false))) {
         Utils.showDialog(R.string.notification,
-            R.string.notification_checked_tasks_limit, ToDoListDB.mCtx);
+            R.string.notification_checked_tasks_limit, ToDoDB.mCtx);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("checkedTasksLimitAware", true);
         editor.commit();
@@ -918,11 +1011,12 @@ public final class ToDoListDB implements IDB {
    * @param note
    * @return
    */
-  public boolean setWrittenNote(String entryName, String note) {
+  public final void setWrittenNote(String entryName, String note) {
     ContentValues args = new ContentValues();
     args.put(KEY_WRITTEN_NOTE, note);
-    return mDb.update(DB_ENTRY_TABLE, args,
-        KEY_NAME + " = '" + entryName + "'", null) > 0;
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'", null);
+    setFlag(entryName, KEY_NOTE_IS_WRITTEN,
+        !"".equals(note) && note != null ? 1 : 0);
   }
 
   /**

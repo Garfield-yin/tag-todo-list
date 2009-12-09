@@ -111,6 +111,7 @@
 <string name="configuration_3_priority">Maximum priority for tasks:</string>
 <string name="configuration_4_shine">Visually distinguish tasks by their priority (consumes a bit more resources)</string>
 <string name="configuration_5_stats">Allow anonymous collection of usage stats once a month</string>
+<string name="configuration_6_notes">Show which task has notes in portrait mode as well (consumes a bit more resources)</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

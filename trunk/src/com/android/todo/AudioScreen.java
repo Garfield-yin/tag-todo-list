@@ -56,14 +56,14 @@ public final class AudioScreen extends Activity {
     }
 
     sEntry = savedInstanceState != null ? savedInstanceState
-        .getString(ToDoListDB.KEY_NAME) : null;
+        .getString(ToDoDB.KEY_NAME) : null;
 
     Bundle extras = getIntent().getExtras();
     if (sEntry == null) {
-      sEntry = extras != null ? extras.getString(ToDoListDB.KEY_NAME) : null;
+      sEntry = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
     }
 
-    sStatus = extras != null ? extras.getBoolean(ToDoListDB.KEY_STATUS) : false;
+    sStatus = extras != null ? extras.getBoolean(ToDoDB.KEY_STATUS) : false;
 
     final LinearLayout ll = (LinearLayout) findViewById(R.id.audioNoteLayout);
 
@@ -164,6 +164,8 @@ public final class AudioScreen extends Activity {
           sRecorder.setOutputFile(Utils.getAudioName(sEntry));
           try {
             sRecorder.prepare();
+            TagToDoList.getDbHelper().setFlag(sEntry, ToDoDB.KEY_NOTE_IS_AUDIO,
+                1);
           } catch (Exception e1) {
             // TODO Auto-generated catch block
           }
@@ -184,8 +186,8 @@ public final class AudioScreen extends Activity {
             return;
           }
           Intent i = new Intent(AudioScreen.this, AudioScreen.class);
-          i.putExtra(ToDoListDB.KEY_NAME, sEntry);
-          i.putExtra(ToDoListDB.KEY_STATUS, false);
+          i.putExtra(ToDoDB.KEY_NAME, sEntry);
+          i.putExtra(ToDoDB.KEY_STATUS, false);
           startActivity(i);
           finish();
         }
@@ -255,7 +257,7 @@ public final class AudioScreen extends Activity {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putString(ToDoListDB.KEY_NAME, sEntry);
+    outState.putString(ToDoDB.KEY_NAME, sEntry);
   }
 
   @Override

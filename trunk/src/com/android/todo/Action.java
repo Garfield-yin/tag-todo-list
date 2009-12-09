@@ -54,7 +54,7 @@ public final class Action {
         }
       }
 
-      final String[] ignorables = { ToDoListDB.res
+      final String[] ignorables = { ToDoDB.res
           .getString(R.string.move_ignorable) };
       for (int i = 0; i < ignorables.length; i++) {
         if (mTarget.startsWith(ignorables[i])) {
@@ -92,7 +92,7 @@ public final class Action {
     }
 
     public String toString() {
-      return super.toString() + ToDoListDB.res.getString(R.string.call_making)
+      return super.toString() + ToDoDB.res.getString(R.string.call_making)
           + " " + mTarget;
     }
   }
@@ -113,9 +113,9 @@ public final class Action {
 
     public String toString() {
       return super.toString()
-          + (mTarget.length() < 9 ? mTarget : ToDoListDB.res
+          + (mTarget.length() < 9 ? mTarget : ToDoDB.res
               .getString(R.string.find)) + " "
-          + ToDoListDB.res.getString(R.string.google_maps);
+          + ToDoDB.res.getString(R.string.google_maps);
     }
   }
 
@@ -144,9 +144,9 @@ public final class Action {
 
     public String toString() {
       return super.toString()
-          + (mTarget.length() < 14 ? mTarget : ToDoListDB.res
+          + (mTarget.length() < 14 ? mTarget : ToDoDB.res
               .getString(R.string.buying)) + " "
-          + ToDoListDB.res.getString(R.string.amazon);
+          + ToDoDB.res.getString(R.string.amazon);
     }
   }
 
@@ -157,13 +157,13 @@ public final class Action {
    * @param text
    */
   public Action() {
-    CALLS.add(ToDoListDB.res.getString(R.string.call1));
-    CALLS.add(ToDoListDB.res.getString(R.string.call2));
-    MOVES.add(ToDoListDB.res.getString(R.string.move1));
-    MOVES.add(ToDoListDB.res.getString(R.string.move2));
-    MOVES.add(ToDoListDB.res.getString(R.string.move3));
-    BUYS.add(ToDoListDB.res.getString(R.string.buy1));
-    BUYS.add(ToDoListDB.res.getString(R.string.buy2));
+    CALLS.add(ToDoDB.res.getString(R.string.call1));
+    CALLS.add(ToDoDB.res.getString(R.string.call2));
+    MOVES.add(ToDoDB.res.getString(R.string.move1));
+    MOVES.add(ToDoDB.res.getString(R.string.move2));
+    MOVES.add(ToDoDB.res.getString(R.string.move3));
+    BUYS.add(ToDoDB.res.getString(R.string.buy1));
+    BUYS.add(ToDoDB.res.getString(R.string.buy2));
   }
 
   public void perform(Context c) {

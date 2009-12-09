@@ -4,8 +4,9 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<LinearLayout android:id="@+id/upperLayout" android:orientation="horizontal"
-		android:layout_width="fill_parent" android:layout_height="wrap_content">
+	<LinearLayout android:id="@+id/upperLayout"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
 
 		<Spinner android:id="@+id/tagSpinner" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:layout_weight="1" />
@@ -13,8 +14,8 @@
 		<ImageButton android:id="@+id/configButton"
 			android:layout_marginTop="-9px" android:layout_marginBottom="-10px"
 			android:layout_marginLeft="-6px" android:layout_marginRight="-10px"
-			android:paddingLeft="3px"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			android:paddingLeft="3px" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
 
 	</LinearLayout>
 
@@ -22,9 +23,18 @@
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:scrollbars="vertical" android:layout_weight="1">
 
-		<LinearLayout android:id="@+id/entryLayout"
-			android:orientation="vertical" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" />
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+			<LinearLayout android:id="@+id/noteLayout"
+				android:orientation="vertical" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+			<LinearLayout android:id="@+id/entryLayout"
+				android:orientation="vertical" android:layout_width="fill_parent"
+				android:layout_height="wrap_content"/>
+
+		</LinearLayout>
 
 	</ScrollView>
 

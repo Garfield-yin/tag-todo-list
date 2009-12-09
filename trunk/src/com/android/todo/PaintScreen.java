@@ -39,11 +39,11 @@ public final class PaintScreen extends GraphicsActivity {
     setContentView(R.layout.note);
 
     mEntry = savedInstanceState != null ? savedInstanceState
-        .getString(ToDoListDB.KEY_NAME) : null;
+        .getString(ToDoDB.KEY_NAME) : null;
 
     if (mEntry == null) {
       Bundle extras = getIntent().getExtras();
-      mEntry = extras != null ? extras.getString(ToDoListDB.KEY_NAME) : null;
+      mEntry = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
     }
 
     mLL = (LinearLayout) findViewById(R.id.ll);
@@ -56,6 +56,8 @@ public final class PaintScreen extends GraphicsActivity {
         mLL.removeView(mView);
         mView = new MyView(v.getContext(), false);
         mLL.addView(mView);
+        TagToDoList.getDbHelper().setFlag(mEntry, ToDoDB.KEY_NOTE_IS_GRAPHICAL,
+            0);
       }
     });
 
@@ -93,7 +95,7 @@ public final class PaintScreen extends GraphicsActivity {
      *          is a parameter which shows if we're rebuilding everything or
      *          just some parts of the UI
      */
-    protected MyView(Context c, boolean fromScratch) {
+    protected MyView(final Context c, final boolean fromScratch) {
       super(c);
       InputStream fIn = null;
       boolean found = true;
@@ -200,9 +202,10 @@ public final class PaintScreen extends GraphicsActivity {
       try {
         fOut = getContext().openFileOutput(path, Context.MODE_PRIVATE);
         mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-
         fOut.flush();
         fOut.close();
+        TagToDoList.getDbHelper().setFlag(mEntry, ToDoDB.KEY_NOTE_IS_GRAPHICAL,
+            1);
       } catch (Exception e) {
       }
     }

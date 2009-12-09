@@ -26,7 +26,7 @@ import android.widget.ScrollView;
 public final class NotificationActivity extends Activity {
   private LinearLayout mEntryLayout;
   private ScrollView mScrollView;
-  private ToDoListDB mDbHelper;
+  private ToDoDB mDbHelper;
   private String mContextEntry;
   private int mActiveEntry; // useful only in keyboard mode
 
@@ -93,7 +93,7 @@ public final class NotificationActivity extends Activity {
     LinearLayout el = mEntryLayout;
     el.removeAllViews();
     CheckBox cb;
-    int name = c.getColumnIndexOrThrow(ToDoListDB.KEY_NAME);
+    int name = c.getColumnIndexOrThrow(ToDoDB.KEY_NAME);
 
     CompoundButton.OnCheckedChangeListener ccl = new CompoundButton.OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -150,7 +150,7 @@ public final class NotificationActivity extends Activity {
     switch (selectedItem) {
     case TagToDoList.ENTRY_EDIT_ID:
       Intent i1 = new Intent(this, EditScreen.class);
-      i1.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
+      i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i1.setAction(TagToDoList.ACTIVITY_EDIT_ENTRY + "");
       startActivity(i1);
       break;
@@ -160,18 +160,18 @@ public final class NotificationActivity extends Activity {
       break;
     case TagToDoList.ENTRY_GRAPHICAL_ID:
       Intent i2 = new Intent(this, PaintScreen.class);
-      i2.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
+      i2.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       startActivity(i2);
       break;
     case TagToDoList.ENTRY_AUDIO_ID:
       Intent i3 = new Intent(this, AudioScreen.class);
-      i3.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
-      i3.putExtra(ToDoListDB.KEY_STATUS, true);
+      i3.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+      i3.putExtra(ToDoDB.KEY_STATUS, true);
       startActivity(i3);
       break;
     case TagToDoList.ENTRY_WRITTEN_ID:
       Intent i4 = new Intent(this, EditScreen.class);
-      i4.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
+      i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i4.setAction(TagToDoList.ACTIVITY_WRITE_NOTE + "");
       startActivity(i4);
       break;

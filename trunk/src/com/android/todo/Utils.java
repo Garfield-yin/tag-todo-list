@@ -85,7 +85,7 @@ public final class Utils {
    */
   public final static Intent getAlarmIntent(Intent intent, String task) {
     intent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-    intent.putExtra(ToDoListDB.KEY_NAME, task);
+    intent.putExtra(ToDoDB.KEY_NAME, task);
     intent.putExtra("Ringtone", Uri
         .parse("android.resource://com.android.todo/" + R.raw.beep));
     intent.putExtra("vibrationPatern", new long[] { 200, 300 });

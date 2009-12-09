@@ -91,12 +91,13 @@ public class TagToDoList extends Activity {
   public static boolean USAGE_STATS;
 
   public static TTS sTts; // text to speech
-  private static ToDoListDB sDbHelper;
+  private static ToDoDB sDbHelper;
   private static SharedPreferences sSettings;
   private static Context sContext = null;
   private static GoogleAnalyticsTracker sTracker = null;
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
+  private LinearLayout mNotesLayout = null;
   private ArrayAdapter<CharSequence> mTagsArrayAdapter;
   private Button mStatButton;
   private Button mAddEntryButton;
@@ -264,7 +265,7 @@ public class TagToDoList extends Activity {
     });
 
     if (sDbHelper == null) {
-      sDbHelper = new ToDoListDB(this).open();
+      sDbHelper = new ToDoDB(this).open();
     }
 
     showDueTasks(true);
@@ -285,27 +286,41 @@ public class TagToDoList extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
       }
     };
-    mStatButton.setText(processDepth(el, ccl, selectedTag, 0, null) /*
-                                                                     * starting
-                                                                     * from
-                                                                     * level 0
-                                                                     */+ ""); // updating
-    // stats
+    if (mNotesLayout != null) {
+      mNotesLayout.removeAllViews();
+    }
+    mStatButton.setText(processDepth(el, ccl, selectedTag, 0, null) + "");
   }
 
+  /**
+   * Populates the given LinearLayout with tasks.
+   * 
+   * @param el
+   *          The LinearLayout to be populated
+   * @param ccl
+   *          Things to happen when a task is checked
+   * @param selectedTag
+   *          Index of the selected tag
+   * @param depth
+   *          Depth of tasks to start processing with
+   * @param superTask
+   *          Populates with the subtasks of this superTask
+   * @return The number of unchecked tasks
+   */
   public int processDepth(LinearLayout el, OnCheckedChangeListener ccl,
       int selectedTag, int depth, String superTask) {
-    Cursor c = sDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
+    final Cursor c = sDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
         .getItem(selectedTag).toString() : null, depth, superTask);
     CheckBox cb;
-    int name = c.getColumnIndex(ToDoListDB.KEY_NAME);
-    int value = c.getColumnIndex(ToDoListDB.KEY_STATUS);
-    int subtasks = c.getColumnIndex(ToDoListDB.KEY_SUBTASKS);
+    final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
+    final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
+    final int subtasks = c.getColumnIndex(ToDoDB.KEY_SUBTASKS);
 
     Boolean checked;
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
-    final ToDoListDB dbHelper = sDbHelper;
+    final ToDoDB dbHelper = sDbHelper;
+    final LinearLayout notesLayout = mNotesLayout;
     if (c.getCount() > 0) {
       c.moveToLast();
       do {
@@ -315,9 +330,9 @@ public class TagToDoList extends Activity {
               / maxPriority + 64;
           cb.setTextColor(Color.rgb(color, color, color));
         }
-        cb.setText(c.getString(name));
-        if (c.getInt(value) == 1) { // 1 means checked, 0 means
-          // unchecked
+        final String taskName = c.getString(name);
+        cb.setText(taskName);
+        if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
           checked = true;
         } else {
           checked = false;
@@ -333,6 +348,61 @@ public class TagToDoList extends Activity {
           cb.setLayoutParams(lp);
         }
         el.addView(cb);
+        if (notesLayout != null) {
+          final LinearLayout taskNoteLayout = new LinearLayout(this);
+          taskNoteLayout.setOrientation(LinearLayout.HORIZONTAL);
+          boolean noNotes = true;
+          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
+            noNotes = false;
+            final ImageButton ib = new ImageButton(this);
+            ib.setBackgroundColor(Color.TRANSPARENT);
+            ib.setPadding(-5, 0, -5, 0);
+            ib.setImageResource(android.R.drawable.ic_menu_agenda);
+            ib.setOnClickListener(new View.OnClickListener() {
+              public void onClick(View v) {
+                mContextEntry = taskName;
+                changeTask(ENTRY_WRITTEN_ID);
+              }
+            });
+            taskNoteLayout.addView(ib);
+          }
+          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
+            noNotes = false;
+            final ImageButton ib = new ImageButton(this);
+            ib.setBackgroundColor(Color.TRANSPARENT);
+            ib.setPadding(-5, 0, -5, 0);
+            ib.setImageResource(android.R.drawable.ic_menu_edit);
+            ib.setOnClickListener(new View.OnClickListener() {
+              public void onClick(View v) {
+                mContextEntry = taskName;
+                changeTask(ENTRY_GRAPHICAL_ID);
+              }
+            });
+            taskNoteLayout.addView(ib);
+          }
+          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
+            noNotes = false;
+            final ImageButton ib = new ImageButton(this);
+            ib.setBackgroundColor(Color.TRANSPARENT);
+            ib.setPadding(-5, 0, -5, 0);
+            ib.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+            ib.setOnClickListener(new View.OnClickListener() {
+              public void onClick(View v) {
+                mContextEntry = taskName;
+                changeTask(ENTRY_AUDIO_ID);
+              }
+            });
+            taskNoteLayout.addView(ib);
+          }
+          if (noNotes) {
+            final TextView tv = new TextView(this);
+            tv.setPadding(0, 14, 0, 0);
+            tv.setText("");
+            tv.setMinHeight(48);
+            taskNoteLayout.addView(tv);
+          }
+          notesLayout.addView(taskNoteLayout);
+        }
         if (c.getInt(subtasks) > 0) {
           numberOfUnchecked += processDepth(el, ccl, selectedTag, depth + 1, c
               .getString(name));
@@ -395,7 +465,7 @@ public class TagToDoList extends Activity {
       return;
     }
     Intent i = new Intent(this, ConfirmationScreen.class);
-    i.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
+    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
         mTagSpinner.getSelectedItemPosition()).toString());
     i.setAction(ACTIVITY_DELETE_TAG + "");
     startActivity(i);
@@ -410,7 +480,7 @@ public class TagToDoList extends Activity {
       return;
     }
     Intent i = new Intent(this, ConfirmationScreen.class);
-    i.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
+    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
         mTagSpinner.getSelectedItemPosition()).toString());
     i.setAction(ACTIVITY_CLEAR_ENTRIES + "");
     startActivity(i);
@@ -421,7 +491,7 @@ public class TagToDoList extends Activity {
    */
   private void editTag() {
     Intent i = new Intent(this, EditScreen.class);
-    i.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
+    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
         mTagSpinner.getSelectedItemPosition()).toString());
     i.setAction(ACTIVITY_EDIT_TAG + "");
     startActivity(i);
@@ -442,9 +512,9 @@ public class TagToDoList extends Activity {
    */
   private void createEntry() {
     Intent i = new Intent(this, EditScreen.class);
-    i.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
+    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
         mTagSpinner.getSelectedItemPosition()).toString());
-    i.putExtra(ToDoListDB.KEY_SUPERTASK, "");
+    i.putExtra(ToDoDB.KEY_SUPERTASK, "");
     i.setAction(ACTIVITY_CREATE_ENTRY + "");
     startActivity(i);
   }
@@ -510,7 +580,7 @@ public class TagToDoList extends Activity {
       Utils.showDialog(R.string.notification, R.string.backup_import_fail,
           sContext);
     }
-    sDbHelper = new ToDoListDB(sContext);
+    sDbHelper = new ToDoDB(sContext);
     sDbHelper.open();
     sContext = null;
   }
@@ -518,7 +588,7 @@ public class TagToDoList extends Activity {
   @Override
   protected void onDestroy() {
     if (sSettings.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
-      ToDoListDB.createBackup();
+      ToDoDB.createBackup();
     }
     if (BLIND_MODE) {
       sTts.shutdown();
@@ -579,6 +649,14 @@ public class TagToDoList extends Activity {
     setPrioritySort(sSettings.getInt(PRIORITY_SORT, 0));
     setAlphabeticalSort(sSettings.getInt(ALPHABET_SORT, 0));
     setDueDateSort(sSettings.getInt(DUEDATE_SORT, 0));
+
+    // Is the notes preview feature enabled?
+    if (mNotesLayout != null) {
+      mNotesLayout.removeAllViews();
+    }
+    mNotesLayout = sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
+        || getWindowManager().getDefaultDisplay().getOrientation() == 1 ? (LinearLayout) findViewById(R.id.noteLayout)
+        : null;
 
     // Is a Google Calendar sync enabled?
     if (SYNC_GCAL = sSettings.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
@@ -661,15 +739,15 @@ public class TagToDoList extends Activity {
     switch (selectedItem) {
     case ENTRY_SUBTASK_ID:
       Intent i0 = new Intent(this, EditScreen.class);
-      i0.putExtra(ToDoListDB.KEY_NAME, mTagsArrayAdapter.getItem(
+      i0.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
           mTagSpinner.getSelectedItemPosition()).toString());
-      i0.putExtra(ToDoListDB.KEY_SUPERTASK, mContextEntry);
+      i0.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
       i0.setAction(ACTIVITY_CREATE_ENTRY + "");
       startActivity(i0);
       break;
     case ENTRY_EDIT_ID:
       Intent i1 = new Intent(this, EditScreen.class);
-      i1.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
+      i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i1.setAction(ACTIVITY_EDIT_ENTRY + "");
       startActivity(i1);
       break;
@@ -679,13 +757,13 @@ public class TagToDoList extends Activity {
       break;
     case ENTRY_GRAPHICAL_ID:
       Intent i2 = new Intent(this, PaintScreen.class);
-      i2.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
+      i2.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       startActivity(i2);
       break;
     case ENTRY_AUDIO_ID:
       Intent i3 = new Intent(this, AudioScreen.class);
-      i3.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
-      i3.putExtra(ToDoListDB.KEY_STATUS, true);
+      i3.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+      i3.putExtra(ToDoDB.KEY_STATUS, true);
       startActivity(i3);
       break;
     case ENTRY_DOWN_ID:
@@ -713,7 +791,7 @@ public class TagToDoList extends Activity {
       break;
     case ENTRY_WRITTEN_ID:
       Intent i4 = new Intent(this, EditScreen.class);
-      i4.putExtra(ToDoListDB.KEY_NAME, mContextEntry);
+      i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i4.setAction(ACTIVITY_WRITE_NOTE + "");
       startActivity(i4);
       break;
@@ -952,7 +1030,7 @@ public class TagToDoList extends Activity {
         dueEntries.moveToFirst();
         int name;
         try {
-          name = dueEntries.getColumnIndexOrThrow(ToDoListDB.KEY_NAME);
+          name = dueEntries.getColumnIndexOrThrow(ToDoDB.KEY_NAME);
         } catch (Exception e) {
           return false;
         }
@@ -1051,7 +1129,7 @@ public class TagToDoList extends Activity {
    * 
    * @return a handle to the DbHelper
    */
-  public static ToDoListDB getDbHelper() {
+  public static ToDoDB getDbHelper() {
     return sDbHelper;
   }
 
@@ -1243,15 +1321,15 @@ public class TagToDoList extends Activity {
   public void setPrioritySort(int x) {
     switch (x) {
     case 1:
-      ToDoListDB.setPriorityOrder(true, false);
+      ToDoDB.setPriorityOrder(true, false);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     case 2:
-      ToDoListDB.setPriorityOrder(true, true);
+      ToDoDB.setPriorityOrder(true, true);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     case 3:
-      ToDoListDB.setPriorityOrder(false, false);
+      ToDoDB.setPriorityOrder(false, false);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     }
@@ -1265,15 +1343,15 @@ public class TagToDoList extends Activity {
   public void setAlphabeticalSort(int x) {
     switch (x) {
     case 1:
-      ToDoListDB.setAlphabeticalOrder(true, false);
+      ToDoDB.setAlphabeticalOrder(true, false);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     case 2:
-      ToDoListDB.setAlphabeticalOrder(true, true);
+      ToDoDB.setAlphabeticalOrder(true, true);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     case 3:
-      ToDoListDB.setAlphabeticalOrder(false, false);
+      ToDoDB.setAlphabeticalOrder(false, false);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     }
@@ -1287,15 +1365,15 @@ public class TagToDoList extends Activity {
   public void setDueDateSort(int x) {
     switch (x) {
     case 1:
-      ToDoListDB.setDueDateOrder(true, false);
+      ToDoDB.setDueDateOrder(true, false);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     case 2:
-      ToDoListDB.setDueDateOrder(true, true);
+      ToDoDB.setDueDateOrder(true, true);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     case 3:
-      ToDoListDB.setDueDateOrder(false, false);
+      ToDoDB.setDueDateOrder(false, false);
       selectTag(mTagSpinner.getSelectedItemPosition());
       return;
     }

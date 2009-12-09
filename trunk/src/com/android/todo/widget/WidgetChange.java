@@ -15,7 +15,7 @@ import android.widget.RemoteViews;
 import com.android.todo.EditScreen;
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
-import com.android.todo.ToDoListDB;
+import com.android.todo.ToDoDB;
 import com.android.todo.Utils;
 
 /**
@@ -25,7 +25,7 @@ public final class WidgetChange extends BroadcastReceiver {
   private static int sTag = 0, sTask = 0;
   private static Cursor sTagCursor;
   private static Cursor sTaskCursor;
-  private static ToDoListDB sDbHelper;
+  private static ToDoDB sDbHelper;
   private static Timer sTimer;
   private static SharedPreferences sSettings;
 
@@ -39,7 +39,7 @@ public final class WidgetChange extends BroadcastReceiver {
     if (sDbHelper != null) {
       sDbHelper.close();
     }
-    sDbHelper = new ToDoListDB(c).open();
+    sDbHelper = new ToDoDB(c).open();
     sTagCursor = sDbHelper.getAllTags();
     if (sTimer != null) {
       sTimer.cancel();
@@ -49,13 +49,13 @@ public final class WidgetChange extends BroadcastReceiver {
     // initializing UI
     sTagCursor.moveToPosition(sTag);
     final String tag = sTagCursor.getString(sTagCursor
-        .getColumnIndex(ToDoListDB.KEY_NAME));
+        .getColumnIndex(ToDoDB.KEY_NAME));
     rv.setTextViewText(R.id.tagItem, tag);
     sTaskCursor = sDbHelper.getUncheckedEntries(tag);
     if (sTaskCursor.getCount() > 0) {
       sTaskCursor.moveToPosition(sTask);
       rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-          .getColumnIndex(ToDoListDB.KEY_NAME)));
+          .getColumnIndex(ToDoDB.KEY_NAME)));
     } else {
       rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
     }
@@ -68,26 +68,26 @@ public final class WidgetChange extends BroadcastReceiver {
   @Override
   public void onReceive(final Context c, final Intent intent) {
     final RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
-    switch (intent.getExtras().getInt(ToDoListDB.KEY_NAME)) {
+    switch (intent.getExtras().getInt(ToDoDB.KEY_NAME)) {
     case R.id.nextTaskButton:
       if (sTaskCursor.getCount() > 0) {
         sTaskCursor.moveToPosition(sTask = Utils.iterate(sTask, sTaskCursor
             .getCount(), 1));
         rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoListDB.KEY_NAME)));
+            .getColumnIndex(ToDoDB.KEY_NAME)));
       }
       break;
     case R.id.nextTagButton:
       sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
           .getCount(), 1));
       final String tag = sTagCursor.getString(sTagCursor
-          .getColumnIndex(ToDoListDB.KEY_NAME));
+          .getColumnIndex(ToDoDB.KEY_NAME));
       rv.setTextViewText(R.id.tagItem, tag);
       sTaskCursor = sDbHelper.getUncheckedEntries(tag);
       if (sTaskCursor.getCount() > 0) {
         sTaskCursor.moveToFirst();
         rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoListDB.KEY_NAME)));
+            .getColumnIndex(ToDoDB.KEY_NAME)));
       } else {
         rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
       }
@@ -99,15 +99,15 @@ public final class WidgetChange extends BroadcastReceiver {
     case R.id.addTaskButton:
       c.startActivity(new Intent(c, EditScreen.class).putExtra(
           WIDGET_INITIATED, true).setAction(
-          TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoListDB.KEY_NAME,
-          sTagCursor.getString(sTagCursor.getColumnIndex(ToDoListDB.KEY_NAME)))
-          .putExtra(ToDoListDB.KEY_SUPERTASK, "").addFlags(
+          TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
+          sTagCursor.getString(sTagCursor.getColumnIndex(ToDoDB.KEY_NAME)))
+          .putExtra(ToDoDB.KEY_SUPERTASK, "").addFlags(
               Intent.FLAG_ACTIVITY_NEW_TASK));
       break;
     case R.id.checkButton:
       if (sTaskCursor.getCount() > 0) {
         sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoListDB.KEY_NAME)), true);
+            .getColumnIndex(ToDoDB.KEY_NAME)), true);
         WidgetChange.refresh(rv, c);
       }
       break;
@@ -160,20 +160,20 @@ public final class WidgetChange extends BroadcastReceiver {
           sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
               .getCount(), 1));
           final String tag = sTagCursor.getString(sTagCursor
-              .getColumnIndex(ToDoListDB.KEY_NAME));
+              .getColumnIndex(ToDoDB.KEY_NAME));
           rv.setTextViewText(R.id.tagItem, tag);
           sTaskCursor = sDbHelper.getUncheckedEntries(tag);
           if (sTaskCursor.getCount() > 0) {
             sTaskCursor.moveToFirst();
             rv.setTextViewText(R.id.widgetItem, sTaskCursor
-                .getString(sTaskCursor.getColumnIndex(ToDoListDB.KEY_NAME)));
+                .getString(sTaskCursor.getColumnIndex(ToDoDB.KEY_NAME)));
           } else {
             rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
           }
           sTask = 0;
         }
         rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoListDB.KEY_NAME)));
+            .getColumnIndex(ToDoDB.KEY_NAME)));
         AppWidgetManager.getInstance(c).updateAppWidget(
             new ComponentName(c, TagToDoWidget.class), rv);
       }

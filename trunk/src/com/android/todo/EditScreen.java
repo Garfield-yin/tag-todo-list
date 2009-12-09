@@ -63,7 +63,7 @@ public final class EditScreen extends Activity {
   private static String sParameter;
   private static String sSuperTask;
   private static String mPriorityText;
-  private ToDoListDB mDbHelper;
+  private ToDoDB mDbHelper;
   private static String mMonthsString;
   private static String aux = "";
   private static int keyCount = 0;
@@ -80,7 +80,7 @@ public final class EditScreen extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mDbHelper = new ToDoListDB(this);
+    mDbHelper = new ToDoDB(this);
     mDbHelper.open();
     setContentView(R.layout.edit);
     final boolean noPhysicalKeyboard = (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS);
@@ -129,8 +129,8 @@ public final class EditScreen extends Activity {
     mCancelButton = (Button) findViewById(R.id.cancelButton);
 
     if (savedInstanceState != null) {
-      sParameter = savedInstanceState.getString(ToDoListDB.KEY_NAME);
-      sSuperTask = savedInstanceState.getString(ToDoListDB.KEY_SUPERTASK);
+      sParameter = savedInstanceState.getString(ToDoDB.KEY_NAME);
+      sSuperTask = savedInstanceState.getString(ToDoDB.KEY_SUPERTASK);
     } else {
       sParameter = null;
       sSuperTask = null;
@@ -139,8 +139,8 @@ public final class EditScreen extends Activity {
     if (sParameter == null) {
       Bundle extras = getIntent().getExtras();
       if (extras != null) {
-        sParameter = extras.getString(ToDoListDB.KEY_NAME);
-        sSuperTask = extras.getString(ToDoListDB.KEY_SUPERTASK);
+        sParameter = extras.getString(ToDoDB.KEY_NAME);
+        sSuperTask = extras.getString(ToDoDB.KEY_SUPERTASK);
       } else {
         sParameter = null;
         sSuperTask = null;
@@ -552,7 +552,7 @@ public final class EditScreen extends Activity {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putString(ToDoListDB.KEY_ROWID, sParameter);
+    outState.putString(ToDoDB.KEY_ROWID, sParameter);
   }
 
   @Override
