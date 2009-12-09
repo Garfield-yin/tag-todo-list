@@ -83,12 +83,14 @@ public class TagToDoList extends Activity {
   private static final String PRIORITY_SORT = "prioritySorting";
   private static final String ALPHABET_SORT = "alphabeticalSorting";
   private static final String DUEDATE_SORT = "dueDateSorting";
+  private static final String HIDE_CHECKED_SORT = "hideChecked";
 
   // Flags
   public static boolean SYNC_GCAL;
   public static boolean SHINY_PRIORITY;
   public static boolean BLIND_MODE;
   public static boolean USAGE_STATS;
+  public static boolean HIDE_CHECKED;
 
   public static TTS sTts; // text to speech
   private static ToDoDB sDbHelper;
@@ -321,6 +323,7 @@ public class TagToDoList extends Activity {
     final int maxPriority = mMaxPriority;
     final ToDoDB dbHelper = sDbHelper;
     final LinearLayout notesLayout = mNotesLayout;
+    final boolean hideChecked = HIDE_CHECKED;
     if (c.getCount() > 0) {
       c.moveToLast();
       do {
@@ -334,6 +337,9 @@ public class TagToDoList extends Activity {
         cb.setText(taskName);
         if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
           checked = true;
+          if (hideChecked) {
+            cb.setVisibility(View.GONE);
+          }
         } else {
           checked = false;
           numberOfUnchecked += 1;
@@ -350,56 +356,61 @@ public class TagToDoList extends Activity {
         el.addView(cb);
         if (notesLayout != null) {
           final LinearLayout taskNoteLayout = new LinearLayout(this);
-          taskNoteLayout.setOrientation(LinearLayout.HORIZONTAL);
-          boolean noNotes = true;
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
-            noNotes = false;
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(-5, 0, -5, 0);
-            ib.setImageResource(android.R.drawable.ic_menu_agenda);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_WRITTEN_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
-          }
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
-            noNotes = false;
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(-5, 0, -5, 0);
-            ib.setImageResource(android.R.drawable.ic_menu_edit);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_GRAPHICAL_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
-          }
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
-            noNotes = false;
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(-5, 0, -5, 0);
-            ib.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_AUDIO_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
-          }
-          if (noNotes) {
-            final TextView tv = new TextView(this);
-            tv.setPadding(0, 14, 0, 0);
-            tv.setText("");
-            tv.setMinHeight(48);
-            taskNoteLayout.addView(tv);
+          if (checked && hideChecked) {
+            taskNoteLayout.setVisibility(View.GONE);
+          } else {
+            taskNoteLayout.setOrientation(LinearLayout.HORIZONTAL);
+            boolean noNotes = true;
+            if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
+              noNotes = false;
+              final ImageButton ib = new ImageButton(this);
+              ib.setBackgroundColor(Color.TRANSPARENT);
+              ib.setPadding(-5, 0, -5, 0);
+              ib.setImageResource(R.drawable.written);
+              ib.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                  mContextEntry = taskName;
+                  changeTask(ENTRY_WRITTEN_ID);
+                }
+              });
+              taskNoteLayout.addView(ib);
+
+            }
+            if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
+              noNotes = false;
+              final ImageButton ib = new ImageButton(this);
+              ib.setBackgroundColor(Color.TRANSPARENT);
+              ib.setPadding(-5, 0, -5, 0);
+              ib.setImageResource(android.R.drawable.ic_menu_edit);
+              ib.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                  mContextEntry = taskName;
+                  changeTask(ENTRY_GRAPHICAL_ID);
+                }
+              });
+              taskNoteLayout.addView(ib);
+            }
+            if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
+              noNotes = false;
+              final ImageButton ib = new ImageButton(this);
+              ib.setBackgroundColor(Color.TRANSPARENT);
+              ib.setPadding(-5, 0, -5, 0);
+              ib.setImageResource(R.drawable.audio);
+              ib.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                  mContextEntry = taskName;
+                  changeTask(ENTRY_AUDIO_ID);
+                }
+              });
+              taskNoteLayout.addView(ib);
+            }
+            if (noNotes) {
+              final TextView tv = new TextView(this);
+              tv.setPadding(0, 14, 0, 0);
+              tv.setText("");
+              tv.setMinHeight(48);
+              taskNoteLayout.addView(tv);
+            }
           }
           notesLayout.addView(taskNoteLayout);
         }
@@ -590,6 +601,7 @@ public class TagToDoList extends Activity {
     if (sSettings.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
       ToDoDB.createBackup();
     }
+
     if (BLIND_MODE) {
       sTts.shutdown();
     }
@@ -657,6 +669,9 @@ public class TagToDoList extends Activity {
     mNotesLayout = sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
         || getWindowManager().getDefaultDisplay().getOrientation() == 1 ? (LinearLayout) findViewById(R.id.noteLayout)
         : null;
+
+    // Should checked tasks be hidden?
+    HIDE_CHECKED = sSettings.getBoolean(HIDE_CHECKED_SORT, false);
 
     // Is a Google Calendar sync enabled?
     if (SYNC_GCAL = sSettings.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
@@ -1259,6 +1274,11 @@ public class TagToDoList extends Activity {
     row.addView(alphabetUp);
     ll.addView(row);
 
+    final CheckBox hideChecked = new CheckBox(this);
+    hideChecked.setText(R.string.hide_checked);
+    hideChecked.setChecked(HIDE_CHECKED);
+    ll.addView(hideChecked);
+
     Button b = new Button(this);
     b.setText(R.string.confirm);
     b.setOnClickListener(new View.OnClickListener() {
@@ -1298,6 +1318,9 @@ public class TagToDoList extends Activity {
           setDueDateSort(3);
           editor.putInt(DUEDATE_SORT, 0);
         }
+
+        editor.putBoolean(HIDE_CHECKED_SORT, HIDE_CHECKED = hideChecked
+            .isChecked());
 
         editor.commit();
         fillTagData();
