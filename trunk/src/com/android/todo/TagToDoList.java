@@ -318,7 +318,7 @@ public class TagToDoList extends Activity {
     final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
     final int subtasks = c.getColumnIndex(ToDoDB.KEY_SUBTASKS);
 
-    Boolean checked;
+    boolean checked;
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
     final ToDoDB dbHelper = sDbHelper;
@@ -361,6 +361,7 @@ public class TagToDoList extends Activity {
           } else {
             taskNoteLayout.setOrientation(LinearLayout.HORIZONTAL);
             boolean noNotes = true;
+            
             if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
               noNotes = false;
               final ImageButton ib = new ImageButton(this);
