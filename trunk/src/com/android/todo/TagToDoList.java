@@ -3,6 +3,8 @@
 package com.android.todo;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Calendar;
 
 import android.app.Activity;
@@ -355,65 +357,76 @@ public class TagToDoList extends Activity {
         }
         el.addView(cb);
         if (notesLayout != null) {
-          final LinearLayout taskNoteLayout = new LinearLayout(this);
-          if (checked && hideChecked) {
-            taskNoteLayout.setVisibility(View.GONE);
-          } else {
-            taskNoteLayout.setOrientation(LinearLayout.HORIZONTAL);
-            boolean noNotes = true;
-            
-            if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
-              noNotes = false;
-              final ImageButton ib = new ImageButton(this);
-              ib.setBackgroundColor(Color.TRANSPARENT);
-              ib.setPadding(-5, 0, -5, 0);
-              ib.setImageResource(R.drawable.written);
-              ib.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                  mContextEntry = taskName;
-                  changeTask(ENTRY_WRITTEN_ID);
-                }
-              });
-              taskNoteLayout.addView(ib);
+          try { // this try clause shouldn't be necessary, but users are
+            // reporting force-closes
+            final LinearLayout taskNoteLayout = new LinearLayout(this);
+            if (checked && hideChecked) {
+              taskNoteLayout.setVisibility(View.GONE);
+            } else {
+              taskNoteLayout.setOrientation(LinearLayout.HORIZONTAL);
+              boolean noNotes = true;
 
+              if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
+                noNotes = false;
+                final ImageButton ib = new ImageButton(this);
+                ib.setBackgroundColor(Color.TRANSPARENT);
+                ib.setPadding(-5, 0, -5, 0);
+                ib.setImageResource(R.drawable.written);
+                ib.setOnClickListener(new View.OnClickListener() {
+                  public void onClick(View v) {
+                    mContextEntry = taskName;
+                    changeTask(ENTRY_WRITTEN_ID);
+                  }
+                });
+                taskNoteLayout.addView(ib);
+
+              }
+              if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
+                noNotes = false;
+                final ImageButton ib = new ImageButton(this);
+                ib.setBackgroundColor(Color.TRANSPARENT);
+                ib.setPadding(-5, 0, -5, 0);
+                ib.setImageResource(android.R.drawable.ic_menu_edit);
+                ib.setOnClickListener(new View.OnClickListener() {
+                  public void onClick(View v) {
+                    mContextEntry = taskName;
+                    changeTask(ENTRY_GRAPHICAL_ID);
+                  }
+                });
+                taskNoteLayout.addView(ib);
+              }
+              if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
+                noNotes = false;
+                final ImageButton ib = new ImageButton(this);
+                ib.setBackgroundColor(Color.TRANSPARENT);
+                ib.setPadding(-5, 0, -5, 0);
+                ib.setImageResource(R.drawable.audio);
+                ib.setOnClickListener(new View.OnClickListener() {
+                  public void onClick(View v) {
+                    mContextEntry = taskName;
+                    changeTask(ENTRY_AUDIO_ID);
+                  }
+                });
+                taskNoteLayout.addView(ib);
+              }
+              if (noNotes) {
+                final TextView tv = new TextView(this);
+                tv.setPadding(0, 14, 0, 0);
+                tv.setText("");
+                tv.setMinHeight(48);
+                taskNoteLayout.addView(tv);
+              }
             }
-            if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
-              noNotes = false;
-              final ImageButton ib = new ImageButton(this);
-              ib.setBackgroundColor(Color.TRANSPARENT);
-              ib.setPadding(-5, 0, -5, 0);
-              ib.setImageResource(android.R.drawable.ic_menu_edit);
-              ib.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                  mContextEntry = taskName;
-                  changeTask(ENTRY_GRAPHICAL_ID);
-                }
-              });
-              taskNoteLayout.addView(ib);
-            }
-            if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
-              noNotes = false;
-              final ImageButton ib = new ImageButton(this);
-              ib.setBackgroundColor(Color.TRANSPARENT);
-              ib.setPadding(-5, 0, -5, 0);
-              ib.setImageResource(R.drawable.audio);
-              ib.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                  mContextEntry = taskName;
-                  changeTask(ENTRY_AUDIO_ID);
-                }
-              });
-              taskNoteLayout.addView(ib);
-            }
-            if (noNotes) {
-              final TextView tv = new TextView(this);
-              tv.setPadding(0, 14, 0, 0);
-              tv.setText("");
-              tv.setMinHeight(48);
-              taskNoteLayout.addView(tv);
-            }
+            notesLayout.addView(taskNoteLayout);
+          } catch (Exception e) {// if there is an exception in this preventive
+            // try clause, we send back stats with the
+            // exception (if the user wants)
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            sTracker.trackEvent(Analytics.EXCEPTION, /* name of this function */
+                "processDepth", e.getMessage() + '|' + sw.toString(), 0);
           }
-          notesLayout.addView(taskNoteLayout);
         }
         if (c.getInt(subtasks) > 0) {
           numberOfUnchecked += processDepth(el, ccl, selectedTag, depth + 1, c

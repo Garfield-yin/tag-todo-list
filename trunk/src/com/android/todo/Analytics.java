@@ -33,6 +33,10 @@ public final class Analytics {
    */
   public static final String INTERFACE = "INTERFACE";
   /**
+   * Represents the occurence of an exception.
+   */
+  public static final String EXCEPTION = "EXCEPTION";
+  /**
    * Represents the button which adds tasks
    */
   public static final String ADD_TASK_BUTTON = "ADD_TASK_BUTTON";
