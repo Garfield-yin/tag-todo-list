@@ -892,6 +892,7 @@ public final class ToDoDB implements IDB {
   public boolean updateEntryParent(String entryName, String newParent) {
     ContentValues args = new ContentValues();
     args.put(KEY_PARENT, newParent);
+    args.put(KEY_DEPTH, 0);
     return mDb.update(DB_ENTRY_TABLE, args,
         KEY_NAME + " = '" + entryName + "'", null) > 0;
   }

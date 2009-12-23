@@ -425,7 +425,7 @@ public class TagToDoList extends Activity {
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             sTracker.trackEvent(Analytics.EXCEPTION, /* name of this function */
-                "processDepth", e.getMessage() + '|' + sw.toString(), 0);
+            "processDepth", e.getMessage() + '|' + sw.toString(), 0);
           }
         }
         if (c.getInt(subtasks) > 0) {
@@ -805,12 +805,12 @@ public class TagToDoList extends Activity {
       final int p = mTagSpinner.getSelectedItemPosition();
       mTagSpinner
           .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> arg0, View arg1,
-                int arg2, long arg3) {
+            public void onItemSelected(AdapterView<?> av, View v, int i,
+                long arg3) {
               sDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
-                  .getItem(arg2).toString());
-              arg0.setOnItemSelectedListener(l);
-              arg0.setSelection(p);
+                  .getItem(i).toString());
+              av.setOnItemSelectedListener(l);
+              av.setSelection(p);
             }
 
             public void onNothingSelected(AdapterView<?> arg0) {
