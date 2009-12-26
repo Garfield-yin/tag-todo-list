@@ -421,11 +421,13 @@ public class TagToDoList extends Activity {
           } catch (Exception e) {// if there is an exception in this preventive
             // try clause, we send back stats with the
             // exception (if the user wants)
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            sTracker.trackEvent(Analytics.EXCEPTION, /* name of this function */
-            "processDepth", e.getMessage() + '|' + sw.toString(), 0);
+            if (USAGE_STATS) {
+              StringWriter sw = new StringWriter();
+              PrintWriter pw = new PrintWriter(sw);
+              e.printStackTrace(pw);
+              sTracker.trackEvent(Analytics.EXCEPTION, /* name of this function */
+              "processDepth", e.getMessage() + '|' + sw.toString(), 0);
+            }
           }
         }
         if (c.getInt(subtasks) > 0) {
