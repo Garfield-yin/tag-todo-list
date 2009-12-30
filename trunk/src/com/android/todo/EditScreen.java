@@ -37,6 +37,7 @@ import android.widget.TimePicker;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.android.todo.data.ToDoDB;
 import com.android.todo.speech.OneTimeTTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;

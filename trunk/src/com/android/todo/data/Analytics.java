@@ -1,4 +1,4 @@
-package com.android.todo;
+package com.android.todo.data;
 
 /**
  * Container class for Analytics parameters

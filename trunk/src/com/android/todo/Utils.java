@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 
+import com.android.todo.data.ToDoDB;
+
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;

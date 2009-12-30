@@ -12,7 +12,7 @@ import android.widget.RemoteViews;
 
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
-import com.android.todo.ToDoDB;
+import com.android.todo.data.ToDoDB;
 
 /**
  * Class that takes care of the Widget behavior

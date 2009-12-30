@@ -1,6 +1,6 @@
 //class made by Teo ( www.teodorfilimon.com ). More about the app in readme.txt
 
-package com.android.todo;
+package com.android.todo.data;
 
 import java.io.File;
 import java.util.GregorianCalendar;
@@ -17,32 +17,22 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.android.todo.AlarmReceiver;
+import com.android.todo.BootReceiver;
+import com.android.todo.R;
+import com.android.todo.TagToDoList;
+import com.android.todo.Utils;
+
 /**
  * This class handles all the interactions with the database. The database
  * contains 2 tables. One of them is called "tags", the other one is called
  * "entries". An entry is what the user visually perceives as a task.
  */
-public final class ToDoDB implements IDB {
+public final class ToDoDB extends ADB {
 
-  // name for tags and entries
-  public static final String KEY_NAME = "name";
-  // checked/unchecked
-  public static final String KEY_STATUS = "status";
-  // parent tag for an entry
-  public static final String KEY_PARENT = "parent";
   // key for the written note (if any)
   public static final String KEY_WRITTEN_NOTE = "writtennote";
-  // bit 1 (lsb) of this integer shows if a due date is set
-  // bit 2 of this integer shows if a due time is set
-  public static final String KEY_EXTRA_OPTIONS = "extraoptions";
-  public static final String KEY_DUE_DATE = "duedate";
-  public static final String KEY_DUE_MONTH = "duemonth";
-  public static final String KEY_DUE_YEAR = "dueyear";
-  public static final String KEY_DUE_HOUR = "duehour";
-  public static final String KEY_DUE_MINUTE = "dueminute";
-  public static final String KEY_DUE_DAY_OF_WEEK = "dueday";
-  // priority key name
-  public static final String KEY_PRIORITY = "priority";
+
   // keys useful for the subtasks feature
   public static final String KEY_DEPTH = "depth";
   public static final String KEY_SUPERTASK = "supertask";
@@ -51,16 +41,9 @@ public final class ToDoDB implements IDB {
   public static final String KEY_NOTE_IS_WRITTEN = "iswrittennote";
   public static final String KEY_NOTE_IS_GRAPHICAL = "isgraphicalnote";
   public static final String KEY_NOTE_IS_AUDIO = "isaudionote";
-  // a helpful id
-  public static final String KEY_ROWID = "_id";
 
-  private static final String DB_NAME = "data";
   private static final String DB_TAG_TABLE = "tags";
-  private static final String DB_ENTRY_TABLE = "entries";
-  private static Context mCtx;
   private DatabaseHelper mDbHelper;
-  private SQLiteDatabase mDb;
-  public static Resources res;
   private static String PRIORITY_ORDER_TOKEN = "";
   private static String ALPHABET_ORDER_TOKEN = "";
   private static String DUEDATE_ORDER_TOKEN = "";
@@ -548,104 +531,6 @@ public final class ToDoDB implements IDB {
         .getString(entry.getColumnIndexOrThrow(KEY_WRITTEN_NOTE));
     entry.close();
     return note;
-  }
-
-  /**
-   * Returns an int which contains all the necessary information. It is encoded
-   * like this: (year*12+month)*31+day
-   * 
-   * @param entryName
-   * @return encoded date
-   */
-  public int getDueDate(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE }, KEY_NAME
-        + " = '" + entryName + "'", null, null, null, null);
-    // for now, assuming we have a task named like this :)
-    entry.moveToFirst();
-    int e = 372 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 31
-        * entry.getInt(entry.getColumnIndex(KEY_DUE_MONTH))
-        + entry.getInt(entry.getColumnIndex(KEY_DUE_DATE));
-    entry.close();
-    return e;
-  }
-
-  /**
-   * Returns the attached day of the week (0 is monday)
-   * 
-   * @param entryName
-   * @return
-   */
-  public int getDueDayOfWeek(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_DUE_DAY_OF_WEEK }, KEY_NAME + " = '" + entryName + "'",
-        null, null, null, null);
-    // for now, assuming we have a task named like this :)
-    entry.moveToFirst();
-    int d = entry.getInt(entry.getColumnIndex(KEY_DUE_DAY_OF_WEEK));
-    entry.close();
-    return d;
-  }
-
-  /**
-   * Returns an int which contains all the necessary information. It is encoded
-   * like this: hour*60+minute
-   * 
-   * @param entryName
-   * @return encoded date
-   */
-  public int getDueTime(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_DUE_HOUR, KEY_DUE_MINUTE }, KEY_NAME + " = '" + entryName
-        + "'", null, null, null, null);
-    // for now, assuming we have a task named like this :)
-    entry.moveToFirst();
-    int e = 60 * entry.getInt(entry.getColumnIndex(KEY_DUE_HOUR))
-        + entry.getInt(entry.getColumnIndex(KEY_DUE_MINUTE));
-    entry.close();
-    return e;
-  }
-
-  /**
-   * Verifies if a due date is actually set for an entry
-   * 
-   * @param entryName
-   * @return true, if a due date has been set
-   */
-  public boolean isDueDateSet(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'",
-        null, null, null, null);
-    if (entry.getCount() == 0) {
-      entry.close();
-      return false;
-    }
-    entry.moveToFirst();
-    // the due date is given by the last bit of KEY_EXTRA_OPTIONS
-    boolean b = entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) % 2 == 1;
-    entry.close();
-    return b;
-  }
-
-  /**
-   * Verifies if a due time is actually set for an entry
-   * 
-   * @param entryName
-   * @return true, if a due time has been set
-   */
-  public boolean isDueTimeSet(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'",
-        null, null, null, null);
-    if (entry.getCount() == 0) {
-      entry.close();
-      return false;
-    }
-    entry.moveToFirst();
-    // the due time is given by the second last bit of KEY_EXTRA_OPTIONS
-    boolean b = (entry.getInt(entry.getColumnIndex(KEY_EXTRA_OPTIONS)) >> 1) % 2 == 1;
-    entry.close();
-    return b;
   }
 
   /**
@@ -1138,14 +1023,6 @@ public final class ToDoDB implements IDB {
       } while (c.moveToNext());
     }
     c.close();
-  }
-
-  /**
-   * @return entries which are not checked
-   */
-  public Cursor getUncheckedEntries() {
-    return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS }, KEY_STATUS + " = 0", null, null, null, null);
   }
 
   /**

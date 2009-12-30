@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import com.android.todo.data.ToDoDB;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;

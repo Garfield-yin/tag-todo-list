@@ -55,8 +55,8 @@ removal by Android on app update)
 - commit code changes to the open-source project
 - publish on Android Market
 - blog post about changes
-- upload .apk to Google Code
 - upload .apk to Tag-ToDo-List website
+- upload .apk to Google Code
 
 I'll be happy to answer any questions at:
 http://teodorfilimon.com/android/Tag-ToDo-List/contact.html

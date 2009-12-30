@@ -22,6 +22,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
+import com.android.todo.data.ToDoDB;
 import com.android.todo.sync.GoogleCalendar;
 
 /**
