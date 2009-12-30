@@ -812,7 +812,7 @@ public class TagToDoList extends Activity {
             public void onItemSelected(AdapterView<?> av, View v, int i,
                 long arg3) {
               sDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
-                  .getItem(i).toString());
+                  .getItem(i).toString(),0);
               av.setOnItemSelectedListener(l);
               av.setSelection(p);
             }

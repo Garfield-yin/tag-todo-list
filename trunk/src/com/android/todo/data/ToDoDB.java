@@ -204,8 +204,8 @@ public final class ToDoDB extends ADB {
               + KEY_NOTE_IS_GRAPHICAL + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
               + KEY_NOTE_IS_AUDIO + " INTEGER DEFAULT 0");
-          final Cursor c = db.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_WRITTEN_NOTE },
-              null, null, null, null, null);
+          final Cursor c = db.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+              KEY_WRITTEN_NOTE }, null, null, null, null, null);
           if (c.getCount() > 0) {
             c.moveToFirst();
             do {
@@ -216,7 +216,8 @@ public final class ToDoDB extends ADB {
               if (!"".equals(writtenNote) && writtenNote != null) {
                 final ContentValues args = new ContentValues();
                 args.put(KEY_NOTE_IS_WRITTEN, 1);
-                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
+                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
+                    + "'", null);
               }
 
               // checking for a graphical note
@@ -229,7 +230,8 @@ public final class ToDoDB extends ADB {
               if (found) {
                 final ContentValues args = new ContentValues();
                 args.put(KEY_NOTE_IS_GRAPHICAL, 1);
-                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
+                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
+                    + "'", null);
               }
 
               // checking for an audio note
@@ -242,7 +244,8 @@ public final class ToDoDB extends ADB {
               if (found) {
                 final ContentValues args = new ContentValues();
                 args.put(KEY_NOTE_IS_AUDIO, 1);
-                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
+                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
+                    + "'", null);
               }
             } while (c.moveToNext());
           }
@@ -425,7 +428,7 @@ public final class ToDoDB extends ADB {
    *          won't exist.
    * @return Cursor over all entries in a tag
    */
-  public final Cursor getEntries(String tag, int depth, String superTask) {
+  public final Cursor getEntries(final String tag, final int depth, final String superTask) {
 
     return mDb
         .query(
@@ -766,20 +769,31 @@ public final class ToDoDB extends ADB {
   }
 
   /**
-   * Updates (Moves) the specified entry with a new parent (tag)
+   * Updates (Moves) the specified entry with a new parent (tag). Also takes
+   * care of moving the subtasks.
    * 
-   * @param entryName
-   *          the name of the entry to be modified
+   * @param task
    * @param newParent
    *          the new parent name
+   * @param depth
+   *          the intended depth of the task
    * @return true if successfully updated
    */
-  public boolean updateEntryParent(String entryName, String newParent) {
-    ContentValues args = new ContentValues();
+  public void updateEntryParent(final String task, final String newParent,
+      final int depth) {
+    final Cursor subtasks = getEntries(null, -1, task);
+    if (subtasks.getCount()>0){
+      final int name=subtasks.getColumnIndex(KEY_NAME);
+      subtasks.moveToFirst();
+      do{
+        updateEntryParent(subtasks.getString(name),newParent,depth+1);
+      }while(subtasks.moveToNext());
+    }
+    subtasks.close();
+    final ContentValues args = new ContentValues();
     args.put(KEY_PARENT, newParent);
-    args.put(KEY_DEPTH, 0);
-    return mDb.update(DB_ENTRY_TABLE, args,
-        KEY_NAME + " = '" + entryName + "'", null) > 0;
+    args.put(KEY_DEPTH, depth);
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'", null);
   }
 
   /**
