@@ -684,8 +684,8 @@ public class TagToDoList extends Activity {
     if (mNotesLayout != null) {
       mNotesLayout.removeAllViews();
     }
-    mNotesLayout = sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
-        || getWindowManager().getDefaultDisplay().getOrientation() == 1 ? (LinearLayout) findViewById(R.id.noteLayout)
+    mNotesLayout = (sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false) || getWindowManager()
+        .getDefaultDisplay().getOrientation() == 1) ? (LinearLayout) findViewById(R.id.noteLayout)
         : null;
 
     // Should checked tasks be hidden?
@@ -812,7 +812,7 @@ public class TagToDoList extends Activity {
             public void onItemSelected(AdapterView<?> av, View v, int i,
                 long arg3) {
               sDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
-                  .getItem(i).toString(),0);
+                  .getItem(i).toString(), 0);
               av.setOnItemSelectedListener(l);
               av.setSelection(p);
             }

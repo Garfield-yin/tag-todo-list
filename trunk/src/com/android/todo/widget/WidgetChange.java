@@ -23,14 +23,29 @@ import com.android.todo.data.ToDoDB;
  */
 public final class WidgetChange extends BroadcastReceiver {
   private static int sTag = 0, sTask = 0;
-  private static Cursor sTagCursor;
-  private static Cursor sTaskCursor;
+  private static Cursor sTagCursor = null;
+  private static Cursor sTaskCursor = null;
   private static ToDoDB sDbHelper;
   private static Timer sTimer;
   private static SharedPreferences sSettings;
 
   private final static String CICLE_ON = "widgetCicle";
   public final static String WIDGET_INITIATED = "widgetInitiated";
+
+  /**
+   * Makes sure the refresh method has been called. If it hasn't, it will be
+   * called now.
+   * 
+   * @param rv
+   *          RemoteViews parameter to be passed to the refresh method
+   * @param c
+   *          Context passed to the refresh method
+   */
+  public final static void ensureRefresh(final RemoteViews rv, final Context c) {
+    if (sTaskCursor == null) {
+      refresh(rv, c);
+    }
+  }
 
   public final static void refresh(final RemoteViews rv, final Context c) {
     // initializing logic
@@ -68,6 +83,7 @@ public final class WidgetChange extends BroadcastReceiver {
   @Override
   public void onReceive(final Context c, final Intent intent) {
     final RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
+    ensureRefresh(rv, c);
     switch (intent.getExtras().getInt(ToDoDB.KEY_NAME)) {
     case R.id.nextTaskButton:
       if (sTaskCursor.getCount() > 0) {
