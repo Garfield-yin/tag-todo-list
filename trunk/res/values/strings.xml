@@ -41,6 +41,7 @@
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
 <string name="entry_move">Move to another tag</string>
+<string name="entry_move_under_task">Move under a task</string>
 <string name="entry_written_note">Written note</string>
 <string name="entry_graphical_note">Graphical note</string>
 <string name="entry_audio_note">Audio note</string>

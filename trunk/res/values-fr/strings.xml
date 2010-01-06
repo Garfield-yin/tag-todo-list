@@ -34,6 +34,7 @@
 <string name="entry_edit">Modifier cette tâche</string>
 <string name="entry_delete">Supprimer cette tâche</string>
 <string name="entry_move">Déplacer vers une étiquette</string>
+<string name="entry_move_under_task">Déplacer sous une tâche</string>
 <string name="entry_written_note">Note écrite</string>
 <string name="entry_graphical_note">Note dessinée</string>
 <string name="entry_audio_note">Note audio</string>

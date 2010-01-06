@@ -38,7 +38,7 @@
 
 	</ScrollView>
 
-	<LinearLayout android:id="@+id/entryLayout"
+	<LinearLayout android:id="@+id/lowerLayout"
 		android:orientation="horizontal" android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 

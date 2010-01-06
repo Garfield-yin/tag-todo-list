@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -82,6 +83,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_WRITTEN_ID = 8;
   public static final int ENTRY_INSTANTACTION_ID = 9;
   public static final int ENTRY_SUBTASK_ID = 10;
+  public static final int ENTRY_MOVE_UNDER_TASK_ID = 11;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -95,6 +97,12 @@ public class TagToDoList extends Activity {
   public static boolean BLIND_MODE;
   public static boolean USAGE_STATS;
   public static boolean HIDE_CHECKED;
+
+  /**
+   * A local flag - if true, clicking a task won't check it. Useful, for
+   * example, when the user wants to move a task under another task.
+   */
+  private static boolean CHOICE_MODE = false;
 
   public static TTS sTts; // text to speech
   private static ToDoDB sDbHelper;
@@ -283,15 +291,25 @@ public class TagToDoList extends Activity {
    * @param selectedTab
    *          index of the selected tab, as it will come from the spinner
    */
-  private void selectTag(int selectedTag) {
+  private void selectTag(final int selectedTag) {
     final LinearLayout el = mEntryLayout;
     el.removeAllViews();
-    final OnCheckedChangeListener ccl = new OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        sDbHelper.updateEntry(buttonView.getText().toString(), isChecked);
+    final OnCheckedChangeListener ccl = CHOICE_MODE ? new OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
+        cb.setChecked(!isChecked);
+        CHOICE_MODE = false;
+        ((LinearLayout) findViewById(R.id.lowerLayout))
+            .setVisibility(View.VISIBLE);
+        sDbHelper.setSuperTask(mContextEntry, cb.getText().toString());
         selectTag(mTagSpinner.getSelectedItemPosition());
       }
-    };
+    }
+        : new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
+            sDbHelper.updateEntry(cb.getText().toString(), isChecked);
+            selectTag(mTagSpinner.getSelectedItemPosition());
+          }
+        };
     if (mNotesLayout != null) {
       mNotesLayout.removeAllViews();
     }
@@ -671,9 +689,9 @@ public class TagToDoList extends Activity {
   }
 
   /**
-   * Initiates the interface population
+   * Initiates the interface population.
    */
-  private void populateFields() {
+  private final void populateFields() {
     fillTagData();
 
     setPrioritySort(sSettings.getInt(PRIORITY_SORT, 0));
@@ -684,8 +702,8 @@ public class TagToDoList extends Activity {
     if (mNotesLayout != null) {
       mNotesLayout.removeAllViews();
     }
-    mNotesLayout = (sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false) || getWindowManager()
-        .getDefaultDisplay().getOrientation() == 1) ? (LinearLayout) findViewById(R.id.noteLayout)
+    mNotesLayout = (sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false) || getResources()
+        .getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? ((LinearLayout) findViewById(R.id.noteLayout))
         : null;
 
     // Should checked tasks be hidden?
@@ -749,13 +767,14 @@ public class TagToDoList extends Activity {
     submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, ENTRY_MOVE_ID, 0, R.string.entry_move);
+    submenu.add(0, ENTRY_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
     submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
     menu.setHeaderTitle(R.string.entry_menu);
   }
 
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    int id = item.getItemId();
+    final int id = item.getItemId();
     return (id > 0) ? changeTask(id) : true;
   }
 
@@ -822,8 +841,13 @@ public class TagToDoList extends Activity {
           });
       mTagSpinner.performClick();
       break;
+    case ENTRY_MOVE_UNDER_TASK_ID:
+      CHOICE_MODE = true;
+      ((LinearLayout) findViewById(R.id.lowerLayout)).setVisibility(View.GONE);
+      selectTag(mTagSpinner.getSelectedItemPosition());
+      break;
     case ENTRY_WRITTEN_ID:
-      Intent i4 = new Intent(this, EditScreen.class);
+      final Intent i4 = new Intent(this, EditScreen.class);
       i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i4.setAction(ACTIVITY_WRITE_NOTE + "");
       startActivity(i4);

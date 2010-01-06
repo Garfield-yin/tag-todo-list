@@ -3,6 +3,7 @@
 package com.android.todo.data;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.GregorianCalendar;
 
 import android.app.AlarmManager;
@@ -238,7 +239,7 @@ public final class ToDoDB extends ADB {
               found = true;
               try {
                 mCtx.openFileInput(Utils.getAudioName(taskName));
-              } catch (Exception e) {
+              } catch (FileNotFoundException e) {
                 found = false;
               }
               if (found) {
@@ -322,7 +323,7 @@ public final class ToDoDB extends ADB {
   public static final void createBackup() {
     try {
       // checking if the Tag-ToDo folder exists on the sdcard
-      File f = new File("/sdcard/Tag-ToDo_data/");
+      final File f = new File("/sdcard/Tag-ToDo_data/");
       if (f.exists() == false) {
         try {
           f.mkdirs();
@@ -428,7 +429,8 @@ public final class ToDoDB extends ADB {
    *          won't exist.
    * @return Cursor over all entries in a tag
    */
-  public final Cursor getEntries(final String tag, final int depth, final String superTask) {
+  public final Cursor getEntries(final String tag, final int depth,
+      final String superTask) {
 
     return mDb
         .query(
@@ -782,12 +784,12 @@ public final class ToDoDB extends ADB {
   public void updateEntryParent(final String task, final String newParent,
       final int depth) {
     final Cursor subtasks = getEntries(null, -1, task);
-    if (subtasks.getCount()>0){
-      final int name=subtasks.getColumnIndex(KEY_NAME);
+    if (subtasks.getCount() > 0) {
+      final int name = subtasks.getColumnIndex(KEY_NAME);
       subtasks.moveToFirst();
-      do{
-        updateEntryParent(subtasks.getString(name),newParent,depth+1);
-      }while(subtasks.moveToNext());
+      do {
+        updateEntryParent(subtasks.getString(name), newParent, depth + 1);
+      } while (subtasks.moveToNext());
     }
     subtasks.close();
     final ContentValues args = new ContentValues();
@@ -907,16 +909,15 @@ public final class ToDoDB extends ADB {
   /**
    * Sets a written (text) note for the given entry
    * 
-   * @param entryName
+   * @param task
    * @param note
    * @return
    */
-  public final void setWrittenNote(String entryName, String note) {
-    ContentValues args = new ContentValues();
+  public final void setWrittenNote(String task, String note) {
+    final ContentValues args = new ContentValues();
     args.put(KEY_WRITTEN_NOTE, note);
-    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'", null);
-    setFlag(entryName, KEY_NOTE_IS_WRITTEN,
-        !"".equals(note) && note != null ? 1 : 0);
+    mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    setFlag(task, KEY_NOTE_IS_WRITTEN, !"".equals(note) && note != null ? 1 : 0);
   }
 
   /**
@@ -967,17 +968,18 @@ public final class ToDoDB extends ADB {
    * @param task
    * @param superTask
    */
-  public void setSuperTask(String task, String superTask) {
-    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_DEPTH,
-        KEY_SUBTASKS }, KEY_NAME + " = '" + superTask + "'", null, null, null,
-        null);
+  public void setSuperTask(final String task, final String superTask) {
+    final Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+        KEY_DEPTH, KEY_SUBTASKS, KEY_PARENT }, KEY_NAME + " = '" + superTask
+        + "'", null, null, null, null);
     c.moveToFirst();
     ContentValues args = new ContentValues();
     args.put(KEY_SUPERTASK, superTask);
-    args.put(KEY_DEPTH, c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
+    args.put(KEY_DEPTH, c.getInt(1) + 1);
+    updateEntryParent(task, c.getString(3), c.getInt(1) + 1);
     mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + task + "'", null);
     args = new ContentValues();
-    args.put(KEY_SUBTASKS, c.getInt(c.getColumnIndex(KEY_SUBTASKS)) + 1);
+    args.put(KEY_SUBTASKS, c.getInt(2) + 1);
     mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + superTask + "'", null);
     c.close();
     updateEntry(superTask, false, null);
