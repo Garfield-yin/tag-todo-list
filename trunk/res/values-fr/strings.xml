@@ -9,8 +9,11 @@
 <string name="menu_edit_tag">Renommer l\'étiquette</string>
 <string name="menu_new_entry">Nouvelle tâche</string>
 <string name="menu_instructions">Instructions</string>
+<string name="menu_clear">Supprimer toutes</string>
+<string name="menu_unindent">Désindenter toutes</string>
 <string name="impossible_tag_deletion">Vous ne pouvez pas supprimer la dernière ettiquete,\nmais vous pouvez le renommer dans le menu.\n</string>
 <string name="size_change">Limite des tâches terminées</string>
+<string name="move_fail">Vous ne pouvez pas déplacer une tâche dans une sous-tâche d\'elle-même ou dans elle-même.</string>
 <string name="backup_fail">La liste ne peut pas être sauvegardées sur la carte SD. Etes-vous sûr, il ya une carte SD à l\'intérieur?</string>
 <string name="backup_import_fail">La liste ne pourrait pas être importée pour une raison quelconque. Etes-vous sûr qu\'il y a une sauvegarde sur la carte, ou q\'une carte SD est insérée?</string>
 

@@ -301,9 +301,9 @@ public final class ToDoDB extends ADB {
    *          the name of the ToDo List tag, as it will appear visually
    * @return true if insertion went ok, false if such a tag already exists
    */
-  public boolean createTag(String tagName) {
-    Cursor c = mDb.query(DB_TAG_TABLE, new String[] { KEY_NAME }, KEY_NAME
-        + " = '" + tagName + "'", null, null, null, null);
+  public boolean createTag(final String tagName) {
+    final Cursor c = mDb.query(DB_TAG_TABLE, new String[] { KEY_NAME },
+        KEY_NAME + " = '" + tagName + "'", null, null, null, null);
     if (c.getCount() > 0) {
       c.close();
       return false;
@@ -344,15 +344,15 @@ public final class ToDoDB extends ADB {
    * 
    * @param tagName
    *          the parent tag
-   * @param entryName
-   *          the newly created entry
+   * @param task
+   *          the newly created task
    * @return null if such an entry is inexistent in the to-do list or a String
    *         representing the tag where such an entry was found
    */
-  public String createEntry(String tagName, String entryName) {
+  public String createEntry(final String tagName, final String task) {
     // checking for duplicate entries
-    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_PARENT },
-        KEY_NAME + " = '" + entryName + "'", null, null, null, null);
+    final Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+        KEY_PARENT }, KEY_NAME + " = '" + task + "'", null, null, null, null);
     if (c.getCount() > 0) {
       c.moveToFirst();
       String s = c.getString(c.getColumnIndexOrThrow(KEY_PARENT));
@@ -362,7 +362,7 @@ public final class ToDoDB extends ADB {
 
     // inserting the actual entry
     ContentValues args = new ContentValues();
-    args.put(KEY_NAME, entryName);
+    args.put(KEY_NAME, task);
     args.put(KEY_STATUS, 0);
     args.put(KEY_PARENT, tagName);
     mDb.insert(DB_ENTRY_TABLE, null, args);
@@ -390,14 +390,14 @@ public final class ToDoDB extends ADB {
    * @param name
    *          name of the tag to be deleted
    */
-  public void deleteTag(String name) {
+  public void deleteTag(final String name) {
     mDb.delete(DB_TAG_TABLE, KEY_NAME + "='" + name + "'", null);
-    Cursor entries = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+    final Cursor entries = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_PARENT }, KEY_PARENT + " = '" + name + "'", null, null, null, null);
     if (entries.getCount() > 0) {
       entries.moveToFirst();
       do {
-        int entryName = entries.getColumnIndexOrThrow(KEY_NAME);
+        final int entryName = entries.getColumnIndexOrThrow(KEY_NAME);
         deleteEntry(entries.getString(entryName));
       } while (entries.moveToNext());
     }
@@ -416,20 +416,20 @@ public final class ToDoDB extends ADB {
   }
 
   /**
-   * Return a Cursor over the list of entries in a certain tag
+   * Return a Cursor over the list of tasks in a certain tag
    * 
    * @param tag
-   *          for which to get all the to-do list entries. If null, all the
-   *          entries from all the tags will be returned.
+   *          for which to get all the tasks. If null, all the tasks from all
+   *          the tags will be returned.
    * @param depth
    *          of tasks (depth 0 is a task, >0 is a subtask). If -1, all tasks,
    *          no matter the depth, will be returned.
    * @param superTask
    *          filters to subtasks of a certain supertask. If null, this filter
    *          won't exist.
-   * @return Cursor over all entries in a tag
+   * @return Cursor over all tasks in a tag
    */
-  public final Cursor getEntries(final String tag, final int depth,
+  public final Cursor getTasks(final String tag, final int depth,
       final String superTask) {
 
     return mDb
@@ -472,8 +472,8 @@ public final class ToDoDB extends ADB {
    * @param entryName
    * @return priority
    */
-  public int getPriority(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+  public int getPriority(final String entryName) {
+    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_PRIORITY }, KEY_NAME + " = '" + entryName + "'", null,
         null, null, null);
     // for now, assuming we have a task named like this :)
@@ -496,8 +496,8 @@ public final class ToDoDB extends ADB {
    */
   public Cursor getDueEntries() {
     GregorianCalendar gc = new GregorianCalendar();
-    int year = gc.get(GregorianCalendar.YEAR);
-    int month = gc.get(GregorianCalendar.MONTH);
+    final int year = gc.get(GregorianCalendar.YEAR);
+    final int month = gc.get(GregorianCalendar.MONTH);
     return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS }, KEY_EXTRA_OPTIONS + " = 1 AND " + KEY_STATUS
         + " = 0 AND (" + KEY_DUE_YEAR + " < " + year + " OR (" + KEY_DUE_YEAR
@@ -527,7 +527,7 @@ public final class ToDoDB extends ADB {
    * @return written note
    */
   public String getWrittenNote(String entryName) {
-    Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_WRITTEN_NOTE }, KEY_NAME + " = '" + entryName + "'",
         null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -546,10 +546,10 @@ public final class ToDoDB extends ADB {
    * @return number of unchecked entries (tasks left to do)
    */
   public int countUncheckedEntries(String tag) {
-    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS, KEY_PARENT }, KEY_PARENT + " = '" + tag + "'", null, null,
-        null, null);
-    int value = c.getColumnIndexOrThrow(KEY_STATUS);
+    final Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+        KEY_NAME, KEY_STATUS, KEY_PARENT }, KEY_PARENT + " = '" + tag + "'",
+        null, null, null, null);
+    final int value = c.getColumnIndexOrThrow(KEY_STATUS);
     int unchecked = 0;
     if (c.getCount() > 0) {
       c.moveToFirst();
@@ -569,9 +569,10 @@ public final class ToDoDB extends ADB {
    * @return number of unchecked entries (tasks left to do)
    */
   public final int countUncheckedEntries() {
-    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS, KEY_PARENT }, KEY_STATUS + " = 0", null, null, null, null);
-    int count = c.getCount();
+    final Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+        KEY_NAME, KEY_STATUS, KEY_PARENT }, KEY_STATUS + " = 0", null, null,
+        null, null);
+    final int count = c.getCount();
     c.close();
     return count;
   }
@@ -685,7 +686,8 @@ public final class ToDoDB extends ADB {
    *          up, to supertasks. If null, only refers to the present task.
    * @return true if successfully updated
    */
-  private void updateEntry(String entryName, boolean checked, Boolean goDown) {
+  private final void updateEntry(String entryName, boolean checked,
+      Boolean goDown) {
     if (goDown == null) {
       ContentValues args = new ContentValues();
       args.put(KEY_STATUS, checked ? 1 : 0);
@@ -759,12 +761,16 @@ public final class ToDoDB extends ADB {
     ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
     mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + entryName + "'", null);
-    final Cursor subtasks = getEntries(null, 1, entryName);
+    final Cursor subtasks = getTasks(null, 1, entryName);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
       subtasks.moveToFirst();
       do {
-        setSuperTask(subtasks.getString(name), newName);
+        try {
+          setSuperTask(subtasks.getString(name), newName);
+        } catch (Exception e) {
+          // an exception won't be thrown here
+        }
       } while (subtasks.moveToNext());
     }
     subtasks.close();
@@ -783,7 +789,7 @@ public final class ToDoDB extends ADB {
    */
   public void updateEntryParent(final String task, final String newParent,
       final int depth) {
-    final Cursor subtasks = getEntries(null, -1, task);
+    final Cursor subtasks = getTasks(null, -1, task);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
       subtasks.moveToFirst();
@@ -855,7 +861,7 @@ public final class ToDoDB extends ADB {
    * @return
    */
   public boolean setDueDate(String entryName, boolean b) {
-    Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+    final Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + entryName + "'", null, null,
         null, null);
     c.moveToFirst();
@@ -967,11 +973,29 @@ public final class ToDoDB extends ADB {
    * 
    * @param task
    * @param superTask
+   * @throws Exception
+   *           if a task eventually is moved 'under itself'
    */
-  public void setSuperTask(final String task, final String superTask) {
-    final Cursor c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
-        KEY_DEPTH, KEY_SUBTASKS, KEY_PARENT }, KEY_NAME + " = '" + superTask
-        + "'", null, null, null, null);
+  public void setSuperTask(final String task, final String superTask)
+      throws Exception {
+    // checking subtasks first, we can't move a subtask
+    if (task.equals(superTask)){
+      throw new Exception();
+    }
+    String curTask = superTask;
+    Cursor c;
+    while ((c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+        KEY_SUPERTASK }, KEY_NAME + " = '" + curTask + "'", null, null, null,
+        null)).getCount() > 0) {
+      c.moveToFirst();
+      if (task.equals(curTask = c.getString(1))) {
+        throw new Exception();
+      }
+    }
+
+    c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_NAME, KEY_DEPTH,
+        KEY_SUBTASKS, KEY_PARENT }, KEY_NAME + " = '" + superTask + "'", null,
+        null, null, null);
     c.moveToFirst();
     ContentValues args = new ContentValues();
     args.put(KEY_SUPERTASK, superTask);
@@ -1030,7 +1054,7 @@ public final class ToDoDB extends ADB {
    *          name of the tag to clear of tasks
    */
   public void deleteEntries(String tag) {
-    Cursor c = getEntries(tag, -1, null);
+    Cursor c = getTasks(tag, -1, null);
     if (c.getCount() > 0) {
       int name = c.getColumnIndexOrThrow(KEY_NAME);
       c.moveToFirst();

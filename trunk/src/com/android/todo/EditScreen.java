@@ -360,7 +360,11 @@ public final class EditScreen extends Activity {
         } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
           String result = mDbHelper.createEntry(EditScreen.sParameter, name);
           if (sSuperTask != null && sSuperTask.length() > 0) {
-            mDbHelper.setSuperTask(name, sSuperTask);
+            try {
+              mDbHelper.setSuperTask(name, sSuperTask);
+            } catch (Exception e) {
+              // can't have an exception here
+            }
           }
           if (result != null) {
             showMessage(view.getContext().getString(R.string.entry_existent)
@@ -385,8 +389,10 @@ public final class EditScreen extends Activity {
           if (dateSet) {
             syncToWeb(name);
           }
-          if (getIntent().getExtras().getBoolean(WidgetChange.WIDGET_INITIATED, false)){
-            TagToDoWidget.onUpdate(view.getContext(), AppWidgetManager.getInstance(view.getContext()));
+          if (getIntent().getExtras().getBoolean(WidgetChange.WIDGET_INITIATED,
+              false)) {
+            TagToDoWidget.onUpdate(view.getContext(), AppWidgetManager
+                .getInstance(view.getContext()));
           }
         } else if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
           mDbHelper.updateEntry(EditScreen.sParameter, name);
@@ -542,9 +548,9 @@ public final class EditScreen extends Activity {
       new OneTimeTTS(this, mTaskText.getText().toString());
     }
   }
-  
+
   @Override
-  protected void onDestroy(){
+  protected void onDestroy() {
     mDbHelper.close();
     super.onDestroy();
   }

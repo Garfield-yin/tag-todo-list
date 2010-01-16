@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -72,6 +73,8 @@ public class TagToDoList extends Activity {
   public static final int TAG_REMOVE_ID = 2;
   public static final int TAG_EDIT_ID = 3;
   public static final int TAG_HELP_ID = 4;
+  public static final int TAG_CLEAR_ID = 5;
+  public static final int TAG_UNINDENT_ID = 6;
   // Task menu IDs:
   public static final int ENTRY_EDIT_ID = 1;
   public static final int ENTRY_REMOVE_ID = 2;
@@ -296,12 +299,17 @@ public class TagToDoList extends Activity {
     el.removeAllViews();
     final OnCheckedChangeListener ccl = CHOICE_MODE ? new OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
-        cb.setChecked(!isChecked);
-        CHOICE_MODE = false;
-        ((LinearLayout) findViewById(R.id.lowerLayout))
-            .setVisibility(View.VISIBLE);
-        sDbHelper.setSuperTask(mContextEntry, cb.getText().toString());
-        selectTag(mTagSpinner.getSelectedItemPosition());
+        try {
+          cb.setChecked(!isChecked);
+          sDbHelper.setSuperTask(mContextEntry, cb.getText().toString());
+          selectTag(mTagSpinner.getSelectedItemPosition());
+          CHOICE_MODE = false;
+          ((LinearLayout) findViewById(R.id.lowerLayout))
+              .setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+          Utils.showDialog(R.string.notification, R.string.move_fail, cb
+              .getContext());
+        }
       }
     }
         : new OnCheckedChangeListener() {
@@ -333,7 +341,7 @@ public class TagToDoList extends Activity {
    */
   public int processDepth(LinearLayout el, OnCheckedChangeListener ccl,
       int selectedTag, int depth, String superTask) {
-    final Cursor c = sDbHelper.getEntries(selectedTag != -1 ? mTagsArrayAdapter
+    final Cursor c = sDbHelper.getTasks(selectedTag != -1 ? mTagsArrayAdapter
         .getItem(selectedTag).toString() : null, depth, superTask);
     CheckBox cb;
     final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
@@ -489,6 +497,26 @@ public class TagToDoList extends Activity {
     case TAG_HELP_ID:
       showHelpScreen();
       return true;
+    case TAG_CLEAR_ID:
+      removeAllTasks();
+      return true;
+    case TAG_UNINDENT_ID:
+      final Cursor c = sDbHelper.getTasks(mTagsArrayAdapter.getItem(
+          mTagSpinner.getSelectedItemPosition()).toString(), -1, null);
+      final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
+      if (c.getCount() > 0) {
+        final ContentValues args = new ContentValues();
+        args.put(ToDoDB.KEY_DEPTH, 0);
+        args.put(ToDoDB.KEY_SUPERTASK, "");
+        c.moveToFirst();
+        do {
+          sDbHelper.mDb.update(ToDoDB.DB_ENTRY_TABLE, args, ToDoDB.KEY_NAME
+              + " = '" + c.getString(name) + "'", null);
+        } while (c.moveToNext());
+      }
+      selectTag(mTagSpinner.getSelectedItemPosition());
+      c.close();
+      return true;
     }
     return super.onOptionsItemSelected(item);
   }
@@ -521,7 +549,7 @@ public class TagToDoList extends Activity {
   /**
    * Deletes all the tasks in the active tag
    */
-  private void removeTags() {
+  private final void removeAllTasks() {
     if (mTagSpinner.getCount() == 1) {
       Utils.showDialog(-1, R.string.impossible_tag_deletion, TagToDoList.this);
       return;
@@ -567,30 +595,21 @@ public class TagToDoList extends Activity {
   }
 
   /**
-   * Populates the menu with actions like tag creation, renaming, deletion
-   * 
-   * @param menu
-   * @return
-   */
-  private boolean populateMenu(Menu menu) {
-    MenuItem item1 = menu.add(0, TAG_INSERT_ID, 0, R.string.menu_create_tag);
-    item1.setIcon(R.drawable.add);
-    item1 = menu.add(0, TAG_REMOVE_ID, 0, R.string.menu_delete_tag);
-    item1.setIcon(R.drawable.delete);
-    item1 = menu.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);
-    item1.setIcon(R.drawable.rename);
-    item1 = menu.add(0, TAG_HELP_ID, 0, R.string.menu_instructions);
-    item1.setIcon(R.drawable.help);
-    return true;
-  }
-
-  /**
    * Hook into menu button for activity
    */
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
-    populateMenu(menu);
+    menu.add(0, TAG_CLEAR_ID, 0, R.string.menu_clear);
+    menu.add(0, TAG_UNINDENT_ID, 0, R.string.menu_unindent); 
+    MenuItem item = menu.add(0, TAG_INSERT_ID, 0, R.string.menu_create_tag);
+    item.setIcon(R.drawable.add);
+    item = menu.add(0, TAG_REMOVE_ID, 0, R.string.menu_delete_tag);
+    item.setIcon(R.drawable.delete);
+    item = menu.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);
+    item.setIcon(R.drawable.rename);
+    item = menu.add(0, TAG_HELP_ID, 0, R.string.menu_instructions);
+    item.setIcon(R.drawable.help);
     return true;
   }
 
@@ -985,7 +1004,7 @@ public class TagToDoList extends Activity {
       changeSizeLimit(-1);
       break;
     case (KeyEvent.KEYCODE_X):
-      removeTags();
+      removeAllTasks();
       break;
     case (KeyEvent.KEYCODE_U):
       startActivity(new Intent(this, NotificationActivity.class));

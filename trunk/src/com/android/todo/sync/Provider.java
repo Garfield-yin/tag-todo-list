@@ -41,11 +41,11 @@ public final class Provider extends ContentProvider {
     final int match = sUriMatcher.match(uri);
     switch (match) {
     case URI_TASKS:
-      return TagToDoList.getDbHelper().getEntries(null, -1, null);
+      return TagToDoList.getDbHelper().getTasks(null, -1, null);
     case URI_TAGS:
       return TagToDoList.getDbHelper().getAllTags();
     case URI_SPECIFIC_TAG:
-      return TagToDoList.getDbHelper().getEntries(uri.getLastPathSegment(), -1, null);
+      return TagToDoList.getDbHelper().getTasks(uri.getLastPathSegment(), -1, null);
     case URI_TASKS_DUE:
       return TagToDoList.getDbHelper().getAllDueEntries();
     case URI_TASKS_DUE_TODAY:

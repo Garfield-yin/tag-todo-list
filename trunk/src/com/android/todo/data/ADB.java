@@ -20,10 +20,10 @@ public abstract class ADB {
    * deletion of alarms. The name of the attribute (DATABASE_VERSION) IS NOT TO
    * BE CHANGED!
    */
-  public static final int DATABASE_VERSION = 88;
+  public static final int DATABASE_VERSION = 89;
 
   protected static Context mCtx;
-  protected SQLiteDatabase mDb;
+  public SQLiteDatabase mDb;
   public static Resources res;
 
   /**
@@ -34,7 +34,7 @@ public abstract class ADB {
   /**
    * Name of the table containing tasks
    */
-  protected static final String DB_ENTRY_TABLE = "entries";
+  public static final String DB_ENTRY_TABLE = "entries";
 
   /**
    * Name key for tags and tasks
