@@ -13,6 +13,7 @@
 <string name="menu_unindent">Désindenter toutes</string>
 <string name="impossible_tag_deletion">Vous ne pouvez pas supprimer la dernière ettiquete,\nmais vous pouvez le renommer dans le menu.\n</string>
 <string name="size_change">Limite des tâches terminées</string>
+<string name="backup_import">Importer le sauvegarde SD</string>
 <string name="move_fail">Vous ne pouvez pas déplacer une tâche dans une sous-tâche d\'elle-même ou dans elle-même.</string>
 <string name="backup_fail">La liste ne peut pas être sauvegardées sur la carte SD. Etes-vous sûr, il ya une carte SD à l\'intérieur?</string>
 <string name="backup_import_fail">La liste ne pourrait pas être importée pour une raison quelconque. Etes-vous sûr qu\'il y a une sauvegarde sur la carte, ou q\'une carte SD est insérée?</string>
@@ -138,6 +139,7 @@
 <!-- General -->
 <string name="confirm">OK</string>
 <string name="cancel">Annuler</string>
+<string name="more">plus...</string>
 <string name="warning">Avertissement</string>
 <string name="ok">OUI</string>
 <string name="no">NON</string>

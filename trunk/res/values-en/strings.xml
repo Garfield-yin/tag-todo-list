@@ -14,6 +14,7 @@
 <string name="menu_unindent">Unindent all the tasks</string>
 <string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
 <string name="size_change">Checked tasks limit:</string>
+<string name="backup_import">Import backup from SD</string>
 <string name="backup_fail">The todo list couldn\'t be backed up on the SD card for some reason. Are you sure there\'s an SD card in there?</string>
 <string name="move_fail">You can\'t move a task under itself or a subtask of itself.</string>
 <string name="backup_import_fail">The todo list couldn\'t be imported for some reason. Are you sure there is a backup on the card, or that an SD card is inserted?</string>
@@ -147,6 +148,7 @@
 <!-- General -->
 <string name="confirm">OK</string>
 <string name="cancel">Cancel</string>
+<string name="more">more...</string>
 <string name="warning">Warning</string>
 <string name="ok">YES</string>
 <string name="no">NO</string>

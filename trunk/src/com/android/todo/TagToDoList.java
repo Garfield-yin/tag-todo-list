@@ -75,6 +75,7 @@ public class TagToDoList extends Activity {
   public static final int TAG_HELP_ID = 4;
   public static final int TAG_CLEAR_ID = 5;
   public static final int TAG_UNINDENT_ID = 6;
+  public static final int TAG_IMPORTBACKUP_ID = 7;
   // Task menu IDs:
   public static final int ENTRY_EDIT_ID = 1;
   public static final int ENTRY_REMOVE_ID = 2;
@@ -477,13 +478,13 @@ public class TagToDoList extends Activity {
   }
 
   /**
-   * Chooses the right action depending on what menu item has been clicked
+   * Chooses the right action depending on what menu item has been clicked.
    * 
    * @param item
-   *          the menu item which has been clicked
+   *          The menu item which has been clicked
    * @return
    */
-  private boolean applyMenuChoice(MenuItem item) {
+  private final boolean applyMenuChoice(MenuItem item) {
     switch (item.getItemId()) {
     case TAG_INSERT_ID:
       createTag();
@@ -517,6 +518,12 @@ public class TagToDoList extends Activity {
       selectTag(mTagSpinner.getSelectedItemPosition());
       c.close();
       return true;
+    case TAG_IMPORTBACKUP_ID:
+      sContext = this;
+      final Intent i = new Intent(this, ConfirmationScreen.class);
+      i.setAction(ACTIVITY_BACKUP_IMPORT + "");
+      startActivity(i);
+      break;
     }
     return super.onOptionsItemSelected(item);
   }
@@ -600,16 +607,17 @@ public class TagToDoList extends Activity {
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
-    menu.add(0, TAG_CLEAR_ID, 0, R.string.menu_clear);
-    menu.add(0, TAG_UNINDENT_ID, 0, R.string.menu_unindent); 
-    MenuItem item = menu.add(0, TAG_INSERT_ID, 0, R.string.menu_create_tag);
+    final SubMenu sb = menu.addSubMenu(R.string.more);
+    sb.add(0, TAG_CLEAR_ID, 0, R.string.menu_clear);
+    sb.add(0, TAG_IMPORTBACKUP_ID, 0, R.string.backup_import);
+    sb.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);
+    sb.add(0, TAG_UNINDENT_ID, 0, R.string.menu_unindent);
+    MenuItem item = menu.add(0, TAG_HELP_ID, 0, R.string.menu_instructions);
+    item.setIcon(R.drawable.help);
+    item = menu.add(0, TAG_INSERT_ID, 0, R.string.menu_create_tag);
     item.setIcon(R.drawable.add);
     item = menu.add(0, TAG_REMOVE_ID, 0, R.string.menu_delete_tag);
     item.setIcon(R.drawable.delete);
-    item = menu.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);
-    item.setIcon(R.drawable.rename);
-    item = menu.add(0, TAG_HELP_ID, 0, R.string.menu_instructions);
-    item.setIcon(R.drawable.help);
     return true;
   }
 
@@ -1043,12 +1051,6 @@ public class TagToDoList extends Activity {
       final SharedPreferences.Editor e = sSettings.edit();
       e.putBoolean(ConfigScreen.BLIND_MODE, BLIND_MODE);
       e.commit();
-      break;
-    case (KeyEvent.KEYCODE_B):
-      sContext = this;
-      final Intent i = new Intent(this, ConfirmationScreen.class);
-      i.setAction(ACTIVITY_BACKUP_IMPORT + "");
-      startActivity(i);
       break;
     }
 
