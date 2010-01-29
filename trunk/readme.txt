@@ -48,8 +48,7 @@ this for the open source project every time you test):
 - copy strings.xml from values-en to values
 - increase version code and version name
 - increase database version (necessary to circumvent alarm
-removal by Android on app update)
-// this is done in the ADB class
+removal by Android on app update) // done in the ADB class
 - export signed package
 - upload and test .apk on emulator
 - commit code changes to the open-source project

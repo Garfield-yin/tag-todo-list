@@ -44,6 +44,7 @@
 <string name="entry_subtask_add">Add subtask</string>
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
+<string name="entry_email">Email this task</string>
 <string name="entry_move">Move to another tag</string>
 <string name="entry_move_under_task">Move under a task</string>
 <string name="entry_written_note">Written note</string>

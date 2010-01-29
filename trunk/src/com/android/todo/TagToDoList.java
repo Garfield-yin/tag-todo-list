@@ -88,6 +88,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_INSTANTACTION_ID = 9;
   public static final int ENTRY_SUBTASK_ID = 10;
   public static final int ENTRY_MOVE_UNDER_TASK_ID = 11;
+  public static final int ENTRY_EMAIL_ID = 12;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -788,14 +789,15 @@ public class TagToDoList extends Activity {
     menu.add(0, ENTRY_SUBTASK_ID, 0, R.string.entry_subtask_add);
     menu.add(0, ENTRY_EDIT_ID, 0, R.string.entry_edit);
     menu.add(0, ENTRY_REMOVE_ID, 0, R.string.entry_delete);
-    SubMenu submenu = menu.addSubMenu(R.string.entry_group_notes);
-    submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
-    submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
-    submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
-    submenu = menu.addSubMenu(R.string.entry_group_move);
+    // menu.add(0, ENTRY_EMAIL_ID, 0, R.string.entry_email);
+    SubMenu submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, ENTRY_MOVE_ID, 0, R.string.entry_move);
     submenu.add(0, ENTRY_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
     submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
+    submenu = menu.addSubMenu(R.string.entry_group_notes);
+    submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
+    submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
+    submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
     menu.setHeaderTitle(R.string.entry_menu);
   }
 
@@ -878,6 +880,17 @@ public class TagToDoList extends Activity {
       i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i4.setAction(ACTIVITY_WRITE_NOTE + "");
       startActivity(i4);
+      break;
+    case ENTRY_EMAIL_ID:
+      String[] mailto = { "" };
+      // Create a new Intent to send messages
+      Intent sendIntent = new Intent(Intent.ACTION_SEND);
+      // Add attributes to the intent
+      sendIntent.putExtra(Intent.EXTRA_EMAIL, mailto);
+      sendIntent.putExtra(Intent.EXTRA_SUBJECT, "subiect");
+      sendIntent.putExtra(Intent.EXTRA_TEXT, "corp");
+      sendIntent.setType("text/plain");
+      startActivity(Intent.createChooser(sendIntent, "MySendMail"));
       break;
     case ENTRY_INSTANTACTION_ID:
       mContextAction.perform(this);
