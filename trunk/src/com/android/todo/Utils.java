@@ -150,22 +150,23 @@ public final class Utils {
    * a text message, and is compatible with both landscape and portrait mode
    * because of the contained ScrollView.
    * 
-   * @param titleId
+   * @param tId
    *          resource id of the title string
-   * @param messageId
+   * @param mId
    *          resource id of the message string
    * @param c
    *          context passed to the UI constructors
    */
-  public final static void showDialog(int titleId, int messageId, Context c) {
+  public final static void showDialog(final int tId, final int mId,
+      final Context c) {
     final Dialog d = new Dialog(c);
-    ScrollView sv = new ScrollView(c);
-    TextView tv = new TextView(c);
+    final ScrollView sv = new ScrollView(c);
+    final TextView tv = new TextView(c);
     sv.addView(tv);
-    LinearLayout ll = new LinearLayout(c);
+    final LinearLayout ll = new LinearLayout(c);
     ll.setOrientation(1);
     tv.setTextSize(18);
-    tv.setText(messageId);
+    tv.setText(mId);
     final Button b = new Button(c);
     b.setText(R.string.go_back);
     b.setOnClickListener(new View.OnClickListener() {
@@ -176,8 +177,8 @@ public final class Utils {
     ll.setPadding(10, 10, 10, 0);
     ll.addView(b);
     ll.addView(sv);
-    if (titleId > -1) {
-      d.setTitle(titleId);
+    if (tId > -1) {
+      d.setTitle(tId);
     } else {
       d.setTitle("");
     }
