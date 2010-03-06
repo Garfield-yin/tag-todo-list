@@ -47,7 +47,8 @@ public final class WidgetChange extends BroadcastReceiver {
     }
   }
 
-  public final static void refresh(final RemoteViews rv, final Context c) {
+  public final static synchronized void refresh(final RemoteViews rv,
+      final Context c) {
     // initializing logic
     // sTag = 0;
     sTask = 0;

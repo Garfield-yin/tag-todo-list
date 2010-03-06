@@ -39,12 +39,18 @@ public final class ConfigScreen extends Activity {
   public static final String BLIND_MODE = "blindMode";
   public static final String USAGE_STATS = "usageStats";
   public static final String NOTE_PREVIEW = "notePreview";
+  public static final String THEME = "theme";
 
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mCloseButton, mHelpButton;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
+    final SharedPreferences settings = getSharedPreferences(
+        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
+    final SharedPreferences.Editor editor = settings.edit();
+    setTheme(settings.getInt(ConfigScreen.THEME, android.R.style.Theme));
+    
     super.onCreate(savedInstanceState);
     setTitle(R.string.configuration_screen_title);
     setContentView(R.layout.configuration);
@@ -68,9 +74,6 @@ public final class ConfigScreen extends Activity {
 
     LinearLayout ll = (LinearLayout) findViewById(R.id.optionsLayout);
     ll.setGravity(Gravity.FILL_HORIZONTAL);
-    final SharedPreferences settings = getSharedPreferences(
-        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
-    final SharedPreferences.Editor editor = settings.edit();
 
     // usage stats
     CheckBox cb = new CheckBox(this);
@@ -80,6 +83,20 @@ public final class ConfigScreen extends Activity {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         editor.putBoolean(USAGE_STATS, isChecked);
         editor.commit();
+      }
+    });
+    ll.addView(cb);
+
+    // choose theme
+    cb = new CheckBox(this);
+    cb
+        .setChecked(settings.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
+    cb.setText(R.string.configuration_7_theme);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putInt(THEME,
+            isChecked ? android.R.style.Theme_Light : android.R.style.Theme)
+            .commit();
       }
     });
     ll.addView(cb);
@@ -146,7 +163,7 @@ public final class ConfigScreen extends Activity {
     tv.setTextSize(16);
     tv.setText(R.string.size_change);
     LinearLayout priorityLayout = new LinearLayout(this); // reusing
-                                                          // priorityLayout
+    // priorityLayout
     // object
     priorityLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout textLayout = new LinearLayout(this); // also reusing textLayout

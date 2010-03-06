@@ -72,7 +72,7 @@ public final class Utils {
    * @param original
    * @return the audio file name
    */
-  public final static String getAudioName(String original) {
+  public final static String getAudioName(final String original) {
     return "/sdcard/Tag-ToDo_data/audio/" + original.hashCode() + ".3gpp";
   }
 
@@ -137,9 +137,9 @@ public final class Utils {
           }
         }
         if (encodedTimeDif > 0) {// in the past
-          return c.getTimeInMillis() + encodedTimeDif * 60000;
+          return c.getTimeInMillis() + 60000L * encodedTimeDif;
         } else {// next week
-          return c.getTimeInMillis() + 604800000 + encodedTimeDif * 60000;
+          return 604800000L + c.getTimeInMillis() + 60000L * encodedTimeDif;
         }
       }
     }

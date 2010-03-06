@@ -3,7 +3,6 @@
 package com.android.todo.data;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.GregorianCalendar;
 
 import android.app.AlarmManager;
@@ -198,61 +197,58 @@ public final class ToDoDB extends ADB {
       // 3 columns have been added, as boolean flags (but still int), to see
       // whether there are certain types of notes
       if (oldVersion < 86 && newVersion >= 86) {
-        try {
-          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
-              + KEY_NOTE_IS_WRITTEN + " INTEGER DEFAULT 0");
-          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
-              + KEY_NOTE_IS_GRAPHICAL + " INTEGER DEFAULT 0");
-          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
-              + KEY_NOTE_IS_AUDIO + " INTEGER DEFAULT 0");
-          final Cursor c = db.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
-              KEY_WRITTEN_NOTE }, null, null, null, null, null);
-          if (c.getCount() > 0) {
-            c.moveToFirst();
-            do {
-              final String taskName = c.getString(0);
+        db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+            + KEY_NOTE_IS_WRITTEN + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+            + KEY_NOTE_IS_GRAPHICAL + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+            + KEY_NOTE_IS_AUDIO + " INTEGER DEFAULT 0");
+        final Cursor c = db.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
+            KEY_WRITTEN_NOTE }, null, null, null, null, null);
+        if (c.getCount() > 0) {
+          c.moveToFirst();
+          do {
+            final String taskName = c.getString(0);
 
-              // checking for a written note
-              final String writtenNote = c.getString(1);
-              if (!"".equals(writtenNote) && writtenNote != null) {
-                final ContentValues args = new ContentValues();
-                args.put(KEY_NOTE_IS_WRITTEN, 1);
-                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
-                    + "'", null);
-              }
+            // checking for a written note
+            final String writtenNote = c.getString(1);
+            if (!"".equals(writtenNote) && writtenNote != null) {
+              final ContentValues args = new ContentValues();
+              args.put(KEY_NOTE_IS_WRITTEN, 1);
+              db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
+                  + "'", null);
+            }
 
-              // checking for a graphical note
-              boolean found = true;
-              try {
-                mCtx.openFileInput(Utils.getImageName(taskName));
-              } catch (Exception e) {
-                found = false;
-              }
-              if (found) {
-                final ContentValues args = new ContentValues();
-                args.put(KEY_NOTE_IS_GRAPHICAL, 1);
-                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
-                    + "'", null);
-              }
+            // checking for a graphical note
+            boolean found = true;
+            try {
+              mCtx.openFileInput(Utils.getImageName(taskName));
+            } catch (Exception e) {
+              found = false;
+            }
+            if (found) {
+              final ContentValues args = new ContentValues();
+              args.put(KEY_NOTE_IS_GRAPHICAL, 1);
+              db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
+                  + "'", null);
+            }
 
-              // checking for an audio note
-              found = true;
-              try {
-                mCtx.openFileInput(Utils.getAudioName(taskName));
-              } catch (FileNotFoundException e) {
-                found = false;
-              }
-              if (found) {
-                final ContentValues args = new ContentValues();
-                args.put(KEY_NOTE_IS_AUDIO, 1);
-                db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
-                    + "'", null);
-              }
-            } while (c.moveToNext());
-          }
-          c.close();
-        } catch (Exception e) {
+            // checking for an audio note
+            found = true;
+            try {
+              mCtx.openFileInput(Utils.getAudioName(taskName));
+            } catch (Exception e) {
+              found = false;
+            }
+            if (found) {
+              final ContentValues args = new ContentValues();
+              args.put(KEY_NOTE_IS_AUDIO, 1);
+              db.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '" + taskName
+                  + "'", null);
+            }
+          } while (c.moveToNext());
         }
+        c.close();
       }
 
       // must be last:
@@ -667,7 +663,7 @@ public final class ToDoDB extends ADB {
           int dayOfWeek = getDueDayOfWeek(entryName);
           alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Utils
               .getTimeMillis(getDueTime(entryName), -1, dayOfWeek),
-              86400000 * (dayOfWeek > -1 ? 7 : 1), pi);
+              86400000L * (dayOfWeek > -1 ? 7 : 1), pi);
         }
       }
     }
@@ -979,7 +975,7 @@ public final class ToDoDB extends ADB {
   public void setSuperTask(final String task, final String superTask)
       throws Exception {
     // checking subtasks first, we can't move a subtask
-    if (task.equals(superTask)){
+    if (task.equals(superTask)) {
       throw new Exception();
     }
     String curTask = superTask;
@@ -1014,31 +1010,31 @@ public final class ToDoDB extends ADB {
    * Pushes the specified entry at the bottom of the (checked/unchecked) entry
    * list
    * 
-   * @param entryName
+   * @param task
    *          the name of the entry to be pushed down
    */
-  public void pushEntryDown(String entryName) {
+  public final void pushEntryDown(final String task) {
     Cursor c = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
-        KEY_PARENT, KEY_STATUS }, KEY_NAME + " = '" + entryName + "'", null,
-        null, null, null, null);
-    int name = c.getColumnIndexOrThrow(KEY_NAME);
-    int parent = c.getColumnIndexOrThrow(KEY_PARENT);
-    int status = c.getColumnIndexOrThrow(KEY_STATUS);
+        KEY_PARENT, KEY_STATUS }, KEY_NAME + " = '" + task + "'", null, null,
+        null, null, null);
+    final int name = c.getColumnIndexOrThrow(KEY_NAME);
+    final int parent = c.getColumnIndexOrThrow(KEY_PARENT);
+    final int status = c.getColumnIndexOrThrow(KEY_STATUS);
     c.moveToFirst();
-    String newParent = c.getString(parent);
-    boolean newStatus = c.getInt(status) == 1 ? true : false;
+    final String newParent = c.getString(parent);
+    final boolean newStatus = c.getInt(status) == 1 ? true : false;
     Cursor all = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
         KEY_PARENT, KEY_STATUS }, KEY_PARENT + " = '" + newParent + "'", null,
         null, null, null, null);
     all.moveToFirst();
     mDb.delete(DB_ENTRY_TABLE, KEY_PARENT + "='" + newParent + "'", null);
     String aux;
-    createEntry(newParent, entryName);
-    updateEntry(entryName, newStatus);
+    createEntry(newParent, task);
+    updateEntry(task, newStatus);
     all.moveToFirst();
     do {
       aux = all.getString(name);
-      if (aux != entryName) {
+      if (!aux.equals(task)) {
         createEntry(newParent, aux);
         updateEntry(aux, all.getInt(status) == 1 ? true : false);
       }

@@ -110,6 +110,9 @@
 <string name="configuration_2_backup">Sauvegarde todo liste sur carte SD à chaque fois que l\'application se ferme</string>
 <string name="configuration_3_priority">Maximum de priorité pour les tâches:</string>
 <string name="configuration_4_shine">Visuellement distinguer les tâches par leurs priorités (consomme un peu plus de ressources)</string>
+<string name="configuration_5_stats">Autoriser la collecte anonyme de statistiques d'utilisation une fois par mois</string>
+<string name="configuration_6_notes">Voir la tâche qui a des notes en mode portrait aussi bien (consomme un peu plus des ressources)</string>
+<string name="configuration_7_theme">Inverser thème (texte foncé sur fond blanc)</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personnel</string>

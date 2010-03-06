@@ -21,19 +21,23 @@ public final class BootReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    BootDB dbHelper = new BootDB(context);
-    dbHelper.open();
-    BootReceiver.setOldAlarms(context, dbHelper);
-    dbHelper.close();
+    try {
+      final BootDB dbHelper = new BootDB(context);
+      dbHelper.open();
+      BootReceiver.setOldAlarms(context, dbHelper);
+      dbHelper.close();
+    } catch (Exception e) {
+    }
   }
 
-  public final static void setOldAlarms(Context context, ADB dbHelper) {
+  public final static synchronized void setOldAlarms(final Context context,
+      final ADB dbHelper) {
     Cursor c = dbHelper.getUncheckedEntries();
     if (c.getCount() <= 0) {
       c.close();
       return;
     }
-    int name = c.getColumnIndex(BootDB.KEY_NAME);
+    final int name = c.getColumnIndex(BootDB.KEY_NAME);
     c.moveToFirst();
     do {
       String task = c.getString(name);
@@ -53,7 +57,7 @@ public final class BootReceiver extends BroadcastReceiver {
           int dayOfWeek = dbHelper.getDueDayOfWeek(task);
           alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Utils
               .getTimeMillis(dbHelper.getDueTime(task), -1, dayOfWeek),
-              86400000 * (dayOfWeek > -1 ? 7 : 1), pi);
+              86400000L * (dayOfWeek > -1 ? 7 : 1), pi);
         }
       }
     } while (c.moveToNext());
@@ -65,7 +69,7 @@ public final class BootReceiver extends BroadcastReceiver {
  * Same database as ToDoDB, but lighter
  */
 final class BootDB extends ADB {
-  
+
   private DatabaseHelper mDbHelper;
 
   private static class DatabaseHelper extends SQLiteOpenHelper {

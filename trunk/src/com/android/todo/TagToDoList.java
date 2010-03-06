@@ -128,6 +128,8 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
+    sSettings = getSharedPreferences(PREFS_NAME, 0);
+    setTheme(sSettings.getInt(ConfigScreen.THEME, android.R.style.Theme));
     super.onCreate(icicle);
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
@@ -701,7 +703,6 @@ public class TagToDoList extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    sSettings = getSharedPreferences(PREFS_NAME, 0);
     populateFields();
   }
 
@@ -719,7 +720,7 @@ public class TagToDoList extends Activity {
   /**
    * Initiates the interface population.
    */
-  private final void populateFields() {
+  private final void populateFields() {    
     fillTagData();
 
     setPrioritySort(sSettings.getInt(PRIORITY_SORT, 0));

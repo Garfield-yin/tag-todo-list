@@ -513,7 +513,7 @@ public final class EditScreen extends Activity {
           + minute, mDbHelper.getDueDate(name), sDayOfWeek), pi);
     } else {// daily or weekly
       alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Utils.getTimeMillis(
-          hour * 60 + minute, -1, sDayOfWeek), 86400000 * (sDayOfWeek > -1 ? 7
+          hour * 60 + minute, -1, sDayOfWeek), 86400000L * (sDayOfWeek > -1 ? 7
           : 1), pi);
     }
   }
