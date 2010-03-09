@@ -47,9 +47,10 @@ public final class TagToDoWidget extends AppWidgetProvider {
     rv.setOnClickPendingIntent(R.id.cicleButton, PendingIntent.getBroadcast(
         context, 5, new Intent(context, WidgetChange.class).putExtra(
             ToDoDB.KEY_NAME, R.id.cicleButton), 0));
-    WidgetChange.refresh(rv, context);
-    appWidgetManager.updateAppWidget(new ComponentName(context,
-        TagToDoWidget.class), rv);
+    final Context c = context.getApplicationContext();
+    WidgetChange.refresh(rv, c);
+    appWidgetManager.updateAppWidget(new ComponentName(c, TagToDoWidget.class),
+        rv);
 
   }
 }

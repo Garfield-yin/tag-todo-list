@@ -22,9 +22,10 @@ public final class BootReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     try {
-      final BootDB dbHelper = new BootDB(context);
+      final Context c=context.getApplicationContext();
+      final BootDB dbHelper = new BootDB(c);
       dbHelper.open();
-      BootReceiver.setOldAlarms(context, dbHelper);
+      BootReceiver.setOldAlarms(c, dbHelper);
       dbHelper.close();
     } catch (Exception e) {
     }
