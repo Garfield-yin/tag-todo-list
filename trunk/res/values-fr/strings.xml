@@ -113,6 +113,7 @@
 <string name="configuration_5_stats">Autoriser la collecte anonyme de statistiques d'utilisation une fois par mois</string>
 <string name="configuration_6_notes">Voir la tâche qui a des notes en mode portrait aussi bien (consomme un peu plus des ressources)</string>
 <string name="configuration_7_theme">Inverser thème (texte foncé sur fond blanc)</string>
+<string name="configuration_8_collapse">Des boutons pour réduire (pour les sous-tâches)</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personnel</string>

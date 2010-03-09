@@ -40,6 +40,7 @@ public final class ConfigScreen extends Activity {
   public static final String USAGE_STATS = "usageStats";
   public static final String NOTE_PREVIEW = "notePreview";
   public static final String THEME = "theme";
+  public static final String SHOW_COLLAPSE = "showCollapse";
 
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mCloseButton, mHelpButton;
@@ -50,7 +51,7 @@ public final class ConfigScreen extends Activity {
         TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
     final SharedPreferences.Editor editor = settings.edit();
     setTheme(settings.getInt(ConfigScreen.THEME, android.R.style.Theme));
-    
+
     super.onCreate(savedInstanceState);
     setTitle(R.string.configuration_screen_title);
     setContentView(R.layout.configuration);
@@ -83,6 +84,17 @@ public final class ConfigScreen extends Activity {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         editor.putBoolean(USAGE_STATS, isChecked);
         editor.commit();
+      }
+    });
+    ll.addView(cb);
+
+    // show collapse buttons (for subtasks)
+    cb = new CheckBox(this);
+    cb.setChecked(settings.getBoolean(SHOW_COLLAPSE, false));
+    cb.setText(R.string.configuration_8_collapse);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putBoolean(SHOW_COLLAPSE, isChecked).commit();
       }
     });
     ll.addView(cb);

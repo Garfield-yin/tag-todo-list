@@ -117,6 +117,7 @@ public class TagToDoList extends Activity {
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
   private LinearLayout mNotesLayout = null;
+  private LinearLayout mCollapseLayout = null;
   private ArrayAdapter<CharSequence> mTagsArrayAdapter;
   private Button mStatButton;
   private Button mAddEntryButton;
@@ -325,6 +326,9 @@ public class TagToDoList extends Activity {
     if (mNotesLayout != null) {
       mNotesLayout.removeAllViews();
     }
+    if (mCollapseLayout != null) {
+      mCollapseLayout.removeAllViews();
+    }
     mStatButton.setText(processDepth(el, ccl, selectedTag, 0, null) + "");
   }
 
@@ -357,6 +361,7 @@ public class TagToDoList extends Activity {
     final int maxPriority = mMaxPriority;
     final ToDoDB dbHelper = sDbHelper;
     final LinearLayout notesLayout = mNotesLayout;
+    final LinearLayout collapseLayout = mCollapseLayout;
     final boolean hideChecked = HIDE_CHECKED;
     if (c.getCount() > 0) {
       c.moveToLast();
@@ -462,7 +467,33 @@ public class TagToDoList extends Activity {
             }
           }
         }
-        if (c.getInt(subtasks) > 0) {
+        boolean collapsed = false;
+        if (collapseLayout != null) {
+          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_SUBTASKS) > 0) {
+            final ImageButton ib = new ImageButton(this);
+            ib.setBackgroundColor(Color.TRANSPARENT);
+            ib.setPadding(-5, -2, -5, 2);
+            ib.setTag(Boolean.valueOf(collapsed = sDbHelper.getFlag(taskName,
+                ToDoDB.KEY_COLLAPSED) != 0));
+            ib.setImageResource(collapsed ? android.R.drawable.ic_menu_add
+                : android.R.drawable.ic_menu_close_clear_cancel);
+            ib.setOnClickListener(new OnClickListener() {
+              public void onClick(View v) {
+                sDbHelper.setFlag(taskName, ToDoDB.KEY_COLLAPSED, (Boolean) ib
+                    .getTag() ? 0 : 1);
+                selectTag(mTagSpinner.getSelectedItemPosition());
+              }
+            });
+            collapseLayout.addView(ib);
+          } else {
+            final TextView tv = new TextView(this);
+            tv.setPadding(0, 14, 0, 0);
+            tv.setText("");
+            tv.setMinHeight(48);
+            collapseLayout.addView(tv);
+          }
+        }
+        if (c.getInt(subtasks) > 0 && !collapsed) {
           numberOfUnchecked += processDepth(el, ccl, selectedTag, depth + 1, c
               .getString(name));
         }
@@ -720,7 +751,7 @@ public class TagToDoList extends Activity {
   /**
    * Initiates the interface population.
    */
-  private final void populateFields() {    
+  private final void populateFields() {
     fillTagData();
 
     setPrioritySort(sSettings.getInt(PRIORITY_SORT, 0));
@@ -733,6 +764,13 @@ public class TagToDoList extends Activity {
     }
     mNotesLayout = (sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false) || getResources()
         .getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? ((LinearLayout) findViewById(R.id.noteLayout))
+        : null;
+
+    // Should the collapse buttons be shown?
+    if (mCollapseLayout != null) {
+      mCollapseLayout.removeAllViews();
+    }
+    mCollapseLayout = (sSettings.getBoolean(ConfigScreen.SHOW_COLLAPSE, false)) ? ((LinearLayout) findViewById(R.id.collapseLayout))
         : null;
 
     // Should checked tasks be hidden?

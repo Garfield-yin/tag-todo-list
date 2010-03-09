@@ -30,6 +30,10 @@
 				android:orientation="vertical" android:layout_width="wrap_content"
 				android:layout_height="wrap_content" />
 
+			<LinearLayout android:id="@+id/collapseLayout"
+				android:orientation="vertical" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
 			<LinearLayout android:id="@+id/entryLayout"
 				android:orientation="vertical" android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />

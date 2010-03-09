@@ -41,6 +41,10 @@ public final class ToDoDB extends ADB {
   public static final String KEY_NOTE_IS_WRITTEN = "iswrittennote";
   public static final String KEY_NOTE_IS_GRAPHICAL = "isgraphicalnote";
   public static final String KEY_NOTE_IS_AUDIO = "isaudionote";
+  // if 1 it means the task is collapsed
+  public static final String KEY_COLLAPSED = "iscollapsed";
+  
+  
 
   private static final String DB_TAG_TABLE = "tags";
   private DatabaseHelper mDbHelper;
@@ -267,6 +271,12 @@ public final class ToDoDB extends ADB {
       // upgrade to db v92 (corresponding to app v1.9.0) or bigger;
       // fixing a legacy bug, some people might not have the KEY_SUBTASKS column
       if (oldVersion < 92 && newVersion >= 92) {
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_COLLAPSED
+              + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
+        
         Cursor c = null;
         try {
           c = db.query(DB_ENTRY_TABLE, new String[] { KEY_SUBTASKS }, null,
