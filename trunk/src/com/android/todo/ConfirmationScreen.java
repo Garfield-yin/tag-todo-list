@@ -111,7 +111,7 @@ public final class ConfirmationScreen extends Activity {
   protected void onResume() {
     super.onResume();
     mAction = getIntent().getAction();
-    mDbHelper = new ToDoDB(this);
+    mDbHelper = new ToDoDB(getApplicationContext());
     mDbHelper.open();
     populateFields();
   }

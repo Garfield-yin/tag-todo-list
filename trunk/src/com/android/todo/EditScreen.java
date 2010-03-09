@@ -81,7 +81,7 @@ public final class EditScreen extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mDbHelper = new ToDoDB(this);
+    mDbHelper = new ToDoDB(this.getApplicationContext());
     mDbHelper.open();
     setContentView(R.layout.edit);
     final boolean noPhysicalKeyboard = (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS);

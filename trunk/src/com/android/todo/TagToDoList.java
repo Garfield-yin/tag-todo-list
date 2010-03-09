@@ -287,7 +287,7 @@ public class TagToDoList extends Activity {
     });
 
     if (sDbHelper == null) {
-      sDbHelper = new ToDoDB(this).open();
+      sDbHelper = new ToDoDB(getApplicationContext()).open();
     }
 
     showDueTasks(true);
@@ -415,9 +415,8 @@ public class TagToDoList extends Activity {
                     changeTask(ENTRY_WRITTEN_ID);
                   }
                 });
-                taskNoteLayout.addView(ib);
-
               }
+
               if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
                 noNotes = false;
                 final ImageButton ib = new ImageButton(this);
