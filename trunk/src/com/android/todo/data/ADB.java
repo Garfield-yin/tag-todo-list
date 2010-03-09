@@ -20,7 +20,7 @@ public abstract class ADB {
    * deletion of alarms. The name of the attribute (DATABASE_VERSION) IS NOT TO
    * BE CHANGED!
    */
-  public static final int DATABASE_VERSION = 91;
+  public static final int DATABASE_VERSION = 92;
 
   protected static Context mCtx;
   public SQLiteDatabase mDb;

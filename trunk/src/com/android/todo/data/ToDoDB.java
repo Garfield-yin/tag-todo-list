@@ -99,6 +99,7 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 78, 79);
       onUpgrade(db, 81, 82);
       onUpgrade(db, 85, 86);
+      onUpgrade(db, 91, 92);
     }
 
     @Override
@@ -187,6 +188,9 @@ public final class ToDoDB extends ADB {
         try {
           db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_SUPERTASK
               + " TEXT");
+        } catch (Exception e) {
+        }
+        try {
           db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_SUBTASKS
               + " INTEGER DEFAULT 0");
         } catch (Exception e) {
@@ -197,12 +201,21 @@ public final class ToDoDB extends ADB {
       // 3 columns have been added, as boolean flags (but still int), to see
       // whether there are certain types of notes
       if (oldVersion < 86 && newVersion >= 86) {
-        db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
-            + KEY_NOTE_IS_WRITTEN + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
-            + KEY_NOTE_IS_GRAPHICAL + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
-            + KEY_NOTE_IS_AUDIO + " INTEGER DEFAULT 0");
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+              + KEY_NOTE_IS_WRITTEN + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+              + KEY_NOTE_IS_GRAPHICAL + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
+              + KEY_NOTE_IS_AUDIO + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
         final Cursor c = db.query(DB_ENTRY_TABLE, new String[] { KEY_NAME,
             KEY_WRITTEN_NOTE }, null, null, null, null, null);
         if (c.getCount() > 0) {
@@ -249,6 +262,26 @@ public final class ToDoDB extends ADB {
           } while (c.moveToNext());
         }
         c.close();
+      }
+
+      // upgrade to db v92 (corresponding to app v1.9.0) or bigger;
+      // fixing a legacy bug, some people might not have the KEY_SUBTASKS column
+      if (oldVersion < 92 && newVersion >= 92) {
+        Cursor c = null;
+        try {
+          c = db.query(DB_ENTRY_TABLE, new String[] { KEY_SUBTASKS }, null,
+              null, null, null, null);
+        } catch (Exception e) {
+          try {
+            db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_SUBTASKS
+                + " INTEGER DEFAULT 0");
+          } catch (Exception e2) {
+          }
+        } finally {
+          if (c != null) {
+            c.close();
+          }
+        }
       }
 
       // must be last:
