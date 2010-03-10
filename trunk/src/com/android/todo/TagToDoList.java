@@ -415,6 +415,7 @@ public class TagToDoList extends Activity {
                     changeTask(ENTRY_WRITTEN_ID);
                   }
                 });
+                taskNoteLayout.addView(ib);
               }
 
               if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
@@ -431,6 +432,7 @@ public class TagToDoList extends Activity {
                 });
                 taskNoteLayout.addView(ib);
               }
+              
               if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
                 noNotes = false;
                 final ImageButton ib = new ImageButton(this);
@@ -445,6 +447,7 @@ public class TagToDoList extends Activity {
                 });
                 taskNoteLayout.addView(ib);
               }
+              
               if (noNotes) {
                 final TextView tv = new TextView(this);
                 tv.setPadding(0, 14, 0, 0);

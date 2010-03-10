@@ -99,20 +99,6 @@ public final class ConfigScreen extends Activity {
     });
     ll.addView(cb);
 
-    // choose theme
-    cb = new CheckBox(this);
-    cb
-        .setChecked(settings.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
-    cb.setText(R.string.configuration_7_theme);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putInt(THEME,
-            isChecked ? android.R.style.Theme_Light : android.R.style.Theme)
-            .commit();
-      }
-    });
-    ll.addView(cb);
-
     // sync TO Google Calendar
     cb = new CheckBox(this);
     cb.setChecked(settings.getBoolean(GOOGLE_CALENDAR, false));
@@ -158,7 +144,7 @@ public final class ConfigScreen extends Activity {
     });
     ll.addView(cb);
 
-    // visually distinguish tasks by priority
+    // show which tasks have notes in portrait mode as well
     cb = new CheckBox(this);
     cb.setChecked(settings.getBoolean(NOTE_PREVIEW, false));
     cb.setText(R.string.configuration_6_notes);
@@ -166,6 +152,20 @@ public final class ConfigScreen extends Activity {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         editor.putBoolean(NOTE_PREVIEW, isChecked);
         editor.commit();
+      }
+    });
+    ll.addView(cb);
+
+    // choose theme
+    cb = new CheckBox(this);
+    cb
+        .setChecked(settings.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
+    cb.setText(R.string.configuration_7_theme);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putInt(THEME,
+            isChecked ? android.R.style.Theme_Light : android.R.style.Theme)
+            .commit();
       }
     });
     ll.addView(cb);
