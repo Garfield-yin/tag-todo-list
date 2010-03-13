@@ -331,20 +331,34 @@ public class TagToDoList extends Activity {
 						selectTag(mTagSpinner.getSelectedItemPosition());
 					}
 				};
-		if (mNotesLayout != null) {
-			mNotesLayout.removeAllViews();
+
+		final ToDoDB dbHelper = sDbHelper;
+		final LinearLayout notesLayout = mNotesLayout;
+		final LinearLayout collapseLayout = mCollapseLayout;
+
+		if (notesLayout != null) {
+			notesLayout.removeAllViews();
 		}
-		if (mCollapseLayout != null) {
-			mCollapseLayout.removeAllViews();
+		if (collapseLayout != null) {
+			collapseLayout.removeAllViews();
 		}
-		mStatButton.setText(processDepth(el, ccl, selectedTag, 0, null) + "");
+
+		mStatButton.setText(processDepth(dbHelper, el, notesLayout,
+				collapseLayout, ccl, selectedTag, 0, null)
+				+ "");
 	}
 
 	/**
 	 * Populates the given LinearLayout with tasks.
 	 * 
+	 * @param dbHelper
+	 *            A local reference to sDbHelper
 	 * @param el
 	 *            The LinearLayout to be populated
+	 * @param notesLayout
+	 *            A local reference to mNotesLayout
+	 * @param collapseLayout
+	 *            A local reference to mCollapseLayout
 	 * @param ccl
 	 *            Things to happen when a task is checked
 	 * @param selectedTag
@@ -355,7 +369,8 @@ public class TagToDoList extends Activity {
 	 *            Populates with the subtasks of this superTask
 	 * @return The number of unchecked tasks
 	 */
-	public int processDepth(final LinearLayout el,
+	public final int processDepth(final ToDoDB dbHelper, final LinearLayout el,
+			final LinearLayout notesLayout, final LinearLayout collapseLayout,
 			final OnCheckedChangeListener ccl, final int selectedTag,
 			final int depth, final String superTask) {
 		final Cursor c = sDbHelper.getTasks(
@@ -369,9 +384,6 @@ public class TagToDoList extends Activity {
 		boolean checked;
 		int numberOfUnchecked = 0;
 		final int maxPriority = mMaxPriority;
-		final ToDoDB dbHelper = sDbHelper;
-		final LinearLayout notesLayout = mNotesLayout;
-		final LinearLayout collapseLayout = mCollapseLayout;
 		final boolean hideChecked = HIDE_CHECKED;
 		if (c.getCount() > 0) {
 			c.moveToLast();
@@ -402,10 +414,9 @@ public class TagToDoList extends Activity {
 					lp.leftMargin = depth * 30;
 					cb.setLayoutParams(lp);
 				}
-				el.addView(cb);
 				if (notesLayout != null) {
 					try { // this try clause shouldn't be necessary, but users
-							// are
+						// are
 						// reporting force-closes
 						final LinearLayout taskNoteLayout = new LinearLayout(
 								this);
@@ -478,7 +489,7 @@ public class TagToDoList extends Activity {
 						}
 						notesLayout.addView(taskNoteLayout);
 					} catch (Exception e) {// if there is an exception in this
-											// preventive
+						// preventive
 						// try clause, we send back stats with the
 						// exception (if the user wants)
 						if (USAGE_STATS) {
@@ -523,8 +534,10 @@ public class TagToDoList extends Activity {
 						collapseLayout.addView(tv);
 					}
 				}
+				el.addView(cb);
 				if (c.getInt(subtasks) > 0 && !collapsed) {
-					numberOfUnchecked += processDepth(el, ccl, selectedTag,
+					numberOfUnchecked += processDepth(dbHelper, el,
+							notesLayout, collapseLayout, ccl, selectedTag,
 							depth + 1, c.getString(name));
 				}
 			} while (c.moveToPrevious());
