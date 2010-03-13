@@ -82,7 +82,7 @@ public final class WidgetChange extends BroadcastReceiver {
   }
 
   @Override
-  public void onReceive(final Context c, final Intent intent) {
+  public void onReceive(Context c, Intent intent) {
     final RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
     ensureRefresh(rv, c);
     switch (intent.getExtras().getInt(ToDoDB.KEY_NAME)) {
