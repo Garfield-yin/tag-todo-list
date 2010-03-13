@@ -60,4 +60,4 @@ removal by Android on app update) // done in the ADB class
 I'll be happy to answer any questions at:
 http://teodorfilimon.com/android/Tag-ToDo-List/contact.html
 
-This file was last updated on August 11, 2009.
+This file was last updated on August 11, 2009
