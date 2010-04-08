@@ -323,7 +323,7 @@ public final class ToDoDB extends ADB {
 
 	public void close() {
 		mDbHelper.close();
-		sInstance=null;
+		sInstance = null;
 	}
 
 	/**
@@ -1148,28 +1148,41 @@ public final class ToDoDB extends ADB {
 	 * @param name
 	 *            name of the entry to delete
 	 */
-	public void deleteEntry(String name) {
+	public void deleteEntry(final String name) {
 		// decrementing the subtask count of the supertask
-		Cursor subC = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
-				KEY_SUPERTASK }, KEY_NAME + " = '" + name + "'", null, null,
-				null, null, null);
+		final Cursor subC = mDb.query(true, DB_ENTRY_TABLE, new String[] {
+				KEY_NAME, KEY_SUPERTASK }, KEY_NAME + "='" + name + "'", null,
+				null, null, null, null);
 		subC.moveToFirst();
-		Cursor supC = mDb.query(true, DB_ENTRY_TABLE, new String[] { KEY_NAME,
-				KEY_SUBTASKS }, KEY_NAME + " = '"
+		final Cursor supC = mDb.query(true, DB_ENTRY_TABLE, new String[] {
+				KEY_NAME, KEY_SUBTASKS }, KEY_NAME + "='"
 				+ subC.getString(subC.getColumnIndex(KEY_SUPERTASK)) + "'",
 				null, null, null, null, null);
 		if (supC.getCount() > 0) {
 			supC.moveToFirst();
-			ContentValues args = new ContentValues();
+			final ContentValues args = new ContentValues();
 			args.put(KEY_SUBTASKS, supC.getInt(supC
 					.getColumnIndex(KEY_SUBTASKS)) - 1);
-			mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + " = '"
+			mDb.update(DB_ENTRY_TABLE, args, KEY_NAME + "='"
 					+ subC.getString(subC.getColumnIndex(KEY_SUPERTASK)) + "'",
 					null);
 		}
 		supC.close();
 		subC.close();
 
+		// recursively deleting subtasks, if any:
+		final Cursor subtasks = mDb.query(true, DB_ENTRY_TABLE,
+				new String[] { KEY_NAME }, KEY_SUPERTASK + " = '" + name + "'",
+				null, null, null, null, null);
+		if (subtasks.getCount() > 0) {
+			subtasks.moveToFirst();
+			do {
+				deleteEntry(subtasks.getString(0));
+			} while (subtasks.moveToNext());
+		}
+		subtasks.close();
+
+		// now we actually delete it:
 		mDb.delete(DB_ENTRY_TABLE, KEY_NAME + "='" + name + "'", null);
 		mCtx.deleteFile(Utils.getImageName(name));
 		new File(Utils.getAudioName(name)).delete();

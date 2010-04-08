@@ -759,7 +759,7 @@ public class TagToDoList extends Activity {
 			sTracker.stop();
 		}
 		// should we really close this, ToDoDB being a singleton? Figure this
-		// out! ??
+		// out! ???
 		// sDbHelper.close();
 
 		TagToDoWidget.onUpdate(getApplicationContext(), AppWidgetManager

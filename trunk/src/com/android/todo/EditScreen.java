@@ -584,7 +584,6 @@ public final class EditScreen extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		mDbHelper.close();
 		super.onDestroy();
 	}
 
