@@ -70,7 +70,7 @@ public final class NotificationActivity extends Activity {
     });
     ((Button) findViewById(R.id.toggleButton)).setVisibility(View.GONE);
 
-    mDbHelper = TagToDoList.getDbHelper();
+    mDbHelper = ToDoDB.getInstance(getApplicationContext());
   }
 
   @Override

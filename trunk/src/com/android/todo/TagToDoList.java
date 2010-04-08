@@ -112,7 +112,6 @@ public class TagToDoList extends Activity {
 	public static TTS sTts; // text to speech
 	private static ToDoDB sDbHelper;
 	private static SharedPreferences sSettings;
-	private static Context sContext = null;
 	private static GoogleAnalyticsTracker sTracker = null;
 	private Spinner mTagSpinner;
 	private LinearLayout mEntryLayout;
@@ -291,10 +290,7 @@ public class TagToDoList extends Activity {
 			}
 		});
 
-		if (sDbHelper == null) {
-			sDbHelper = new ToDoDB(getApplicationContext()).open();
-		}
-
+		sDbHelper = ToDoDB.getInstance(getApplicationContext());
 		showDueTasks(true);
 	}
 
@@ -599,7 +595,6 @@ public class TagToDoList extends Activity {
 			c.close();
 			return true;
 		case TAG_IMPORTBACKUP_ID:
-			sContext = this;
 			final Intent i = new Intent(this, ConfirmationScreen.class);
 			i.setAction(ACTIVITY_BACKUP_IMPORT + "");
 			startActivity(i);
@@ -726,19 +721,21 @@ public class TagToDoList extends Activity {
 
 	/**
 	 * Copies a database copy from the SD card over the existing database
+	 * 
+	 * @param An
+	 *            application context (preferably through
+	 *            getApplicationContext())
 	 */
-	public static final void importBackupSD() {
+	public static final void importBackupSD(final Context c) {
 		sDbHelper.close();
 		try {
 			Utils.copy(new File("/sdcard/Tag-ToDo_data/database_backup"),
 					new File("/data/data/com.android.todo/databases"));
 		} catch (Exception e) {
 			Utils.showDialog(R.string.notification,
-					R.string.backup_import_fail, sContext);
+					R.string.backup_import_fail, c);
 		}
-		sDbHelper = new ToDoDB(sContext);
-		sDbHelper.open();
-		sContext = null;
+		sDbHelper = ToDoDB.getInstance(c);
 	}
 
 	@Override
@@ -761,11 +758,12 @@ public class TagToDoList extends Activity {
 			}
 			sTracker.stop();
 		}
+		// should we really close this, ToDoDB being a singleton? Figure this
+		// out! ??
+		// sDbHelper.close();
 
-		sDbHelper.close();
-		sDbHelper = null;
-
-		TagToDoWidget.onUpdate(this, AppWidgetManager.getInstance(this));
+		TagToDoWidget.onUpdate(getApplicationContext(), AppWidgetManager
+				.getInstance(getApplicationContext()));
 		super.onDestroy();
 	}
 
@@ -1314,15 +1312,6 @@ public class TagToDoList extends Activity {
 				return true;
 			}
 		});
-	}
-
-	/**
-	 * Necessary in the notification activity, if it ever gets launched
-	 * 
-	 * @return a handle to the DbHelper
-	 */
-	public static ToDoDB getDbHelper() {
-		return sDbHelper;
 	}
 
 	/**

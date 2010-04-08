@@ -20,34 +20,32 @@ import com.android.todo.data.ToDoDB;
 public final class TagToDoWidget extends AppWidgetProvider {
 
   @Override
-  public void onUpdate(Context context, AppWidgetManager appWidgetManager,
+	public void onUpdate(Context c, AppWidgetManager appWidgetManager,
       int[] appWidgetIds) {
-    TagToDoWidget.onUpdate(context, appWidgetManager);
-
+    TagToDoWidget.onUpdate(c.getApplicationContext(), appWidgetManager);
   }
 
-  public final static void onUpdate(Context context,
+  public final static void onUpdate(Context c,
       AppWidgetManager appWidgetManager) {
-    RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget);
+    RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
     rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(
-        context, 0, new Intent(context, TagToDoList.class),
+        c, 0, new Intent(c, TagToDoList.class),
         Intent.FLAG_ACTIVITY_NEW_TASK));
     rv.setOnClickPendingIntent(R.id.nextTagButton, PendingIntent.getBroadcast(
-        context, 1, new Intent(context, WidgetChange.class).putExtra(
+        c, 1, new Intent(c, WidgetChange.class).putExtra(
             ToDoDB.KEY_NAME, R.id.nextTagButton), 0));
     rv.setOnClickPendingIntent(R.id.nextTaskButton, PendingIntent.getBroadcast(
-        context, 2, new Intent(context, WidgetChange.class).putExtra(
+        c, 2, new Intent(c, WidgetChange.class).putExtra(
             ToDoDB.KEY_NAME, R.id.nextTaskButton), 0));
     rv.setOnClickPendingIntent(R.id.addTaskButton, PendingIntent.getBroadcast(
-        context, 3, new Intent(context, WidgetChange.class).putExtra(
+        c, 3, new Intent(c, WidgetChange.class).putExtra(
             ToDoDB.KEY_NAME, R.id.addTaskButton), 0));
     rv.setOnClickPendingIntent(R.id.checkButton, PendingIntent.getBroadcast(
-        context, 4, new Intent(context, WidgetChange.class).putExtra(
+        c, 4, new Intent(c, WidgetChange.class).putExtra(
             ToDoDB.KEY_NAME, R.id.checkButton), 0));
     rv.setOnClickPendingIntent(R.id.cicleButton, PendingIntent.getBroadcast(
-        context, 5, new Intent(context, WidgetChange.class).putExtra(
+        c, 5, new Intent(c, WidgetChange.class).putExtra(
             ToDoDB.KEY_NAME, R.id.cicleButton), 0));
-    final Context c = context.getApplicationContext();
     WidgetChange.refresh(rv, c);
     appWidgetManager.updateAppWidget(new ComponentName(c, TagToDoWidget.class),
         rv);

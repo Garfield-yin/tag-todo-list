@@ -53,7 +53,7 @@ public final class ConfirmationScreen extends Activity {
           setResult(RESULT_OK);
           finish();
         } else { // ACTIVITY_BACKUP_IMPORT
-          TagToDoList.importBackupSD();
+          TagToDoList.importBackupSD(getApplicationContext());
           finish();
         }
       }
@@ -111,8 +111,7 @@ public final class ConfirmationScreen extends Activity {
   protected void onResume() {
     super.onResume();
     mAction = getIntent().getAction();
-    mDbHelper = new ToDoDB(getApplicationContext());
-    mDbHelper.open();
+    mDbHelper = ToDoDB.getInstance(getApplicationContext());
     populateFields();
   }
 

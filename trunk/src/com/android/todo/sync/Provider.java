@@ -8,7 +8,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.android.todo.TagToDoList;
+import com.android.todo.data.ToDoDB;
 
 public final class Provider extends ContentProvider {
   private static final UriMatcher sUriMatcher = new UriMatcher(0);
@@ -39,17 +39,19 @@ public final class Provider extends ContentProvider {
   public Cursor query(Uri uri, String[] projection, String selection,
       String[] selectionArgs, String sortOrder) {
     final int match = sUriMatcher.match(uri);
+    // is there a possibility of conflict with some other contexts?
+    final ToDoDB dbHelper=ToDoDB.getInstance(this.getContext());
     switch (match) {
     case URI_TASKS:
-      return TagToDoList.getDbHelper().getTasks(null, -1, null);
+      return dbHelper.getTasks(null, -1, null);
     case URI_TAGS:
-      return TagToDoList.getDbHelper().getAllTags();
+      return dbHelper.getAllTags();
     case URI_SPECIFIC_TAG:
-      return TagToDoList.getDbHelper().getTasks(uri.getLastPathSegment(), -1, null);
+      return dbHelper.getTasks(uri.getLastPathSegment(), -1, null);
     case URI_TASKS_DUE:
-      return TagToDoList.getDbHelper().getAllDueEntries();
+      return dbHelper.getAllDueEntries();
     case URI_TASKS_DUE_TODAY:
-      return TagToDoList.getDbHelper().getDueEntries();
+      return dbHelper.getDueEntries();
     }
     return null;
   }

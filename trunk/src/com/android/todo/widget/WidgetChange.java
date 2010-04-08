@@ -52,10 +52,7 @@ public final class WidgetChange extends BroadcastReceiver {
     // initializing logic
     // sTag = 0;
     sTask = 0;
-    if (sDbHelper != null) {
-      sDbHelper.close();
-    }
-    sDbHelper = new ToDoDB(c).open();
+    sDbHelper = ToDoDB.getInstance(c);
     sTagCursor = sDbHelper.getAllTags();
     if (sTimer != null) {
       sTimer.cancel();
