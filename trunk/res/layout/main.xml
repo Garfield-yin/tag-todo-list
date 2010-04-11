@@ -23,22 +23,9 @@
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:scrollbars="vertical" android:layout_weight="1">
 
-		<LinearLayout android:orientation="horizontal"
-			android:layout_width="fill_parent" android:layout_height="wrap_content">
-
-			<LinearLayout android:id="@+id/noteLayout"
-				android:orientation="vertical" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-
-			<LinearLayout android:id="@+id/collapseLayout"
-				android:orientation="vertical" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-
-			<LinearLayout android:id="@+id/entryLayout"
-				android:orientation="vertical" android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
-
-		</LinearLayout>
+		<LinearLayout android:id="@+id/entryLayout" android:gravity="clip_horizontal"
+			android:orientation="vertical" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
 
 	</ScrollView>
 

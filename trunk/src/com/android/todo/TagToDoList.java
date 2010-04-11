@@ -3,8 +3,6 @@
 package com.android.todo;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Calendar;
 
 import android.app.Activity;
@@ -102,6 +100,8 @@ public class TagToDoList extends Activity {
 	public static boolean BLIND_MODE;
 	public static boolean USAGE_STATS;
 	public static boolean HIDE_CHECKED;
+	public static boolean SHOW_NOTES;
+	public static boolean SHOW_COLLAPSE;
 
 	/**
 	 * A local flag - if true, clicking a task won't check it. Useful, for
@@ -115,8 +115,6 @@ public class TagToDoList extends Activity {
 	private static GoogleAnalyticsTracker sTracker = null;
 	private Spinner mTagSpinner;
 	private LinearLayout mEntryLayout;
-	private LinearLayout mNotesLayout = null;
-	private LinearLayout mCollapseLayout = null;
 	private ArrayAdapter<CharSequence> mTagsArrayAdapter;
 	private Button mStatButton;
 	private Button mAddEntryButton;
@@ -329,18 +327,9 @@ public class TagToDoList extends Activity {
 				};
 
 		final ToDoDB dbHelper = sDbHelper;
-		final LinearLayout notesLayout = mNotesLayout;
-		final LinearLayout collapseLayout = mCollapseLayout;
 
-		if (notesLayout != null) {
-			notesLayout.removeAllViews();
-		}
-		if (collapseLayout != null) {
-			collapseLayout.removeAllViews();
-		}
-
-		mStatButton.setText(processDepth(dbHelper, el, notesLayout,
-				collapseLayout, ccl, selectedTag, 0, null)
+		mStatButton.setText(processDepth(dbHelper, el, ccl, selectedTag, 0,
+				null)
 				+ "");
 	}
 
@@ -366,12 +355,13 @@ public class TagToDoList extends Activity {
 	 * @return The number of unchecked tasks
 	 */
 	public final int processDepth(final ToDoDB dbHelper, final LinearLayout el,
-			final LinearLayout notesLayout, final LinearLayout collapseLayout,
-			final OnCheckedChangeListener ccl, final int selectedTag,
-			final int depth, final String superTask) {
+
+	final OnCheckedChangeListener ccl, final int selectedTag, final int depth,
+			final String superTask) {
 		final Cursor c = sDbHelper.getTasks(
 				selectedTag != -1 ? mTagsArrayAdapter.getItem(selectedTag)
 						.toString() : null, depth, superTask);
+		LinearLayout ll;
 		CheckBox cb;
 		final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
 		final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
@@ -384,6 +374,12 @@ public class TagToDoList extends Activity {
 		if (c.getCount() > 0) {
 			c.moveToLast();
 			do {
+				ll = new LinearLayout(this);
+				ll.setOrientation(0); // making it horizontal
+				LayoutParams lp = new LayoutParams(
+						LayoutParams.FILL_PARENT,
+						LayoutParams.WRAP_CONTENT);
+				ll.setLayoutParams(lp);
 				cb = new CheckBox(this);
 				if (SHINY_PRIORITY) {
 					int color = dbHelper.getPriority(c.getString(name)) * 191
@@ -395,7 +391,7 @@ public class TagToDoList extends Activity {
 				if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
 					checked = true;
 					if (hideChecked) {
-						cb.setVisibility(View.GONE);
+						continue;
 					}
 				} else {
 					checked = false;
@@ -405,109 +401,68 @@ public class TagToDoList extends Activity {
 				cb.setOnCheckedChangeListener(ccl);
 				registerForContextMenu(cb);
 				if (depth > 0) {
-					LayoutParams lp = new LayoutParams(
-							LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+					lp = new LayoutParams(
+							LayoutParams.FILL_PARENT,
+							LayoutParams.WRAP_CONTENT);
 					lp.leftMargin = depth * 30;
+					lp.weight = 1;
 					cb.setLayoutParams(lp);
 				}
-				if (notesLayout != null) {
-					try { // this try clause shouldn't be necessary, but users
-						// are
-						// reporting force-closes
-						final LinearLayout taskNoteLayout = new LinearLayout(
-								this);
-						if (checked && hideChecked) {
-							taskNoteLayout.setVisibility(View.GONE);
-						} else {
-							taskNoteLayout
-									.setOrientation(LinearLayout.HORIZONTAL);
-							boolean noNotes = true;
+				ll.addView(cb);
+				if (false) {
+					final LinearLayout taskNoteLayout = new LinearLayout(this);
+					taskNoteLayout.setOrientation(0);
 
-							if (sDbHelper.getFlag(taskName,
-									ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
-								noNotes = false;
-								final ImageButton ib = new ImageButton(this);
-								ib.setBackgroundColor(Color.TRANSPARENT);
-								ib.setPadding(-5, 0, -5, 0);
-								ib.setImageResource(R.drawable.written);
-								ib
-										.setOnClickListener(new View.OnClickListener() {
-											public void onClick(View v) {
-												mContextEntry = taskName;
-												changeTask(ENTRY_WRITTEN_ID);
-											}
-										});
-								taskNoteLayout.addView(ib);
+					if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
+						final ImageButton ib = new ImageButton(this);
+						ib.setBackgroundColor(Color.TRANSPARENT);
+						ib.setPadding(-5, 0, -5, 0);
+						ib.setImageResource(R.drawable.written);
+						ib.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								mContextEntry = taskName;
+								changeTask(ENTRY_WRITTEN_ID);
 							}
-
-							if (sDbHelper.getFlag(taskName,
-									ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
-								noNotes = false;
-								final ImageButton ib = new ImageButton(this);
-								ib.setBackgroundColor(Color.TRANSPARENT);
-								ib.setPadding(-5, 0, -5, 0);
-								ib
-										.setImageResource(android.R.drawable.ic_menu_edit);
-								ib
-										.setOnClickListener(new View.OnClickListener() {
-											public void onClick(View v) {
-												mContextEntry = taskName;
-												changeTask(ENTRY_GRAPHICAL_ID);
-											}
-										});
-								taskNoteLayout.addView(ib);
-							}
-
-							if (sDbHelper.getFlag(taskName,
-									ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
-								noNotes = false;
-								final ImageButton ib = new ImageButton(this);
-								ib.setBackgroundColor(Color.TRANSPARENT);
-								ib.setPadding(-5, 0, -5, 0);
-								ib.setImageResource(R.drawable.audio);
-								ib
-										.setOnClickListener(new View.OnClickListener() {
-											public void onClick(View v) {
-												mContextEntry = taskName;
-												changeTask(ENTRY_AUDIO_ID);
-											}
-										});
-								taskNoteLayout.addView(ib);
-							}
-
-							if (noNotes) {
-								final TextView tv = new TextView(this);
-								tv.setPadding(0, 14, 0, 0);
-								tv.setText("");
-								tv.setMinHeight(48);
-								taskNoteLayout.addView(tv);
-							}
-						}
-						notesLayout.addView(taskNoteLayout);
-					} catch (Exception e) {// if there is an exception in this
-						// preventive
-						// try clause, we send back stats with the
-						// exception (if the user wants)
-						if (USAGE_STATS) {
-							StringWriter sw = new StringWriter();
-							PrintWriter pw = new PrintWriter(sw);
-							e.printStackTrace(pw);
-							sTracker.trackEvent(Analytics.EXCEPTION, /*
-																	 * name of
-																	 * this
-																	 * function
-																	 */
-							"processDepth", e.getMessage() + '|'
-									+ sw.toString(), 0);
-						}
+						});
+						taskNoteLayout.addView(ib);
 					}
+
+					if (sDbHelper.getFlag(taskName,
+							ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
+						final ImageButton ib = new ImageButton(this);
+						ib.setBackgroundColor(Color.TRANSPARENT);
+						ib.setPadding(-5, 0, -5, 0);
+						ib.setImageResource(android.R.drawable.ic_menu_edit);
+						ib.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								mContextEntry = taskName;
+								changeTask(ENTRY_GRAPHICAL_ID);
+							}
+						});
+						taskNoteLayout.addView(ib);
+					}
+
+					if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
+						final ImageButton ib = new ImageButton(this);
+						ib.setBackgroundColor(Color.TRANSPARENT);
+						ib.setPadding(-5, 0, -5, 0);
+						ib.setImageResource(R.drawable.audio);
+						ib.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								mContextEntry = taskName;
+								changeTask(ENTRY_AUDIO_ID);
+							}
+						});
+						taskNoteLayout.addView(ib);
+					}
+
+					ll.addView(taskNoteLayout);
 				}
 				boolean collapsed = false;
-				if (collapseLayout != null) {
+				if (SHOW_COLLAPSE) {
 					if (sDbHelper.getFlag(taskName, ToDoDB.KEY_SUBTASKS) > 0) {
 						final ImageButton ib = new ImageButton(this);
 						ib.setBackgroundColor(Color.TRANSPARENT);
-						ib.setPadding(-5, -2, -5, 2);
 						ib.setTag(Boolean.valueOf(collapsed = sDbHelper
 								.getFlag(taskName, ToDoDB.KEY_COLLAPSED) != 0));
 						ib
@@ -521,20 +476,18 @@ public class TagToDoList extends Activity {
 								selectTag(mTagSpinner.getSelectedItemPosition());
 							}
 						});
-						collapseLayout.addView(ib);
-					} else {
-						final TextView tv = new TextView(this);
-						tv.setPadding(0, 14, 0, 0);
-						tv.setText("");
-						tv.setMinHeight(48);
-						collapseLayout.addView(tv);
+						lp = new LayoutParams(
+								LayoutParams.WRAP_CONTENT,
+								LayoutParams.WRAP_CONTENT);
+						//lp.weight = 0;
+						ib.setLayoutParams(lp);
+						ll.addView(ib);
 					}
 				}
-				el.addView(cb);
+				el.addView(ll);
 				if (c.getInt(subtasks) > 0 && !collapsed) {
-					numberOfUnchecked += processDepth(dbHelper, el,
-							notesLayout, collapseLayout, ccl, selectedTag,
-							depth + 1, c.getString(name));
+					numberOfUnchecked += processDepth(dbHelper, el, ccl,
+							selectedTag, depth + 1, c.getString(name));
 				}
 			} while (c.moveToPrevious());
 		}
@@ -806,20 +759,11 @@ public class TagToDoList extends Activity {
 		setDueDateSort(sSettings.getInt(DUEDATE_SORT, 0));
 
 		// Is the notes preview feature enabled?
-		if (mNotesLayout != null) {
-			mNotesLayout.removeAllViews();
-		}
-		mNotesLayout = (sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false) || getResources()
-				.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? ((LinearLayout) findViewById(R.id.noteLayout))
-				: null;
+		SHOW_NOTES = sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
+				|| getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
 		// Should the collapse buttons be shown?
-		if (mCollapseLayout != null) {
-			mCollapseLayout.removeAllViews();
-		}
-		mCollapseLayout = (sSettings.getBoolean(ConfigScreen.SHOW_COLLAPSE,
-				false)) ? ((LinearLayout) findViewById(R.id.collapseLayout))
-				: null;
+		SHOW_COLLAPSE = sSettings.getBoolean(ConfigScreen.SHOW_COLLAPSE, false);
 
 		// Should checked tasks be hidden?
 		HIDE_CHECKED = sSettings.getBoolean(HIDE_CHECKED_SORT, false);

@@ -103,8 +103,6 @@ public final class ConfirmationScreen extends Activity {
     super.onPause();
     saveState();
     mAction = null;
-    mDbHelper.close();
-    mDbHelper = null;
   }
 
   @Override
