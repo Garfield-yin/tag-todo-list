@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -327,9 +328,9 @@ public class TagToDoList extends Activity {
 				};
 
 		final ToDoDB dbHelper = sDbHelper;
-
-		mStatButton.setText(processDepth(dbHelper, el, ccl, selectedTag, 0,
-				null)
+		final LayoutInflater inflater = getLayoutInflater();
+		mStatButton.setText(processDepth(dbHelper, inflater, el, ccl,
+				selectedTag, 0, null)
 				+ "");
 	}
 
@@ -338,6 +339,9 @@ public class TagToDoList extends Activity {
 	 * 
 	 * @param dbHelper
 	 *            A local reference to sDbHelper
+	 * @param inflater
+	 *            Needed to inflate every task LinearLayout with the task.xml
+	 *            layout
 	 * @param el
 	 *            The LinearLayout to be populated
 	 * @param notesLayout
@@ -354,33 +358,29 @@ public class TagToDoList extends Activity {
 	 *            Populates with the subtasks of this superTask
 	 * @return The number of unchecked tasks
 	 */
-	public final int processDepth(final ToDoDB dbHelper, final LinearLayout el,
-
-	final OnCheckedChangeListener ccl, final int selectedTag, final int depth,
-			final String superTask) {
+	public final int processDepth(final ToDoDB dbHelper,
+			final LayoutInflater inflater, final LinearLayout el,
+			final OnCheckedChangeListener ccl, final int selectedTag,
+			final int depth, final String superTask) {
 		final Cursor c = sDbHelper.getTasks(
 				selectedTag != -1 ? mTagsArrayAdapter.getItem(selectedTag)
 						.toString() : null, depth, superTask);
-		LinearLayout ll;
-		CheckBox cb;
+
 		final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
 		final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
 		final int subtasks = c.getColumnIndex(ToDoDB.KEY_SUBTASKS);
 
-		boolean checked;
 		int numberOfUnchecked = 0;
 		final int maxPriority = mMaxPriority;
 		final boolean hideChecked = HIDE_CHECKED;
+
 		if (c.getCount() > 0) {
 			c.moveToLast();
 			do {
-				ll = new LinearLayout(this);
-				ll.setOrientation(0); // making it horizontal
-				LayoutParams lp = new LayoutParams(
-						LayoutParams.FILL_PARENT,
-						LayoutParams.WRAP_CONTENT);
-				ll.setLayoutParams(lp);
-				cb = new CheckBox(this);
+				final LinearLayout ll = new LinearLayout(this);
+				inflater.inflate(R.layout.task, ll);
+				final CheckBox cb = (CheckBox) ll
+						.findViewById(R.id.taskCheckBox);
 				if (SHINY_PRIORITY) {
 					int color = dbHelper.getPriority(c.getString(name)) * 191
 							/ maxPriority + 64;
@@ -388,6 +388,7 @@ public class TagToDoList extends Activity {
 				}
 				final String taskName = c.getString(name);
 				cb.setText(taskName);
+				boolean checked;
 				if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
 					checked = true;
 					if (hideChecked) {
@@ -401,22 +402,22 @@ public class TagToDoList extends Activity {
 				cb.setOnCheckedChangeListener(ccl);
 				registerForContextMenu(cb);
 				if (depth > 0) {
-					lp = new LayoutParams(
-							LayoutParams.FILL_PARENT,
-							LayoutParams.WRAP_CONTENT);
+					LayoutParams lp = new LayoutParams(
+							LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 					lp.leftMargin = depth * 30;
 					lp.weight = 1;
 					cb.setLayoutParams(lp);
 				}
-				ll.addView(cb);
-				if (false) {
-					final LinearLayout taskNoteLayout = new LinearLayout(this);
+
+				if (SHOW_NOTES) {
+					final LinearLayout taskNoteLayout = (LinearLayout) ll
+							.findViewById(R.id.taskNotesLayout);
 					taskNoteLayout.setOrientation(0);
 
 					if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
 						final ImageButton ib = new ImageButton(this);
 						ib.setBackgroundColor(Color.TRANSPARENT);
-						ib.setPadding(-5, 0, -5, 0);
+						ib.setPadding(0, 0, 0, 0);
 						ib.setImageResource(R.drawable.written);
 						ib.setOnClickListener(new View.OnClickListener() {
 							public void onClick(View v) {
@@ -431,7 +432,7 @@ public class TagToDoList extends Activity {
 							ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
 						final ImageButton ib = new ImageButton(this);
 						ib.setBackgroundColor(Color.TRANSPARENT);
-						ib.setPadding(-5, 0, -5, 0);
+						ib.setPadding(0, 0, 0, 0);
 						ib.setImageResource(android.R.drawable.ic_menu_edit);
 						ib.setOnClickListener(new View.OnClickListener() {
 							public void onClick(View v) {
@@ -445,7 +446,7 @@ public class TagToDoList extends Activity {
 					if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
 						final ImageButton ib = new ImageButton(this);
 						ib.setBackgroundColor(Color.TRANSPARENT);
-						ib.setPadding(-5, 0, -5, 0);
+						ib.setPadding(0, 0, 0, 0);
 						ib.setImageResource(R.drawable.audio);
 						ib.setOnClickListener(new View.OnClickListener() {
 							public void onClick(View v) {
@@ -455,14 +456,13 @@ public class TagToDoList extends Activity {
 						});
 						taskNoteLayout.addView(ib);
 					}
-
-					ll.addView(taskNoteLayout);
 				}
+
 				boolean collapsed = false;
 				if (SHOW_COLLAPSE) {
+					final ImageButton ib = (ImageButton) ll
+							.findViewById(R.id.taskCollapseButton);
 					if (sDbHelper.getFlag(taskName, ToDoDB.KEY_SUBTASKS) > 0) {
-						final ImageButton ib = new ImageButton(this);
-						ib.setBackgroundColor(Color.TRANSPARENT);
 						ib.setTag(Boolean.valueOf(collapsed = sDbHelper
 								.getFlag(taskName, ToDoDB.KEY_COLLAPSED) != 0));
 						ib
@@ -476,18 +476,14 @@ public class TagToDoList extends Activity {
 								selectTag(mTagSpinner.getSelectedItemPosition());
 							}
 						});
-						lp = new LayoutParams(
-								LayoutParams.WRAP_CONTENT,
-								LayoutParams.WRAP_CONTENT);
-						//lp.weight = 0;
-						ib.setLayoutParams(lp);
-						ll.addView(ib);
+					} else {
+						ib.setVisibility(View.GONE);
 					}
 				}
 				el.addView(ll);
 				if (c.getInt(subtasks) > 0 && !collapsed) {
-					numberOfUnchecked += processDepth(dbHelper, el, ccl,
-							selectedTag, depth + 1, c.getString(name));
+					numberOfUnchecked += processDepth(dbHelper, inflater, el,
+							ccl, selectedTag, depth + 1, c.getString(name));
 				}
 			} while (c.moveToPrevious());
 		}
