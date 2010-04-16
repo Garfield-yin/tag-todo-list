@@ -402,6 +402,8 @@ public class TagToDoList extends Activity {
 				cb.setOnCheckedChangeListener(ccl);
 				registerForContextMenu(cb);
 				if (depth > 0) {
+					final int bgColor = 10+depth;
+					ll.setBackgroundColor(Color.rgb(bgColor, bgColor, bgColor));
 					LayoutParams lp = new LayoutParams(
 							LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 					lp.leftMargin = depth * 30;
@@ -1120,9 +1122,9 @@ public class TagToDoList extends Activity {
 	 * @param increment
 	 *            1 for the next task, or -1 for the previous one
 	 */
-	private void selectAnotherEntry(int increment) {
+	private final void selectAnotherEntry(final int increment) {
 		if (mActiveEntry > -1) {
-			((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+			((LinearLayout) (mEntryLayout.getChildAt(mActiveEntry)))
 					.setBackgroundColor(Color.TRANSPARENT);
 		}
 		if (mEntryLayout.getChildCount() == 0) {
@@ -1130,18 +1132,20 @@ public class TagToDoList extends Activity {
 		}
 		mActiveEntry = Utils.iterate(mActiveEntry,
 				mEntryLayout.getChildCount(), increment);
-		CheckBox cb = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)));
-		cb.setBackgroundColor(Color.DKGRAY);
+		final LinearLayout ll = ((LinearLayout) mEntryLayout
+				.getChildAt(mActiveEntry));
+		ll.setBackgroundColor(Color.DKGRAY);
 		if (BLIND_MODE) {
+			final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
 			sTts
 					.speak(cb.getText().toString()
 							+ (cb.isChecked() ? ')' + getString(R.string.checked)
 									: ""));
 		}
-		if (cb.getTop() < mScrollView.getScrollY()
-				|| cb.getTop() > mScrollView.getScrollY()
+		if (ll.getTop() < mScrollView.getScrollY()
+				|| ll.getTop() > mScrollView.getScrollY()
 						+ mScrollView.getHeight()) {
-			mScrollView.smoothScrollTo(0, cb.getTop());
+			mScrollView.smoothScrollTo(0, ll.getTop());
 		}
 	}
 
