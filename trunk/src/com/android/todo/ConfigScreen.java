@@ -304,21 +304,12 @@ public final class ConfigScreen extends Activity {
 		});
 		
 		mDonateButton=(ImageButton) findViewById(R.id.donateButton);
-		mDonateButton.setOnClickListener(new OnClickListener(){
-			public void onClick(View v) {
-				final Intent myIntent = new Intent(Intent.ACTION_VIEW);
-				myIntent.setData(Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=RO&item_number=TagToDo&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"));
-				startActivity(myIntent);
-			}
-		});
-		
-		mDonateButton=(ImageButton) findViewById(R.id.donateButton);
 		mDonateButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final Intent i = new Intent(Intent.ACTION_VIEW);
 				i
 						.setData(Uri
-								.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=RO&item_number=TagToDo&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"));
+								.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=GB&item_name=Teo%27s%20free%20projects&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG_global%2egif%3aNonHosted"));
 				startActivity(i);
 			}
 		});
