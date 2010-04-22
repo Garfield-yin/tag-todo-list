@@ -9,14 +9,15 @@
 		android:textSize="18sp" android:paddingLeft="7px" android:paddingTop="16px"
 		android:paddingBottom="16px" />
 
-	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<LinearLayout android:id="@+id/standardButtonLayout"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
 
 		<Button android:id="@+id/firstButton" android:layout_weight="1"
-			android:layout_width="fill_parent" android:layout_height="wrap_content" />
+			android:layout_width="fill_parent" android:layout_height="fill_parent" />
 
 		<Button android:id="@+id/secondButton" android:layout_weight="1"
-			android:layout_width="fill_parent" android:layout_height="wrap_content" />
+			android:layout_width="fill_parent" android:layout_height="fill_parent" />
 
 	</LinearLayout>
 

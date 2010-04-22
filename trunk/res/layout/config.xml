@@ -22,11 +22,22 @@
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:text="@string/login_confirm" android:visibility="gone" />
 
-	<Button android:id="@+id/closeConfigurationButton"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/go_back" />
-	<Button android:id="@+id/websiteButton"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/help_site" />
+
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+		<ImageButton android:id="@+id/donateButton"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:src="@drawable/paypal" />
+
+		<Button android:id="@+id/websiteButton" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:text="@string/help_site"
+			android:layout_weight="1" />
+			
+		<Button android:id="@+id/closeButton" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:text="@string/go_back"
+			android:layout_weight="1" />
+
+	</LinearLayout>
 
 </LinearLayout>

@@ -13,10 +13,12 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -43,7 +45,8 @@ public final class ConfigScreen extends Activity {
 	public static final String SHOW_COLLAPSE = "showCollapse";
 
 	private EditText mUserEdit, mPassEdit;
-	private Button mConfirmButton, mCloseButton, mHelpButton;
+	private Button mConfirmButton, mHelpButton, mCloseButton;
+	private ImageButton mDonateButton;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,14 +57,7 @@ public final class ConfigScreen extends Activity {
 
 		super.onCreate(savedInstanceState);
 		setTitle(R.string.configuration_screen_title);
-		setContentView(R.layout.configuration);
-
-		mCloseButton = (Button) findViewById(R.id.closeConfigurationButton);
-		mCloseButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		setContentView(R.layout.config);
 
 		mHelpButton = (Button) findViewById(R.id.websiteButton);
 		mHelpButton.setOnClickListener(new View.OnClickListener() {
@@ -306,8 +302,36 @@ public final class ConfigScreen extends Activity {
 				}
 			}
 		});
+		
+		mDonateButton=(ImageButton) findViewById(R.id.donateButton);
+		mDonateButton.setOnClickListener(new OnClickListener(){
+			public void onClick(View v) {
+				final Intent myIntent = new Intent(Intent.ACTION_VIEW);
+				myIntent.setData(Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=RO&item_number=TagToDo&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"));
+				startActivity(myIntent);
+			}
+		});
+		
+		mDonateButton=(ImageButton) findViewById(R.id.donateButton);
+		mDonateButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				final Intent i = new Intent(Intent.ACTION_VIEW);
+				i
+						.setData(Uri
+								.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=RO&item_number=TagToDo&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"));
+				startActivity(i);
+			}
+		});
+		
+		mCloseButton=(Button) findViewById(R.id.closeButton);
+		mCloseButton.setOnClickListener(new OnClickListener(){
+			public void onClick(View v) {
+				finish();
+			}
+		});
+		
 		mConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
-		mConfirmButton.setOnClickListener(new View.OnClickListener() {
+		mConfirmButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				editor.putString(GOOGLE_USERNAME, mUserEdit.getText()
 						.toString());
@@ -387,7 +411,7 @@ public final class ConfigScreen extends Activity {
 		mUserEdit.setVisibility(visibility);
 		mPassEdit.setVisibility(visibility);
 		mConfirmButton.setVisibility(visibility);
-		mCloseButton.setVisibility(8 - visibility);
+		mDonateButton.setVisibility(8 - visibility);
 		mHelpButton.setVisibility(8 - visibility);
 	}
 
@@ -404,7 +428,7 @@ public final class ConfigScreen extends Activity {
 		case KeyEvent.KEYCODE_BACK:
 		case KeyEvent.KEYCODE_DEL:
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
-			if (mCloseButton.getVisibility() == View.VISIBLE) {
+			if (mDonateButton.getVisibility() == View.VISIBLE) {
 				finish();
 			}
 			break;
