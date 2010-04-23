@@ -18,7 +18,7 @@
 <string name="backup_fail">The todo list couldn\'t be backed up on the SD card for some reason. Are you sure there\'s an SD card in there?</string>
 <string name="move_fail">You can\'t move a task under itself or a subtask of itself.</string>
 <string name="backup_import_fail">The todo list couldn\'t be imported for some reason. Are you sure there is a backup on the card, or that an SD card is inserted?</string>
-<string name="visually_challenged_mode_disabled">Visually Challenged mode disabled</string>
+<string name="visually_challenged_mode_disabled">Visually Challenged mode disabled</string><!-- not sure this is used anymore -->
 
 <!-- Spoken (actually spoken by the TTS engine!!) -->
 <string name="visually_challenged_mode_enabled">Visually Challenged mode enabled</string>
