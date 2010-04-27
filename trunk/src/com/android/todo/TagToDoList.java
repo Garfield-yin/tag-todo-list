@@ -398,8 +398,6 @@ public class TagToDoList extends Activity {
         cb.setOnCheckedChangeListener(ccl);
         registerForContextMenu(cb);
         if (depth > 0) {
-          final int bgColor = 10 + depth;
-          ll.setBackgroundColor(Color.rgb(bgColor, bgColor, bgColor));
           LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
               LayoutParams.WRAP_CONTENT);
           lp.leftMargin = depth * 30;
