@@ -1388,7 +1388,7 @@ public class TagToDoList extends Activity {
             .isChecked());
 
         editor.commit();
-        fillTagData();
+        selectTag(mTagSpinner.getSelectedItemPosition());
       }
     });
 
