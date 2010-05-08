@@ -961,7 +961,6 @@ public class TagToDoList extends Activity {
             .getSelectedItemPosition(), mTagSpinner.getCount(), 1));
         // ???replace this with a method, it's called too many times
         break;
-      case KeyEvent.KEYCODE_DPAD_DOWN:
       case (KeyEvent.KEYCODE_N):
         if (msg.isAltPressed()) {
           mTagSpinner.setSelection(Utils.iterate(mTagSpinner
@@ -974,7 +973,6 @@ public class TagToDoList extends Activity {
         mTagSpinner.setSelection(Utils.iterate(mTagSpinner
             .getSelectedItemPosition(), mTagSpinner.getCount(), -1));
         break;
-      case KeyEvent.KEYCODE_DPAD_UP:
       case (KeyEvent.KEYCODE_P):
         if (msg.isAltPressed()) {
           mTagSpinner.setSelection(Utils.iterate(mTagSpinner
