@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -111,6 +113,8 @@ public class TagToDoList extends Activity {
   private static boolean CHOICE_MODE = false;
 
   public static TTS sTts = null; // text to speech
+  private static GestureDetector sGestureDetector;
+  private static OnTouchListener sGestureListener;
   private static ToDoDB sDbHelper;
   private static SharedPreferences sSettings;
   private static GoogleAnalyticsTracker sTracker = null;
@@ -293,6 +297,19 @@ public class TagToDoList extends Activity {
 
     sDbHelper = ToDoDB.getInstance(getApplicationContext());
     showDueTasks(true);
+
+    sGestureDetector = new GestureDetector(new MyGestureDetector());
+    sGestureListener = new OnTouchListener() {
+      public boolean onTouch(View v, MotionEvent event) {
+        if (sGestureDetector.onTouchEvent(event)) {
+          mTagSpinner.setSelection(Utils.iterate(mTagSpinner
+              .getSelectedItemPosition(), mTagSpinner.getCount(),
+              MyGestureDetector.getDirection()));
+          return true;
+        }
+        return false;
+      }
+    };
   }
 
   /**
@@ -396,6 +413,7 @@ public class TagToDoList extends Activity {
         }
         cb.setChecked(checked);
         cb.setOnCheckedChangeListener(ccl);
+        cb.setOnTouchListener(sGestureListener);
         registerForContextMenu(cb);
         if (depth > 0) {
           LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
@@ -703,14 +721,19 @@ public class TagToDoList extends Activity {
   }
 
   @Override
+  protected void onPause() {
+    super.onPause();
+    saveState();
+  }
+
+  @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
   }
 
   @Override
-  protected void onPause() {
-    super.onPause();
-    saveState();
+  public boolean onTouchEvent(MotionEvent me) {
+    return sGestureListener.onTouch(null, me);
   }
 
   @Override
@@ -924,7 +947,7 @@ public class TagToDoList extends Activity {
     if (msg.getAction() != KeyEvent.ACTION_DOWN) {
       return false;
     }
-    int keyCode = msg.getKeyCode();
+    final int keyCode = msg.getKeyCode();
     switch (keyCode) {
       case KeyEvent.KEYCODE_T:
         if (msg.isShiftPressed()) {
@@ -933,6 +956,12 @@ public class TagToDoList extends Activity {
           mTagSpinner.performClick();
         }
         break;
+      case KeyEvent.KEYCODE_DPAD_LEFT:
+        mTagSpinner.setSelection(Utils.iterate(mTagSpinner
+            .getSelectedItemPosition(), mTagSpinner.getCount(), 1));
+        // ???replace this with a method, it's called too many times
+        break;
+      case KeyEvent.KEYCODE_DPAD_DOWN:
       case (KeyEvent.KEYCODE_N):
         if (msg.isAltPressed()) {
           mTagSpinner.setSelection(Utils.iterate(mTagSpinner
@@ -941,6 +970,11 @@ public class TagToDoList extends Activity {
           selectAnotherEntry(1);
         }
         break;
+      case KeyEvent.KEYCODE_DPAD_RIGHT:
+        mTagSpinner.setSelection(Utils.iterate(mTagSpinner
+            .getSelectedItemPosition(), mTagSpinner.getCount(), -1));
+        break;
+      case KeyEvent.KEYCODE_DPAD_UP:
       case (KeyEvent.KEYCODE_P):
         if (msg.isAltPressed()) {
           mTagSpinner.setSelection(Utils.iterate(mTagSpinner
