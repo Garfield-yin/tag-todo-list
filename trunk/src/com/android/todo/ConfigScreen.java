@@ -190,22 +190,19 @@ public final class ConfigScreen extends Activity {
     TextView tv = new TextView(this);
     tv.setTextSize(16);
     tv.setText(R.string.size_change);
-    LinearLayout priorityLayout = new LinearLayout(this); // reusing
-    // priorityLayout
-    // object
-    priorityLayout.setOrientation(LinearLayout.VERTICAL);
+    LinearLayout localLayout = new LinearLayout(this); // reusing
+    localLayout.setOrientation(LinearLayout.VERTICAL);
     LinearLayout textLayout = new LinearLayout(this); // also reusing
-    // textLayout
     textLayout.setOrientation(LinearLayout.HORIZONTAL);
     textLayout.addView(tv);
     final TextView limitTv = new TextView(this);
     limitTv.setMinimumWidth(50);
-    priorityLayout.addView(textLayout);
+    localLayout.addView(textLayout);
     final SeekBar sLimit = new SeekBar(this);
     sLimit.setMax(5000);
     sLimit.setProgress(settings.getInt(CHECKED_LIMIT, 100));
+    sLimit.setPadding(5, 0, 5, 0);
     limitTv.setTextSize(17);
-    limitTv.setPadding(5, 3, 0, 0);
     limitTv.setText(Integer.toString(sLimit.getProgress()));
     textLayout.addView(limitTv);
     sLimit.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -222,27 +219,31 @@ public final class ConfigScreen extends Activity {
         editor.commit();
       }
     });
-    priorityLayout.addView(sLimit);
-    ll.addView(priorityLayout);
+    localLayout.addView(sLimit);
+    TextView localDescription = new TextView(this);
+    localDescription.setText(R.string.checked_tasks_limit_description);
+    localLayout.addView(localDescription);
+    localLayout.setPadding(10, 5, 10, 0);
+    ll.addView(localLayout);
 
     // setting minimum and maximum priority for tasks
     tv = new TextView(this);
     tv.setPadding(0, 15, 0, 0);
     tv.setTextSize(16);
     tv.setText(R.string.configuration_3_priority);
-    priorityLayout = new LinearLayout(this);
-    priorityLayout.setOrientation(LinearLayout.VERTICAL);
+    localLayout = new LinearLayout(this);
+    localLayout.setOrientation(LinearLayout.VERTICAL);
     textLayout = new LinearLayout(this);
     textLayout.setOrientation(LinearLayout.HORIZONTAL);
     textLayout.addView(tv);
     final TextView maxTv = new TextView(this);
     maxTv.setMinimumWidth(50);
-    priorityLayout.addView(textLayout);
+    localLayout.addView(textLayout);
     final SeekBar sMax = new SeekBar(this);
+    sMax.setPadding(5, 0, 5, 0);
     sMax.setMax(101);
     sMax.setProgress(settings.getInt(PRIORITY_MAX, 100));
     maxTv.setTextSize(17);
-    maxTv.setPadding(5, 3, 0, 0);
     maxTv.setText(Integer.toString(sMax.getProgress()));
     textLayout.addView(maxTv);
     sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -260,8 +261,12 @@ public final class ConfigScreen extends Activity {
         editor.commit();
       }
     });
-    priorityLayout.addView(sMax);
-    ll.addView(priorityLayout);
+    localLayout.addView(sMax);
+    localDescription = new TextView(this);
+    localDescription.setText(R.string.max_priority_description);
+    localLayout.addView(localDescription);
+    localLayout.setPadding(10, 5, 10, 0);
+    ll.addView(localLayout);
 
     mUserEdit = (EditText) findViewById(R.id.usernameEdit);
     mUserEdit.setOnKeyListener(new View.OnKeyListener() {

@@ -106,6 +106,8 @@
 <string name="login_sync_succes">Connexion et synchronisation réussie. Chaque fois une tâche avec une date seront ajoutés, l\'application va se connecter à l\'internet et l\'ajouter à Google Agenda.\n</string>
 <string name="login_succes_sync_fail">Bien que la connexion a réussi, l\'application n\'a pas été en mesure de synchroniser les tâches.\n</string>
 <string name="login_fail">Pour une raison quelconque, l\'échec de la connexion. Vérifiez le nom d\'utilisateur / mot de passe et la disponibilité d\'une connexion Internet.\n</string>
+<string name="checked_tasks_limit_description">Cette limite empêche l'application de garder plus de tant de tâches vérifié. Lorsque la limite est atteinte, l'application supprime automatiquement les tâches plus anciennes vérifié.</string>
+<string name="max_priority_description">Certaines personnes préfèrent un grand nombre de priorités, certains préfèrent un système plus simple avec moins de niveaux (par exemple 5).</string>
 <string name="configuration_1_gcal">(experimental) Synchronisation des tâches des dates à Google Calendar</string>
 <string name="configuration_2_backup">Sauvegarde todo liste sur carte SD à chaque fois que l\'application se ferme</string>
 <string name="configuration_3_priority">Maximum de priorité pour les tâches:</string>
