@@ -2,16 +2,17 @@
 
 package com.android.todo;
 
-import com.android.todo.data.ToDoDB;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+
+import com.android.todo.data.ToDoDB;
 
 /**
  * This is an activity used to process status bar notification activations
@@ -32,34 +33,43 @@ public final class AlarmReceiver extends BroadcastReceiver {
     notification.setLatestEventInfo(context, context.getString(R.string.alarm),
         task, contentIntent);
     notification.flags = Notification.FLAG_AUTO_CANCEL;
-    // notification.sound = (Uri) intent.getParcelableExtra("Ringtone");
-    
+
     /**
      * Makes the alarm sound separately. We only want it to ring a few times, so
-     * that it doesn't drain the user's battery in case he doesn't have the phone.
+     * that it doesn't drain the user's battery in case he doesn't have the
+     * phone.
      */
-    sCounter = 0;
-    sPlayer = new MediaPlayer();
-    try {
-      sPlayer.setDataSource(context, (Uri) intent.getParcelableExtra("Ringtone"));
-      sPlayer.prepare();
-    } catch (Exception e) {
-      // if we can't play sound, no point in doing anything else since the user
-      // already has a notification onscreen
-      return;
-    }
-    sPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-      public void onCompletion(MediaPlayer mp) {
-        if (sCounter++ < 28) {
-          mp.start();
-        }else{
-          mp.release();
-        }
+    final int ringerMode = ((AudioManager) context
+        .getSystemService(Context.AUDIO_SERVICE)).getRingerMode();
+    if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+      sCounter = 0;
+      sPlayer = new MediaPlayer();
+      try {
+        sPlayer.setDataSource(context, (Uri) intent
+            .getParcelableExtra("Ringtone"));
+        sPlayer.prepare();
+      } catch (Exception e) {
+        // if we can't play sound, no point in doing anything else since the
+        // user
+        // already has a notification onscreen
+        return;
       }
-    });
-    sPlayer.start();
-    
-    notification.vibrate = (long[]) intent.getExtras().get("vibrationPatern");
+      sPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        public void onCompletion(MediaPlayer mp) {
+          if (sCounter++ < 28) {
+            mp.start();
+          } else {
+            mp.release();
+          }
+        }
+      });
+      sPlayer.start();
+    }
+
+    if (ringerMode != AudioManager.RINGER_MODE_SILENT) {
+      notification.vibrate = (long[]) intent.getExtras().get("vibrationPatern");
+    }
+
     manager.notify(2, notification);
   }
 }

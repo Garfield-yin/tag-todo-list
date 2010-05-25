@@ -97,6 +97,14 @@ public final class ToDoDB extends ADB {
           + r.getString(R.string.default_content_tag1) + "')");
 
       // performing subsequent upgrades to this model
+      upgrade(db);
+    }
+    
+    /**
+     * Ensures all upgrade scenarios, by going from each version to the next.
+     * @param db as an SQLiteDatabase
+     */
+    public void upgrade(SQLiteDatabase db){
       onUpgrade(db, 73, 74);
       onUpgrade(db, 74, 75);
       onUpgrade(db, 75, 76);
@@ -116,16 +124,28 @@ public final class ToDoDB extends ADB {
         try {
           db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD "
               + KEY_EXTRA_OPTIONS + " INTEGER");
-          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_YEAR
-              + " INTEGER");
-          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_MONTH
-              + " INTEGER");
-          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_DATE
-              + " INTEGER");
         } catch (Exception e) {
           // if we are here, it means there has been a downgrade and
           // then an upgrade, we don't need to delete the columns, but
           // we need to prevent an actual exception
+        }
+        
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_YEAR
+              + " INTEGER");
+        } catch (Exception e) {
+        }
+        
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_MONTH
+              + " INTEGER");
+        } catch (Exception e) {
+        }
+        
+        try {
+          db.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_DUE_DATE
+              + " INTEGER");
+        } catch (Exception e) {
         }
       }
 
@@ -1171,25 +1191,9 @@ public final class ToDoDB extends ADB {
   /**
    * Attempts to repair the database in case it has an older version than the
    * app or something...
-   * 
-   * NOT CALLED RIGHT NOW!! MIGHT POSSIBLY DISAPPEAR ALLTOGETHER!
    */
   public final void repair() {
-    Cursor c = null;
-    try {
-      c = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_SUBTASKS }, null, null,
-          null, null, null);
-    } catch (Exception e) {
-      try {
-        mDb.execSQL("ALTER TABLE " + DB_ENTRY_TABLE + " ADD " + KEY_SUBTASKS
-            + " INTEGER DEFAULT 0");
-      } catch (Exception e2) {
-      }
-    } finally {
-      if (c != null) {
-        c.close();
-      }
-    }
+    mDbHelper.upgrade(mDb);
   }
 
 }

@@ -101,7 +101,6 @@ public class TagToDoList extends Activity {
   public static boolean SYNC_GCAL;
   public static boolean SHINY_PRIORITY;
   public static boolean BLIND_MODE = false;
-  public static boolean USAGE_STATS;
   public static boolean HIDE_CHECKED;
   public static boolean SHOW_NOTES;
   public static boolean SHOW_COLLAPSE;
@@ -276,7 +275,7 @@ public class TagToDoList extends Activity {
     mAddEntryButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         createEntry();
-        if (USAGE_STATS) {
+        if (sTracker != null) {
           // we log the action, pressed button, action trigger and the
           // existing
           // number of tasks #EventLogSyntax
@@ -428,7 +427,16 @@ public class TagToDoList extends Activity {
               .findViewById(R.id.taskNotesLayout);
           taskNoteLayout.setOrientation(0);
 
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN) > 0) {
+          int isWrittenNote;
+          try {
+            isWrittenNote = sDbHelper.getFlag(taskName,
+                ToDoDB.KEY_NOTE_IS_WRITTEN);
+          } catch (Exception e) {
+            sDbHelper.repair();
+            isWrittenNote = sDbHelper.getFlag(taskName,
+                ToDoDB.KEY_NOTE_IS_WRITTEN);
+          }
+          if (isWrittenNote > 0) {
             final ImageButton ib = new ImageButton(this);
             ib.setBackgroundColor(Color.TRANSPARENT);
             ib.setPadding(0, 0, 0, 0);
@@ -702,7 +710,7 @@ public class TagToDoList extends Activity {
       sTts = null;
     }
 
-    if (USAGE_STATS) {
+    if (sTracker != null) {
       final int month = Calendar.getInstance().get(Calendar.MONTH);
       if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
         sTracker.dispatch();
@@ -789,10 +797,12 @@ public class TagToDoList extends Activity {
 
     // instantiate usage stats tracker (if it's the case)
     if (sTracker == null
-        && (USAGE_STATS = sSettings.getBoolean(ConfigScreen.USAGE_STATS, false))) {
+        && sSettings.getBoolean(ConfigScreen.USAGE_STATS, false)) {
       sTracker = GoogleAnalyticsTracker.getInstance();
       sTracker.start(Analytics.UA_CODE, this);
       sTracker.trackPageView(Analytics.VIEW_MAIN);
+    } else {
+      sTracker = null;
     }
 
   }
@@ -817,8 +827,8 @@ public class TagToDoList extends Activity {
       ContextMenu.ContextMenuInfo menuInfo) {
     mContextEntry = ((CheckBox) v).getText().toString();
     // menu.add(0, ENTRY_CLOSE_ID, 0, R.string.entry_exit);
-    Action a = new Action();
-    String possibleAction = a.setAndExtractAction(mContextEntry);
+    final Action a = new Action();
+    final String possibleAction = a.setAndExtractAction(mContextEntry);
     if (!("".equals(possibleAction))) {
       mContextAction = a;
       menu.add(0, ENTRY_INSTANTACTION_ID, 0, possibleAction);
