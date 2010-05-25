@@ -394,7 +394,7 @@ public class TagToDoList extends Activity {
         final LinearLayout ll = new LinearLayout(this);
         inflater.inflate(R.layout.task, ll);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
-        if (SHINY_PRIORITY) {
+        if (SHINY_PRIORITY && maxPriority != 0) {
           int color = dbHelper.getPriority(c.getString(name)) * 191
               / maxPriority + 64;
           cb.setTextColor(Color.rgb(color, color, color));
