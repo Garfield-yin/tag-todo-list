@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
@@ -393,11 +394,6 @@ public class TagToDoList extends Activity {
         final LinearLayout ll = new LinearLayout(this);
         inflater.inflate(R.layout.task, ll);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
-        if (SHINY_PRIORITY && maxPriority != 0) {
-          int color = dbHelper.getPriority(c.getString(name)) * 191
-              / maxPriority + 64;
-          cb.setTextColor(Color.rgb(color, color, color));
-        }
         final String taskName = c.getString(name);
         cb.setText(taskName);
         boolean checked;
@@ -409,6 +405,16 @@ public class TagToDoList extends Activity {
         } else {
           checked = false;
           numberOfUnchecked += 1;
+        }
+        if (SHINY_PRIORITY && maxPriority != 0) {
+          int color = dbHelper.getPriority(c.getString(name)) * 191
+              / maxPriority + 64;
+          cb.setTextColor(Color.rgb(color, color, color));
+        }else{
+          if (checked){
+            cb.setTextColor(Color.GRAY);
+            cb.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+          }
         }
         cb.setChecked(checked);
         cb.setOnCheckedChangeListener(ccl);
