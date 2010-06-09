@@ -175,7 +175,7 @@ public final class Action {
   public String setAndExtractAction(String text) {
     String[] words = text.toUpperCase().split(" ");
     for (int i = 0; i < words.length; i++) {
-      if (MOVES.contains(words[i])) {
+      if (MOVES.contains(words[i]) && words.length>1) {
         mPerformer = new MovePerformer(words, i + 1);
         return mPerformer.toString();
       } else if (BUYS.contains(words[i])) {

@@ -603,10 +603,6 @@ public class TagToDoList extends Activity {
    * Deletes all the tasks in the active tag
    */
   private final void removeAllTasks() {
-    if (mTagSpinner.getCount() == 1) {
-      Utils.showDialog(-1, R.string.impossible_tag_deletion, TagToDoList.this);
-      return;
-    }
     Intent i = new Intent(this, ConfirmationScreen.class);
     i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
         mTagSpinner.getSelectedItemPosition()).toString());
