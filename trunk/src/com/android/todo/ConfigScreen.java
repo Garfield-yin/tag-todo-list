@@ -44,6 +44,7 @@ public final class ConfigScreen extends Activity {
   public static final String NOTE_PREVIEW = "notePreview";
   public static final String THEME = "theme";
   public static final String SHOW_COLLAPSE = "showCollapse";
+  public static final String SHOW_DUE_TIME = "showDueTime";
 
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mHelpButton, mCloseButton;
@@ -167,6 +168,18 @@ public final class ConfigScreen extends Activity {
     cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         editor.putBoolean(NOTE_PREVIEW, isChecked);
+        editor.commit();
+      }
+    });
+    ll.addView(cb);
+
+    // show which tasks have notes in portrait mode as well
+    cb = new CheckBox(this);
+    cb.setChecked(settings.getBoolean(SHOW_DUE_TIME, false));
+    cb.setText(R.string.configuration_9_duedate);
+    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.putBoolean(SHOW_DUE_TIME, isChecked);
         editor.commit();
       }
     });

@@ -105,6 +105,7 @@ public class TagToDoList extends Activity {
   public static boolean HIDE_CHECKED;
   public static boolean SHOW_NOTES;
   public static boolean SHOW_COLLAPSE;
+  public static boolean SHOW_DUE_TIME;
 
   /**
    * A local flag - if true, clicking a task won't check it. Useful, for
@@ -128,6 +129,8 @@ public class TagToDoList extends Activity {
   private Action mContextAction;
   private int mActiveEntry; // useful only in keyboard mode
   private int mMaxPriority; // useful only with shiny priority :)
+  private static LayoutParams sSmallImageLayoutParams; // useful only when
+                                                       // showing due dates
 
   @Override
   public void onCreate(Bundle icicle) {
@@ -387,11 +390,12 @@ public class TagToDoList extends Activity {
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
     final boolean hideChecked = HIDE_CHECKED;
+    int aux;
 
     if (c.getCount() > 0) {
       c.moveToLast();
       do {
-        final LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(this);
         inflater.inflate(R.layout.task, ll);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
@@ -410,8 +414,8 @@ public class TagToDoList extends Activity {
           int color = dbHelper.getPriority(c.getString(name)) * 191
               / maxPriority + 64;
           cb.setTextColor(Color.rgb(color, color, color));
-        }else{
-          if (checked){
+        } else {
+          if (checked) {
             cb.setTextColor(Color.GRAY);
             cb.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
           }
@@ -506,6 +510,23 @@ public class TagToDoList extends Activity {
           }
         }
         el.addView(ll);
+
+        // should we show the due time?
+        if (SHOW_DUE_TIME) {
+          aux = sDbHelper.getFlag(taskName, ToDoDB.KEY_EXTRA_OPTIONS);
+          
+          ll = new LinearLayout(this);
+          ll.setOrientation(0);
+
+
+          ImageButton ib = new ImageButton(this);
+          ib.setBackgroundColor(Color.TRANSPARENT);
+          ib.setImageResource(android.R.drawable.ic_lock_idle_alarm);
+          ll.addView(ib);
+
+          el.addView(ll);
+        }
+
         if (c.getInt(subtasks) > 0 && !collapsed) {
           numberOfUnchecked += processDepth(dbHelper, inflater, el, ccl,
               selectedTag, depth + 1, c.getString(name));
@@ -763,6 +784,12 @@ public class TagToDoList extends Activity {
     // Should the collapse buttons be shown?
     SHOW_COLLAPSE = sSettings.getBoolean(ConfigScreen.SHOW_COLLAPSE, false);
 
+    // Should due time be shown for the tasks that have it?
+    if (SHOW_DUE_TIME = sSettings.getBoolean(ConfigScreen.SHOW_DUE_TIME, false)) {
+      sSmallImageLayoutParams = new LayoutParams(22, 20);
+      sSmallImageLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+
+    }
     // Should checked tasks be hidden?
     HIDE_CHECKED = sSettings.getBoolean(HIDE_CHECKED_SORT, false);
 

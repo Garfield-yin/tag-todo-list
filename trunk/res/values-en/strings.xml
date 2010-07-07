@@ -123,6 +123,7 @@
 <string name="configuration_6_notes">Show which task has notes in portrait mode as well (consumes a bit more resources)</string>
 <string name="configuration_7_theme">Invert task theme (dark text on white background) - needs app restart</string>
 <string name="configuration_8_collapse">Show collapse buttons (for subtasks)</string>
+<string name="configuration_9_duedate">Show due time for tasks that have it</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>
