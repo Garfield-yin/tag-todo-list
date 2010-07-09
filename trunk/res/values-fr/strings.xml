@@ -159,5 +159,7 @@
 <string name="friday">Vendredi</string>
 <string name="saturday">Samedi</string>
 <string name="sunday">Dimanche</string>
+<string name="every">chaque</string>
+<string name="day">jour</string>
 
 </resources>

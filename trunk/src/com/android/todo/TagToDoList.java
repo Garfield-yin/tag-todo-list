@@ -116,6 +116,7 @@ public class TagToDoList extends Activity {
   public static TTS sTts = null; // text to speech
   private static GestureDetector sGestureDetector;
   private static OnTouchListener sGestureListener;
+  private static OnClickListener sDescriptionClickListener;
   private static ToDoDB sDbHelper;
   private static SharedPreferences sSettings;
   private static GoogleAnalyticsTracker sTracker = null;
@@ -129,8 +130,6 @@ public class TagToDoList extends Activity {
   private Action mContextAction;
   private int mActiveEntry; // useful only in keyboard mode
   private int mMaxPriority; // useful only with shiny priority :)
-  private static LayoutParams sSmallImageLayoutParams; // useful only when
-                                                       // showing due dates
 
   @Override
   public void onCreate(Bundle icicle) {
@@ -390,12 +389,13 @@ public class TagToDoList extends Activity {
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
     final boolean hideChecked = HIDE_CHECKED;
-    int aux;
+    int auxInt;
+    boolean auxBool;
 
     if (c.getCount() > 0) {
       c.moveToLast();
       do {
-        LinearLayout ll = new LinearLayout(this);
+        final LinearLayout ll = new LinearLayout(this);
         inflater.inflate(R.layout.task, ll);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
@@ -509,23 +509,48 @@ public class TagToDoList extends Activity {
             ib.setVisibility(View.GONE);
           }
         }
-        el.addView(ll);
 
         // should we show the due time?
-        if (SHOW_DUE_TIME) {
-          aux = sDbHelper.getFlag(taskName, ToDoDB.KEY_EXTRA_OPTIONS);
-          
-          ll = new LinearLayout(this);
-          ll.setOrientation(0);
+        if (SHOW_DUE_TIME
+            && (auxInt = sDbHelper.getFlag(taskName, ToDoDB.KEY_EXTRA_OPTIONS)) > 0) {
+          Chronos.refresh();
+          final LinearLayout descLayout = (LinearLayout) ll
+              .findViewById(R.id.descriptionLayout);
+          // descLayout.setPadding(26, -10, 0, -5);
+          Button b = new Button(this);
+          b.setBackgroundColor(Color.TRANSPARENT);
+          b.setTextColor(Color.GRAY);
+          StringBuilder sb = new StringBuilder();
 
+          if (auxBool = (auxInt % 2 == 1)) { // the LSB tells us whether there's
+            // a due date
+            sb.append(Chronos.decodeDate(sDbHelper.getDueDate(taskName),
+                getString(R.string.months)));
+            sb.append(' ');
+          }
 
-          ImageButton ib = new ImageButton(this);
-          ib.setBackgroundColor(Color.TRANSPARENT);
-          ib.setImageResource(android.R.drawable.ic_lock_idle_alarm);
-          ll.addView(ib);
+          if (auxInt >> 1 % 2 == 1) { // the 2nd LSB is about a due time
+            sb.append(Chronos.decodeTime(sDbHelper.getDueTime(taskName)));
+            sb.append(' ');
 
-          el.addView(ll);
+            if ((auxInt = sDbHelper.getDueDayOfWeek(taskName)) > -1) {
+              // showing the due date of the week if any
+              sb.append(getString(R.string.every));
+              sb.append(' ');
+              sb.append(getString(Chronos.DAYS[auxInt]));
+            } else if (!auxBool) {
+              sb.append(getString(R.string.every));
+              sb.append(' ');
+              sb.append(getString(R.string.day));
+            }
+          }
+
+          b.setText(sb.toString());
+          b.setOnClickListener(sDescriptionClickListener);
+          descLayout.addView(b);
         }
+
+        el.addView(ll);
 
         if (c.getInt(subtasks) > 0 && !collapsed) {
           numberOfUnchecked += processDepth(dbHelper, inflater, el, ccl,
@@ -786,10 +811,16 @@ public class TagToDoList extends Activity {
 
     // Should due time be shown for the tasks that have it?
     if (SHOW_DUE_TIME = sSettings.getBoolean(ConfigScreen.SHOW_DUE_TIME, false)) {
-      sSmallImageLayoutParams = new LayoutParams(22, 20);
-      sSmallImageLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-
+      sDescriptionClickListener = new OnClickListener() {
+        public void onClick(View v) {
+          mContextEntry = ((CheckBox) ((LinearLayout) ((LinearLayout) v
+              .getParent().getParent()).getChildAt(0)).getChildAt(0)).getText()
+              .toString();
+          changeTask(ENTRY_EDIT_ID);
+        }
+      };
     }
+
     // Should checked tasks be hidden?
     HIDE_CHECKED = sSettings.getBoolean(HIDE_CHECKED_SORT, false);
 

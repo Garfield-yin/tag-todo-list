@@ -3,7 +3,6 @@
 package com.android.todo.data;
 
 import java.io.File;
-import java.util.GregorianCalendar;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -19,6 +18,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.android.todo.AlarmReceiver;
 import com.android.todo.BootReceiver;
+import com.android.todo.Chronos;
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
 import com.android.todo.Utils;
@@ -557,16 +557,16 @@ public final class ToDoDB extends ADB {
    * 
    * @return Cursor
    */
-  public Cursor getDueEntries() {
-    GregorianCalendar gc = new GregorianCalendar();
-    final int year = gc.get(GregorianCalendar.YEAR);
-    final int month = gc.get(GregorianCalendar.MONTH);
+  public final Cursor getDueEntries() {
+    Chronos.refresh();
+    final int year = Chronos.getYear();
+    final int month = Chronos.getMonth();
     return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS }, KEY_EXTRA_OPTIONS + " = 1 AND " + KEY_STATUS
         + " = 0 AND (" + KEY_DUE_YEAR + " < " + year + " OR (" + KEY_DUE_YEAR
         + " = " + year + " AND (" + KEY_DUE_MONTH + " < " + month + " OR ("
         + KEY_DUE_MONTH + " = " + month + " AND " + KEY_DUE_DATE + " <= "
-        + gc.get(GregorianCalendar.DAY_OF_MONTH) + "))))", null, null, null,
+        + Chronos.getDate() + "))))", null, null, null,
         null);
   }
 
@@ -723,12 +723,12 @@ public final class ToDoDB extends ADB {
         AlarmManager alarmManager = (AlarmManager) mCtx
             .getSystemService(Context.ALARM_SERVICE);
         if (isDueDateSet(entryName)) {// single occurence
-          alarmManager.set(AlarmManager.RTC_WAKEUP, Utils.getTimeMillis(
+          alarmManager.set(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(
               getDueTime(entryName), getDueDate(entryName),
               getDueDayOfWeek(entryName)), pi);
         } else {// daily or weekly
           int dayOfWeek = getDueDayOfWeek(entryName);
-          alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Utils
+          alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Chronos
               .getTimeMillis(getDueTime(entryName), -1, dayOfWeek),
               86400000L * (dayOfWeek > -1 ? 7 : 1), pi);
         }

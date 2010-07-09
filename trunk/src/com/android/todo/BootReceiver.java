@@ -49,14 +49,14 @@ public final class BootReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context
             .getSystemService(Context.ALARM_SERVICE);
         if (dbHelper.isDueDateSet(task)) {// single occurence
-          long millis = Utils.getTimeMillis(dbHelper.getDueTime(task), dbHelper
+          long millis = Chronos.getTimeMillis(dbHelper.getDueTime(task), dbHelper
               .getDueDate(task), dbHelper.getDueDayOfWeek(task));
           if (millis > 0) {
             alarmManager.set(AlarmManager.RTC_WAKEUP, millis, pi);
           }
         } else {// daily or weekly
           int dayOfWeek = dbHelper.getDueDayOfWeek(task);
-          alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Utils
+          alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Chronos
               .getTimeMillis(dbHelper.getDueTime(task), -1, dayOfWeek),
               86400000L * (dayOfWeek > -1 ? 7 : 1), pi);
         }

@@ -98,7 +98,8 @@ public abstract class ADB {
    * Returns the attached day of the week
    * 
    * @param task
-   * @return 0 if Monday, ..., 6 is Sunday
+   * @return 0 if Monday, ..., 6 is Sunday and -1 if there isn't a due day of
+   *         the week set
    */
   public int getDueDayOfWeek(String task) {
     final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
