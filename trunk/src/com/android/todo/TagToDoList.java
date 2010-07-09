@@ -516,8 +516,8 @@ public class TagToDoList extends Activity {
           Chronos.refresh();
           final LinearLayout descLayout = (LinearLayout) ll
               .findViewById(R.id.descriptionLayout);
-          // descLayout.setPadding(26, -10, 0, -5);
-          Button b = new Button(this);
+          descLayout.setPadding(26, -10, 0, -5);
+          final Button b = new Button(this);
           b.setBackgroundColor(Color.TRANSPARENT);
           b.setTextColor(Color.GRAY);
           StringBuilder sb = new StringBuilder();
