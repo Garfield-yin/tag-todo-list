@@ -83,48 +83,55 @@ public final class WidgetChange extends BroadcastReceiver {
     final RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
     ensureRefresh(rv, c);
     switch (intent.getExtras().getInt(ToDoDB.KEY_NAME)) {
-    case R.id.nextTaskButton:
-      if (sTaskCursor.getCount() > 0) {
-        sTaskCursor.moveToPosition(sTask = Utils.iterate(sTask, sTaskCursor
+      case R.id.widgetItem:
+        c.startActivity(new Intent(c, EditScreen.class).putExtra(
+            WIDGET_INITIATED, true).setAction(
+            TagToDoList.ACTIVITY_EDIT_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
+            sTaskCursor.getString(sTaskCursor.getColumnIndex(ToDoDB.KEY_NAME)))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        break;
+      case R.id.nextTaskButton:
+        if (sTaskCursor.getCount() > 0) {
+          sTaskCursor.moveToPosition(sTask = Utils.iterate(sTask, sTaskCursor
+              .getCount(), 1));
+          rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+              .getColumnIndex(ToDoDB.KEY_NAME)));
+        }
+        break;
+      case R.id.nextTagButton:
+        sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
             .getCount(), 1));
-        rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoDB.KEY_NAME)));
-      }
-      break;
-    case R.id.nextTagButton:
-      sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
-          .getCount(), 1));
-      final String tag = sTagCursor.getString(sTagCursor
-          .getColumnIndex(ToDoDB.KEY_NAME));
-      rv.setTextViewText(R.id.tagItem, tag);
-      sTaskCursor = sDbHelper.getUncheckedEntries(tag);
-      if (sTaskCursor.getCount() > 0) {
-        sTaskCursor.moveToFirst();
-        rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoDB.KEY_NAME)));
-      } else {
-        rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
-      }
-      sTask = 0;
-      break;
-    case R.id.cicleButton:
-      WidgetChange.cicle(c);
-      return;
-    case R.id.addTaskButton:
-      c.startActivity(new Intent(c, EditScreen.class).putExtra(
-          WIDGET_INITIATED, true).setAction(
-          TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
-          sTagCursor.getString(sTagCursor.getColumnIndex(ToDoDB.KEY_NAME)))
-          .putExtra(ToDoDB.KEY_SUPERTASK, "").addFlags(
-              Intent.FLAG_ACTIVITY_NEW_TASK));
-      break;
-    case R.id.checkButton:
-      if (sTaskCursor.getCount() > 0) {
-        sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
-            .getColumnIndex(ToDoDB.KEY_NAME)), true);
-        WidgetChange.refresh(rv, c);
-      }
-      break;
+        final String tag = sTagCursor.getString(sTagCursor
+            .getColumnIndex(ToDoDB.KEY_NAME));
+        rv.setTextViewText(R.id.tagItem, tag);
+        sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+        if (sTaskCursor.getCount() > 0) {
+          sTaskCursor.moveToFirst();
+          rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
+              .getColumnIndex(ToDoDB.KEY_NAME)));
+        } else {
+          rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
+        }
+        sTask = 0;
+        break;
+      case R.id.cicleButton:
+        WidgetChange.cicle(c);
+        return;
+      case R.id.addTaskButton:
+        c.startActivity(new Intent(c, EditScreen.class).putExtra(
+            WIDGET_INITIATED, true).setAction(
+            TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
+            sTagCursor.getString(sTagCursor.getColumnIndex(ToDoDB.KEY_NAME)))
+            .putExtra(ToDoDB.KEY_SUPERTASK, "").addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK));
+        break;
+      case R.id.checkButton:
+        if (sTaskCursor.getCount() > 0) {
+          sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
+              .getColumnIndex(ToDoDB.KEY_NAME)), true);
+          WidgetChange.refresh(rv, c);
+        }
+        break;
     }
     AppWidgetManager.getInstance(c).updateAppWidget(
         new ComponentName(c, TagToDoWidget.class), rv);
