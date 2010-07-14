@@ -6,11 +6,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,10 +19,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TabHost.OnTabChangeListener;
 
 import com.android.todo.data.ToDoDB;
 import com.android.todo.speech.TTS;
@@ -32,6 +36,7 @@ import com.android.todo.sync.GoogleCalendar;
  * This activity represents a configuration screen
  */
 public final class ConfigScreen extends Activity {
+  public static final String SELECTED_TAB = "selectedTab";
   public static final String GOOGLE_CALENDAR = "googleCalendar";
   public static final String GOOGLE_USERNAME = "googleUsername";
   public static final String GOOGLE_PASSWORD = "googlePassword";
@@ -49,16 +54,18 @@ public final class ConfigScreen extends Activity {
   private EditText mUserEdit, mPassEdit;
   private Button mConfirmButton, mHelpButton, mCloseButton;
   private ImageButton mDonateButton;
+  private static SharedPreferences sSettings;
+  private static Editor sEditor;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    final SharedPreferences settings = getSharedPreferences(
-        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
-    final SharedPreferences.Editor editor = settings.edit();
-    setTheme(settings.getInt(ConfigScreen.THEME, android.R.style.Theme));
+    sSettings = getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE);
+    sEditor = sSettings.edit();
+    setTheme(sSettings.getInt(ConfigScreen.THEME, android.R.style.Theme));
 
     super.onCreate(savedInstanceState);
-    setTitle(R.string.configuration_screen_title);
+    setTitle(R.string.config_screen_title);
     setContentView(R.layout.config);
 
     mHelpButton = (Button) findViewById(R.id.websiteButton);
@@ -71,258 +78,53 @@ public final class ConfigScreen extends Activity {
       }
     });
 
-    LinearLayout ll = (LinearLayout) findViewById(R.id.optionsLayout);
-    ll.setGravity(Gravity.FILL_HORIZONTAL);
+    final TabHost th = (TabHost) this.findViewById(R.id.configTabHost);
+    th.setup();
+    th.addTab(th.newTabSpec("").setIndicator(
+        getString(R.string.config_tab_todo)).setContent(R.id.configScrollView));
+    th.addTab(th.newTabSpec("1")
+        .setIndicator(getString(R.string.config_tab_ui)).setContent(
+            R.id.configScrollView));
+    th.addTab(th.newTabSpec("22").setIndicator(
+        getString(R.string.config_tab_sounds))
+        .setContent(R.id.configScrollView));
+    th.addTab(th.newTabSpec("333").setIndicator(
+        getString(R.string.config_tab_web)).setContent(R.id.configScrollView));
+    ImageView iv = (ImageView) th.getTabWidget().getChildAt(0).findViewById(
+        android.R.id.icon);
+    iv.setPadding(0, 0, 0, 10);
+    iv.setImageDrawable(getResources().getDrawable(
+        android.R.drawable.ic_menu_agenda));
+    iv = (ImageView) th.getTabWidget().getChildAt(1).findViewById(
+        android.R.id.icon);
+    iv.setPadding(0, 0, 0, 10);
+    iv.setImageDrawable(getResources().getDrawable(
+        android.R.drawable.ic_menu_view));
+    iv = (ImageView) th.getTabWidget().getChildAt(2).findViewById(
+        android.R.id.icon);
+    iv.setPadding(0, 0, 0, 10);
+    iv.setMinimumHeight(48);
+    iv.setMinimumWidth(48);
+    iv.setImageDrawable(getResources().getDrawable(
+        android.R.drawable.ic_lock_silent_mode_off));
+    iv = (ImageView) th.getTabWidget().getChildAt(3).findViewById(
+        android.R.id.icon);
+    iv.setPadding(0, 0, 0, 10);
+    iv.setImageDrawable(getResources().getDrawable(
+        android.R.drawable.ic_menu_send));
 
-    // usage stats
-    CheckBox cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(USAGE_STATS, false));
-    cb.setText(R.string.configuration_5_stats);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(USAGE_STATS, isChecked);
-        editor.commit();
+    final int selectedTab = sSettings.getInt(SELECTED_TAB, 1);
+    th.setCurrentTab(Utils.iterate(selectedTab, 3, 1));
+
+    th.setOnTabChangedListener(new OnTabChangeListener() {
+      public void onTabChanged(String tab) {
+        sEditor.putInt(SELECTED_TAB, tab.length());
+        sEditor.commit();
+        showTab(tab.length());
       }
     });
-    ll.addView(cb);
 
-    // show collapse buttons (for subtasks)
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(SHOW_COLLAPSE, false));
-    cb.setText(R.string.configuration_8_collapse);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(SHOW_COLLAPSE, isChecked).commit();
-      }
-    });
-    ll.addView(cb);
-
-    // show Visually Challenged mode
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(BLIND_MODE, false));
-    cb.setText(R.string.visually_challenged_mode_enabled);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (!isChecked) {
-          if (TagToDoList.sTts != null) {
-            TagToDoList.sTts.shutdown();
-            TagToDoList.sTts = null;
-          }
-        } else {
-          TagToDoList.sTts = new TTS(getApplicationContext(), null);
-        }
-        editor.putBoolean(BLIND_MODE, isChecked).commit();
-      }
-    });
-    ll.addView(cb);
-
-    // sync TO Google Calendar
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(GOOGLE_CALENDAR, false));
-    cb.setText(R.string.configuration_1_gcal);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(GOOGLE_CALENDAR, isChecked);
-        if (!(isChecked)) {
-          editor.putString(GOOGLE_USERNAME, "");
-          editor.putString(GOOGLE_PASSWORD, "");
-        }
-        editor.commit();
-        mUserEdit.setText(settings.getString(GOOGLE_USERNAME,
-            getString(R.string.username)));
-        mPassEdit.setText(settings.getString(GOOGLE_PASSWORD,
-            getString(R.string.password)));
-        showLogin(isChecked);
-      }
-    });
-    ll.addView(cb);
-
-    // backup on the SD card every time app closes
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(BACKUP_SDCARD, false));
-    cb.setText(R.string.configuration_2_backup);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(BACKUP_SDCARD, isChecked);
-        editor.commit();
-      }
-    });
-    ll.addView(cb);
-
-    // visually distinguish tasks by priority
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(VISUAL_PRIORITY, false));
-    cb.setText(R.string.configuration_4_shine);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(VISUAL_PRIORITY, isChecked);
-        editor.commit();
-      }
-    });
-    ll.addView(cb);
-
-    // show which tasks have notes in portrait mode as well
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(NOTE_PREVIEW, false));
-    cb.setText(R.string.configuration_6_notes);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(NOTE_PREVIEW, isChecked);
-        editor.commit();
-      }
-    });
-    ll.addView(cb);
-
-    // show which tasks have notes in portrait mode as well
-    cb = new CheckBox(this);
-    cb.setChecked(settings.getBoolean(SHOW_DUE_TIME, false));
-    cb.setText(R.string.configuration_9_duedate);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putBoolean(SHOW_DUE_TIME, isChecked);
-        editor.commit();
-      }
-    });
-    ll.addView(cb);
-
-    // choose theme
-    cb = new CheckBox(this);
-    cb
-        .setChecked(settings.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
-    cb.setText(R.string.configuration_7_theme);
-    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        editor.putInt(THEME,
-            isChecked ? android.R.style.Theme_Light : android.R.style.Theme)
-            .commit();
-      }
-    });
-    ll.addView(cb);
-
-    // setting the checked tasks limit
-    TextView tv = new TextView(this);
-    tv.setTextSize(16);
-    tv.setText(R.string.size_change);
-    LinearLayout localLayout = new LinearLayout(this); // reusing
-    localLayout.setOrientation(LinearLayout.VERTICAL);
-    LinearLayout textLayout = new LinearLayout(this); // also reusing
-    textLayout.setOrientation(LinearLayout.HORIZONTAL);
-    textLayout.addView(tv);
-    final TextView limitTv = new TextView(this);
-    limitTv.setMinimumWidth(50);
-    localLayout.addView(textLayout);
-    final SeekBar sLimit = new SeekBar(this);
-    sLimit.setMax(5000);
-    sLimit.setProgress(settings.getInt(CHECKED_LIMIT, 100));
-    sLimit.setPadding(5, 0, 5, 0);
-    limitTv.setTextSize(17);
-    limitTv.setText(Integer.toString(sLimit.getProgress()));
-    textLayout.addView(limitTv);
-    sLimit.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-      public void onProgressChanged(SeekBar seekBar, int progress,
-          boolean fromUser) {
-        limitTv.setText(Integer.toString(progress));
-      }
-
-      public void onStartTrackingTouch(SeekBar seekBar) {
-      }
-
-      public void onStopTrackingTouch(SeekBar seekBar) {
-        editor.putInt(CHECKED_LIMIT, seekBar.getProgress());
-        editor.commit();
-      }
-    });
-    localLayout.addView(sLimit);
-    TextView localDescription = new TextView(this);
-    localDescription.setText(R.string.checked_tasks_limit_description);
-    localLayout.addView(localDescription);
-    localLayout.setPadding(10, 5, 10, 0);
-    ll.addView(localLayout);
-
-    // setting minimum and maximum priority for tasks
-    tv = new TextView(this);
-    tv.setPadding(0, 15, 0, 0);
-    tv.setTextSize(16);
-    tv.setText(R.string.configuration_3_priority);
-    localLayout = new LinearLayout(this);
-    localLayout.setOrientation(LinearLayout.VERTICAL);
-    textLayout = new LinearLayout(this);
-    textLayout.setOrientation(LinearLayout.HORIZONTAL);
-    textLayout.addView(tv);
-    final TextView maxTv = new TextView(this);
-    maxTv.setMinimumWidth(50);
-    localLayout.addView(textLayout);
-    final SeekBar sMax = new SeekBar(this);
-    sMax.setPadding(5, 0, 5, 0);
-    sMax.setMax(101);
-    sMax.setProgress(settings.getInt(PRIORITY_MAX, 100));
-    maxTv.setTextSize(17);
-    maxTv.setText(Integer.toString(sMax.getProgress()));
-    textLayout.addView(maxTv);
-    sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-      public void onProgressChanged(SeekBar seekBar, int progress,
-          boolean fromUser) {
-        maxTv.setText(Integer.toString(progress));
-      }
-
-      public void onStartTrackingTouch(SeekBar seekBar) {
-      }
-
-      public void onStopTrackingTouch(SeekBar seekBar) {
-        int p = seekBar.getProgress();
-        editor.putInt(PRIORITY_MAX, p > 0 ? p : 1);
-        editor.commit();
-      }
-    });
-    localLayout.addView(sMax);
-    localDescription = new TextView(this);
-    localDescription.setText(R.string.max_priority_description);
-    localLayout.addView(localDescription);
-    localLayout.setPadding(10, 5, 10, 0);
-    ll.addView(localLayout);
-
-    mUserEdit = (EditText) findViewById(R.id.usernameEdit);
-    mUserEdit.setOnKeyListener(new View.OnKeyListener() {
-      public boolean onKey(View v, int keyCode, KeyEvent event) {
-        switch (keyCode) {
-          case KeyEvent.KEYCODE_ENTER:
-            mPassEdit.requestFocus();
-            return true;
-        }
-        return false;
-      }
-    });
-    mUserEdit.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View v) {
-        if (mUserEdit.getText().toString().equals(getString(R.string.username))) {
-          mUserEdit.setText("");
-        }
-      }
-    });
-    mPassEdit = (EditText) findViewById(R.id.passwordEdit);
-    mPassEdit
-        .setTransformationMethod(new android.text.method.PasswordTransformationMethod());
-    mPassEdit.setInputType(InputType.TYPE_CLASS_TEXT
-        | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-    mPassEdit.setOnKeyListener(new View.OnKeyListener() {
-      public boolean onKey(View v, int keyCode, KeyEvent event) {
-        switch (keyCode) {
-          case KeyEvent.KEYCODE_ENTER:
-            if (((EditText) v).getText().length() > 1) {
-              mConfirmButton.requestFocus();
-              return true;
-            }
-        }
-        return false;
-      }
-    });
-    mPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-      public void onFocusChange(View v, boolean hasFocus) {
-        if (mPassEdit.getText().toString().equals(getString(R.string.password))) {
-          mPassEdit.setText("");
-        }
-      }
-    });
+    th.setCurrentTab(selectedTab);
 
     mDonateButton = (ImageButton) findViewById(R.id.donateButton);
     mDonateButton.setOnClickListener(new OnClickListener() {
@@ -345,9 +147,9 @@ public final class ConfigScreen extends Activity {
     mConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
     mConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        editor.putString(GOOGLE_USERNAME, mUserEdit.getText().toString());
-        editor.putString(GOOGLE_PASSWORD, mPassEdit.getText().toString());
-        editor.commit();
+        sEditor.putString(GOOGLE_USERNAME, mUserEdit.getText().toString());
+        sEditor.putString(GOOGLE_PASSWORD, mPassEdit.getText().toString());
+        sEditor.commit();
 
         GoogleCalendar.setLogin(mUserEdit.getText().toString(), mPassEdit
             .getText().toString());
@@ -398,6 +200,285 @@ public final class ConfigScreen extends Activity {
         }
       }
     });
+  }
+
+  /**
+   * Populates the layout with the needed tab content.
+   * 
+   * @param index
+   *          of the tab.
+   */
+  private final void showTab(final int index) {
+    CheckBox cb;
+    final LinearLayout ll = (LinearLayout) findViewById(R.id.configLayout);
+    ll.removeAllViews();
+    switch (index) {
+      case 0:
+        // setting the checked tasks limit
+        TextView tv = new TextView(this);
+        tv.setTextSize(16);
+        tv.setText(R.string.size_change);
+        LinearLayout localLayout = new LinearLayout(this); // reusing
+        localLayout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout textLayout = new LinearLayout(this); // also
+        // reusing
+        textLayout.setOrientation(LinearLayout.HORIZONTAL);
+        textLayout.addView(tv);
+        final TextView limitTv = new TextView(this);
+        limitTv.setMinimumWidth(50);
+        localLayout.addView(textLayout);
+        final SeekBar sLimit = new SeekBar(this);
+        sLimit.setMax(1000);
+        final int l = sSettings.getInt(CHECKED_LIMIT, 100);
+        sLimit.setProgress(l <= sLimit.getMax() ? l : sLimit.getMax());
+        sLimit.setPadding(5, 0, 5, 0);
+        limitTv.setTextSize(17);
+        limitTv.setText(Integer.toString(sLimit.getProgress()));
+        textLayout.addView(limitTv);
+        sLimit.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+          public void onProgressChanged(SeekBar seekBar, int progress,
+              boolean fromUser) {
+            limitTv.setText(Integer.toString(progress));
+          }
+
+          public void onStartTrackingTouch(SeekBar seekBar) {
+          }
+
+          public void onStopTrackingTouch(SeekBar seekBar) {
+            sEditor.putInt(CHECKED_LIMIT, seekBar.getProgress());
+            sEditor.commit();
+          }
+        });
+        localLayout.addView(sLimit);
+        TextView localDescription = new TextView(this);
+        localDescription.setText(R.string.checked_tasks_limit_description);
+        localLayout.addView(localDescription);
+        localLayout.setPadding(10, 5, 10, 0);
+        ll.addView(localLayout);
+
+        // setting minimum and maximum priority for tasks
+        tv = new TextView(this);
+        tv.setPadding(0, 10, 0, 0);
+        tv.setTextSize(16);
+        tv.setText(R.string.config_3_priority);
+        localLayout = new LinearLayout(this);
+        localLayout.setOrientation(LinearLayout.VERTICAL);
+        textLayout = new LinearLayout(this);
+        textLayout.setOrientation(LinearLayout.HORIZONTAL);
+        textLayout.addView(tv);
+        final TextView maxTv = new TextView(this);
+        maxTv.setMinimumWidth(50);
+        localLayout.addView(textLayout);
+        final SeekBar sMax = new SeekBar(this);
+        sMax.setPadding(5, 0, 5, 0);
+        sMax.setMax(101);
+        sMax.setProgress(sSettings.getInt(PRIORITY_MAX, 100));
+        maxTv.setTextSize(17);
+        maxTv.setText(Integer.toString(sMax.getProgress()));
+        textLayout.addView(maxTv);
+        sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+          public void onProgressChanged(SeekBar seekBar, int progress,
+              boolean fromUser) {
+            maxTv.setText(Integer.toString(progress));
+          }
+
+          public void onStartTrackingTouch(SeekBar seekBar) {
+          }
+
+          public void onStopTrackingTouch(SeekBar seekBar) {
+            int p = seekBar.getProgress();
+            sEditor.putInt(PRIORITY_MAX, p > 0 ? p : 1);
+            sEditor.commit();
+          }
+        });
+        localLayout.addView(sMax);
+        localDescription = new TextView(this);
+        localDescription.setText(R.string.max_priority_description);
+        localLayout.addView(localDescription);
+        localLayout.setPadding(10, 5, 10, 10);
+        ll.addView(localLayout);
+
+        // backup on the SD card every time app closes
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(BACKUP_SDCARD, false));
+        cb.setText(R.string.config_2_backup);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            sEditor.putBoolean(BACKUP_SDCARD, isChecked);
+            sEditor.commit();
+          }
+        });
+        ll.addView(cb);
+
+        break;
+      case 1:
+        // show collapse buttons (for subtasks)
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(SHOW_COLLAPSE, false));
+        cb.setText(R.string.config_8_collapse);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(SHOW_COLLAPSE, isChecked).commit();
+              }
+            });
+        ll.addView(cb);
+
+        // show which tasks have notes in portrait mode as well
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(NOTE_PREVIEW, false));
+        cb.setText(R.string.config_6_notes);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(NOTE_PREVIEW, isChecked);
+                sEditor.commit();
+              }
+            });
+        ll.addView(cb);
+
+        // visually distinguish tasks by priority
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(VISUAL_PRIORITY, false));
+        cb.setText(R.string.config_4_shine);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(VISUAL_PRIORITY, isChecked);
+                sEditor.commit();
+              }
+            });
+        ll.addView(cb);
+
+        // choose theme
+        cb = new CheckBox(this);
+        cb
+            .setChecked(sSettings.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
+        cb.setText(R.string.config_7_theme);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putInt(
+                    THEME,
+                    isChecked ? android.R.style.Theme_Light
+                        : android.R.style.Theme).commit();
+              }
+            });
+        ll.addView(cb);
+
+        break;
+      case 2:
+        // show Visually Challenged mode
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(BLIND_MODE, false));
+        cb.setText(R.string.visually_challenged_mode_enabled);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                if (!isChecked) {
+                  if (TagToDoList.sTts != null) {
+                    TagToDoList.sTts.shutdown();
+                    TagToDoList.sTts = null;
+                  }
+                } else {
+                  TagToDoList.sTts = new TTS(getApplicationContext(), null);
+                }
+                sEditor.putBoolean(BLIND_MODE, isChecked).commit();
+              }
+            });
+        ll.addView(cb);
+        break;
+      case 3:
+        // usage stats
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(USAGE_STATS, false));
+        cb.setText(R.string.config_5_stats);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(USAGE_STATS, isChecked);
+                sEditor.commit();
+              }
+            });
+        ll.addView(cb);
+
+        // sync TO Google Calendar
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(GOOGLE_CALENDAR, false));
+        cb.setText(R.string.config_1_gcal);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(GOOGLE_CALENDAR, isChecked);
+                if (!(isChecked)) {
+                  sEditor.putString(GOOGLE_USERNAME, "");
+                  sEditor.putString(GOOGLE_PASSWORD, "");
+                }
+                sEditor.commit();
+                mUserEdit.setText(sSettings.getString(GOOGLE_USERNAME,
+                    getString(R.string.username)));
+                mPassEdit.setText(sSettings.getString(GOOGLE_PASSWORD,
+                    getString(R.string.password)));
+                showLogin(isChecked);
+              }
+            });
+        ll.addView(cb);
+
+        mUserEdit = (EditText) findViewById(R.id.usernameEdit);
+        mUserEdit.setOnKeyListener(new View.OnKeyListener() {
+          public boolean onKey(View v, int keyCode, KeyEvent event) {
+            switch (keyCode) {
+              case KeyEvent.KEYCODE_ENTER:
+                mPassEdit.requestFocus();
+                return true;
+            }
+            return false;
+          }
+        });
+        mUserEdit.setOnClickListener(new View.OnClickListener() {
+          public void onClick(View v) {
+            if (mUserEdit.getText().toString().equals(
+                getString(R.string.username))) {
+              mUserEdit.setText("");
+            }
+          }
+        });
+        mPassEdit = (EditText) findViewById(R.id.passwordEdit);
+        mPassEdit
+            .setTransformationMethod(new android.text.method.PasswordTransformationMethod());
+        mPassEdit.setInputType(InputType.TYPE_CLASS_TEXT
+            | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        mPassEdit.setOnKeyListener(new View.OnKeyListener() {
+          public boolean onKey(View v, int keyCode, KeyEvent event) {
+            switch (keyCode) {
+              case KeyEvent.KEYCODE_ENTER:
+                if (((EditText) v).getText().length() > 1) {
+                  mConfirmButton.requestFocus();
+                  return true;
+                }
+            }
+            return false;
+          }
+        });
+        mPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+          public void onFocusChange(View v, boolean hasFocus) {
+            if (mPassEdit.getText().toString().equals(
+                getString(R.string.password))) {
+              mPassEdit.setText("");
+            }
+          }
+        });
+        break;
+    }
+
   }
 
   /**
