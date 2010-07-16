@@ -92,6 +92,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_SUBTASK_ID = 10;
   public static final int ENTRY_MOVE_UNDER_TASK_ID = 11;
   public static final int ENTRY_EMAIL_ID = 12;
+  public static final int ENTRY_SMS_ID = 13;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -906,6 +907,8 @@ public class TagToDoList extends Activity {
     submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
     submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
     submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
+    submenu = menu.addSubMenu(R.string.entry_group_share);
+    submenu.add(0, ENTRY_SMS_ID, 0, R.string.SMS);
     menu.setHeaderTitle(R.string.entry_menu);
   }
 
@@ -925,35 +928,36 @@ public class TagToDoList extends Activity {
    * @return
    */
   private boolean changeTask(int selectedItem) {
+    Intent i;
     switch (selectedItem) {
       case ENTRY_SUBTASK_ID:
-        final Intent i0 = new Intent(this, EditScreen.class);
-        i0.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
+        i = new Intent(this, EditScreen.class);
+        i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
             mTagSpinner.getSelectedItemPosition()).toString());
-        i0.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
-        i0.setAction(ACTIVITY_CREATE_ENTRY + "");
-        startActivity(i0);
+        i.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
+        i.setAction(ACTIVITY_CREATE_ENTRY + "");
+        startActivity(i);
         break;
       case ENTRY_EDIT_ID:
-        final Intent i1 = new Intent(this, EditScreen.class);
-        i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i1.setAction(ACTIVITY_EDIT_ENTRY + "");
-        startActivity(i1);
+        i = new Intent(this, EditScreen.class);
+        i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i.setAction(ACTIVITY_EDIT_ENTRY + "");
+        startActivity(i);
         break;
       case ENTRY_REMOVE_ID:
         sDbHelper.deleteEntry(mContextEntry);
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case ENTRY_GRAPHICAL_ID:
-        final Intent i2 = new Intent(this, PaintScreen.class);
-        i2.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        startActivity(i2);
+        i = new Intent(this, PaintScreen.class);
+        i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        startActivity(i);
         break;
       case ENTRY_AUDIO_ID:
-        final Intent i3 = new Intent(this, AudioScreen.class);
-        i3.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i3.putExtra(ToDoDB.KEY_STATUS, true);
-        startActivity(i3);
+        i = new Intent(this, AudioScreen.class);
+        i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i.putExtra(ToDoDB.KEY_STATUS, true);
+        startActivity(i);
         break;
       case ENTRY_DOWN_ID:
         sDbHelper.pushEntryDown(mContextEntry);
@@ -965,10 +969,10 @@ public class TagToDoList extends Activity {
         final int p = mTagSpinner.getSelectedItemPosition();
         mTagSpinner
             .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-              public void onItemSelected(AdapterView<?> av, View v, int i,
+              public void onItemSelected(AdapterView<?> av, View v, int index,
                   long arg3) {
                 sDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
-                    .getItem(i).toString(), 0);
+                    .getItem(index).toString(), 0);
                 av.setOnItemSelectedListener(l);
                 av.setSelection(p);
               }
@@ -985,21 +989,27 @@ public class TagToDoList extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case ENTRY_WRITTEN_ID:
-        final Intent i4 = new Intent(this, EditScreen.class);
-        i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i4.setAction(ACTIVITY_WRITE_NOTE + "");
-        startActivity(i4);
+        i = new Intent(this, EditScreen.class);
+        i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i.setAction(ACTIVITY_WRITE_NOTE + "");
+        startActivity(i);
+        break;
+      case ENTRY_SMS_ID:
+        i = new Intent(Intent.ACTION_VIEW);
+        i.putExtra("sms_body", getString(R.string.todo) + ": " + mContextEntry);
+        i.setType("vnd.android-dir/mms-sms");
+        startActivity(i);
         break;
       case ENTRY_EMAIL_ID:
         String[] mailto = { "" };
         // Create a new Intent to send messages
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        i = new Intent(Intent.ACTION_SEND);
         // Add attributes to the intent
-        sendIntent.putExtra(Intent.EXTRA_EMAIL, mailto);
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "subiect");
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "corp");
-        sendIntent.setType("text/plain");
-        startActivity(Intent.createChooser(sendIntent, "MySendMail"));
+        i.putExtra(Intent.EXTRA_EMAIL, mailto);
+        i.putExtra(Intent.EXTRA_SUBJECT, "subiect");
+        i.putExtra(Intent.EXTRA_TEXT, "corp");
+        i.setType("text/plain");
+        startActivity(Intent.createChooser(i, "MySendMail"));
         break;
       case ENTRY_INSTANTACTION_ID:
         mContextAction.perform(this);

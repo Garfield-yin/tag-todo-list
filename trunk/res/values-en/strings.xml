@@ -41,6 +41,7 @@
 <!-- Task menu -->
 <string name="entry_group_notes">+ Notes</string>
 <string name="entry_group_move">+ Move</string>
+<string name="entry_group_share">+ Share</string>
 <string name="entry_subtask_add">Add subtask</string>
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
@@ -175,5 +176,7 @@
 <string name="sunday">Sunday</string>
 <string name="every">every</string>
 <string name="day">day</string>
+<string name="SMS">SMS</string>
+<string name="todo">TO-DO</string>
 
 </resources>
