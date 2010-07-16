@@ -3,6 +3,7 @@
 package com.android.todo;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
@@ -37,6 +39,9 @@ import com.android.todo.sync.GoogleCalendar;
  */
 public final class ConfigScreen extends Activity {
   public static final String SELECTED_TAB = "selectedTab";
+  public static final String CUSTOM_ALARM = "customAlarm";
+  public static final String ALARM_URI = "alarmUri";
+  public static final String ALARM_VIBRATION = "alarmVibration";
   public static final String GOOGLE_CALENDAR = "googleCalendar";
   public static final String GOOGLE_USERNAME = "googleUsername";
   public static final String GOOGLE_PASSWORD = "googlePassword";
@@ -51,9 +56,9 @@ public final class ConfigScreen extends Activity {
   public static final String SHOW_COLLAPSE = "showCollapse";
   public static final String SHOW_DUE_TIME = "showDueTime";
 
-  private EditText mUserEdit, mPassEdit;
-  private Button mConfirmButton, mHelpButton, mCloseButton;
-  private ImageButton mDonateButton;
+  private static EditText sUserEdit, sPassEdit;
+  private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
+  private static ImageButton sDonateButton;
   private static SharedPreferences sSettings;
   private static Editor sEditor;
 
@@ -68,8 +73,8 @@ public final class ConfigScreen extends Activity {
     setTitle(R.string.config_screen_title);
     setContentView(R.layout.config);
 
-    mHelpButton = (Button) findViewById(R.id.websiteButton);
-    mHelpButton.setOnClickListener(new View.OnClickListener() {
+    sHelpButton = (Button) findViewById(R.id.websiteButton);
+    sHelpButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
         Intent myIntent = new Intent(Intent.ACTION_VIEW);
         myIntent
@@ -126,8 +131,8 @@ public final class ConfigScreen extends Activity {
 
     th.setCurrentTab(selectedTab);
 
-    mDonateButton = (ImageButton) findViewById(R.id.donateButton);
-    mDonateButton.setOnClickListener(new OnClickListener() {
+    sDonateButton = (ImageButton) findViewById(R.id.donateButton);
+    sDonateButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         final Intent i = new Intent(Intent.ACTION_VIEW);
         i
@@ -137,21 +142,21 @@ public final class ConfigScreen extends Activity {
       }
     });
 
-    mCloseButton = (Button) findViewById(R.id.closeButton);
-    mCloseButton.setOnClickListener(new OnClickListener() {
+    sCloseButton = (Button) findViewById(R.id.closeButton);
+    sCloseButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         finish();
       }
     });
 
-    mConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
-    mConfirmButton.setOnClickListener(new OnClickListener() {
+    sConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
+    sConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        sEditor.putString(GOOGLE_USERNAME, mUserEdit.getText().toString());
-        sEditor.putString(GOOGLE_PASSWORD, mPassEdit.getText().toString());
+        sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText().toString());
+        sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText().toString());
         sEditor.commit();
 
-        GoogleCalendar.setLogin(mUserEdit.getText().toString(), mPassEdit
+        GoogleCalendar.setLogin(sUserEdit.getText().toString(), sPassEdit
             .getText().toString());
         boolean canAuthenticate = false;
 
@@ -393,6 +398,56 @@ public final class ConfigScreen extends Activity {
               }
             });
         ll.addView(cb);
+
+        // change default alarm sound?
+        cb = new CheckBox(this);
+        sSongPicker = new Button(this);
+        final String UriString = sSettings.getString(ALARM_URI, null);
+        if (UriString != null) {
+          sSongPicker.setText(getAudioTitle(Uri.parse(UriString)));
+        } else {
+          sSongPicker.setText(R.string.config_10_alarm_pick);
+        }
+        sSongPicker.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            // Intent intent = new Intent(Intent.ACTION_PICK);
+            // intent.setType("vnd.android.cursor.dir/track");
+            // ConfigScreen.this.startActivityForResult(intent,1);
+
+            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+            i.setType("audio/*");
+            Intent c = Intent.createChooser(i, v.getContext().getString(
+                R.string.config_10_alarm_pick));
+            startActivityForResult(c, 1);
+          }
+        });
+        boolean b = sSettings.getBoolean(CUSTOM_ALARM, false);
+        cb.setChecked(b);
+        sSongPicker.setVisibility(b ? View.VISIBLE : View.GONE);
+        cb.setText(R.string.config_10_alarm);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(CUSTOM_ALARM, isChecked).commit();
+                sSongPicker.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+              }
+            });
+        ll.addView(cb);
+        ll.addView(sSongPicker);
+
+        // vibrate during the alarm?
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(ALARM_VIBRATION, true));
+        cb.setText(R.string.config_11_alarm_vibrate);
+        cb
+            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              public void onCheckedChanged(CompoundButton buttonView,
+                  boolean isChecked) {
+                sEditor.putBoolean(ALARM_VIBRATION, isChecked).commit();
+              }
+            });
+        ll.addView(cb);
         break;
       case 3:
         // usage stats
@@ -423,62 +478,81 @@ public final class ConfigScreen extends Activity {
                   sEditor.putString(GOOGLE_PASSWORD, "");
                 }
                 sEditor.commit();
-                mUserEdit.setText(sSettings.getString(GOOGLE_USERNAME,
+                sUserEdit.setText(sSettings.getString(GOOGLE_USERNAME,
                     getString(R.string.username)));
-                mPassEdit.setText(sSettings.getString(GOOGLE_PASSWORD,
+                sPassEdit.setText(sSettings.getString(GOOGLE_PASSWORD,
                     getString(R.string.password)));
                 showLogin(isChecked);
               }
             });
         ll.addView(cb);
 
-        mUserEdit = (EditText) findViewById(R.id.usernameEdit);
-        mUserEdit.setOnKeyListener(new View.OnKeyListener() {
+        sUserEdit = (EditText) findViewById(R.id.usernameEdit);
+        sUserEdit.setOnKeyListener(new View.OnKeyListener() {
           public boolean onKey(View v, int keyCode, KeyEvent event) {
             switch (keyCode) {
               case KeyEvent.KEYCODE_ENTER:
-                mPassEdit.requestFocus();
+                sPassEdit.requestFocus();
                 return true;
             }
             return false;
           }
         });
-        mUserEdit.setOnClickListener(new View.OnClickListener() {
+        sUserEdit.setOnClickListener(new View.OnClickListener() {
           public void onClick(View v) {
-            if (mUserEdit.getText().toString().equals(
+            if (sUserEdit.getText().toString().equals(
                 getString(R.string.username))) {
-              mUserEdit.setText("");
+              sUserEdit.setText("");
             }
           }
         });
-        mPassEdit = (EditText) findViewById(R.id.passwordEdit);
-        mPassEdit
+        sPassEdit = (EditText) findViewById(R.id.passwordEdit);
+        sPassEdit
             .setTransformationMethod(new android.text.method.PasswordTransformationMethod());
-        mPassEdit.setInputType(InputType.TYPE_CLASS_TEXT
+        sPassEdit.setInputType(InputType.TYPE_CLASS_TEXT
             | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        mPassEdit.setOnKeyListener(new View.OnKeyListener() {
+        sPassEdit.setOnKeyListener(new View.OnKeyListener() {
           public boolean onKey(View v, int keyCode, KeyEvent event) {
             switch (keyCode) {
               case KeyEvent.KEYCODE_ENTER:
                 if (((EditText) v).getText().length() > 1) {
-                  mConfirmButton.requestFocus();
+                  sConfirmButton.requestFocus();
                   return true;
                 }
             }
             return false;
           }
         });
-        mPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        sPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
           public void onFocusChange(View v, boolean hasFocus) {
-            if (mPassEdit.getText().toString().equals(
+            if (sPassEdit.getText().toString().equals(
                 getString(R.string.password))) {
-              mPassEdit.setText("");
+              sPassEdit.setText("");
             }
           }
         });
         break;
     }
 
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == 1) {
+      if (resultCode == RESULT_OK) {
+        final Uri uri = data.getData();
+        sSongPicker.setText(getAudioTitle(uri));
+        sEditor.putString(ALARM_URI, uri.toString()).commit();
+      }
+    }
+  }
+
+  private final String getAudioTitle(final Uri uri) {
+    final ContentResolver cr = getContentResolver();
+    final Cursor c = cr.query(uri,
+        new String[] { MediaStore.Audio.AudioColumns.TITLE }, null, null, null);
+    c.moveToFirst();
+    return c.getString(c.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE));
   }
 
   /**
@@ -490,11 +564,11 @@ public final class ConfigScreen extends Activity {
    */
   public void showLogin(boolean b) {
     int visibility = b ? View.VISIBLE : View.GONE;
-    mUserEdit.setVisibility(visibility);
-    mPassEdit.setVisibility(visibility);
-    mConfirmButton.setVisibility(visibility);
-    mDonateButton.setVisibility(8 - visibility);
-    mHelpButton.setVisibility(8 - visibility);
+    sUserEdit.setVisibility(visibility);
+    sPassEdit.setVisibility(visibility);
+    sConfirmButton.setVisibility(visibility);
+    sDonateButton.setVisibility(8 - visibility);
+    sHelpButton.setVisibility(8 - visibility);
   }
 
   @Override
@@ -510,7 +584,7 @@ public final class ConfigScreen extends Activity {
       case KeyEvent.KEYCODE_BACK:
       case KeyEvent.KEYCODE_DEL:
       case KeyEvent.KEYCODE_DPAD_RIGHT:
-        if (mDonateButton.getVisibility() == View.VISIBLE) {
+        if (sDonateButton.getVisibility() == View.VISIBLE) {
           finish();
         }
         break;

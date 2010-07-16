@@ -1,7 +1,9 @@
-package com.android.todo;
+package com.android.todo.olympus;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import com.android.todo.R;
 
 /**
  * This helper class deals with times, dates and stuff like that.

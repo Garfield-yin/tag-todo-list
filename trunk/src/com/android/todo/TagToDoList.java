@@ -49,6 +49,7 @@ import android.widget.LinearLayout.LayoutParams;
 
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
+import com.android.todo.olympus.Chronos;
 import com.android.todo.speech.TTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;

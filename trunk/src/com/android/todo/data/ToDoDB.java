@@ -18,10 +18,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.android.todo.AlarmReceiver;
 import com.android.todo.BootReceiver;
-import com.android.todo.Chronos;
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
 import com.android.todo.Utils;
+import com.android.todo.olympus.Chronos;
 
 /**
  * This class handles all the interactions with the database. The database

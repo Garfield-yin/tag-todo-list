@@ -87,9 +87,12 @@ public final class Utils {
   public final static Intent getAlarmIntent(Intent intent, String task) {
     intent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
     intent.putExtra(ToDoDB.KEY_NAME, task);
-    intent.putExtra("Ringtone", Uri
+    // the following notification extras don't really need to be here from a
+    // design point of a view, but thinking about a possible future feature of
+    // individual alarms
+    intent.putExtra(AlarmReceiver.RINGTONE, Uri
         .parse("android.resource://com.android.todo/" + R.raw.beep));
-    intent.putExtra("vibrationPatern", new long[] { 200, 300 });
+    intent.putExtra(AlarmReceiver.VIBRATION, new long[] { 200, 300 });
     return intent;
   }
 

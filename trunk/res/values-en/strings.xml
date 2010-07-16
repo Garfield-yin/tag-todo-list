@@ -128,6 +128,9 @@
 <string name="config_7_theme">Invert task theme (dark text on white background) - needs app restart</string>
 <string name="config_8_collapse">Show collapse buttons (for subtasks)</string>
 <string name="config_9_duedate">Show due time for tasks that have it</string>
+<string name="config_10_alarm">Change alarm sound</string>
+<string name="config_10_alarm_pick">Choose your own song</string>
+<string name="config_11_alarm_vibrate">Also vibrate with the alarm</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

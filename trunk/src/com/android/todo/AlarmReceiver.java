@@ -8,30 +8,31 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 
 import com.android.todo.data.ToDoDB;
+import com.android.todo.olympus.Apollo;
 
 /**
  * This is an activity used to process status bar notification activations
  */
 public final class AlarmReceiver extends BroadcastReceiver {
-  private static MediaPlayer sPlayer;
-  private static int sCounter;
+  public final static String RINGTONE = "Ringtone";
+  public final static String VIBRATION = "vibrationPatern";
 
   @Override
-  public void onReceive(Context context, Intent intent) {
-    final NotificationManager manager = (NotificationManager) context
+  public void onReceive(Context c, Intent intent) {
+    final NotificationManager manager = (NotificationManager) c
         .getSystemService(Context.NOTIFICATION_SERVICE);
     final String task = intent.getStringExtra(ToDoDB.KEY_NAME);
     final Notification notification = new Notification(R.drawable.small_icon,
         task, System.currentTimeMillis());
-    final PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-        new Intent(context, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
-    notification.setLatestEventInfo(context, context.getString(R.string.alarm),
-        task, contentIntent);
+    final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
+        new Intent(c, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
+    notification.setLatestEventInfo(c, c.getString(R.string.alarm), task,
+        contentIntent);
     notification.flags = Notification.FLAG_AUTO_CANCEL;
 
     /**
@@ -39,35 +40,28 @@ public final class AlarmReceiver extends BroadcastReceiver {
      * that it doesn't drain the user's battery in case he doesn't have the
      * phone.
      */
-    final int ringerMode = ((AudioManager) context
+    final int ringerMode = ((AudioManager) c
         .getSystemService(Context.AUDIO_SERVICE)).getRingerMode();
+    final SharedPreferences settings = c.getSharedPreferences(
+        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
     if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-      sCounter = 0;
-      sPlayer = new MediaPlayer();
-      try {
-        sPlayer.setDataSource(context, (Uri) intent
-            .getParcelableExtra("Ringtone"));
-        sPlayer.prepare();
-      } catch (Exception e) {
-        // if we can't play sound, no point in doing anything else since the
-        // user
-        // already has a notification onscreen
-        return;
-      }
-      sPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mp) {
-          if (sCounter++ < 28) {
-            mp.start();
-          } else {
-            mp.release();
-          }
+      final boolean b = settings.getBoolean(ConfigScreen.CUSTOM_ALARM, false);
+      if (b) {
+        final String uriString = settings.getString(ConfigScreen.ALARM_URI,
+            null);
+        if (uriString != null) {
+          Apollo.play(c, Uri.parse(uriString));
+        } else {
+          Apollo.play(28, c, (Uri) intent.getParcelableExtra(RINGTONE));
         }
-      });
-      sPlayer.start();
+      } else {
+        Apollo.play(28, c, (Uri) intent.getParcelableExtra(RINGTONE));
+      }
     }
 
-    if (ringerMode != AudioManager.RINGER_MODE_SILENT) {
-      notification.vibrate = (long[]) intent.getExtras().get("vibrationPatern");
+    if (ringerMode != AudioManager.RINGER_MODE_SILENT
+        && settings.getBoolean(ConfigScreen.ALARM_VIBRATION, true)) {
+      notification.vibrate = (long[]) intent.getExtras().get(VIBRATION);
     }
 
     manager.notify(2, notification);
