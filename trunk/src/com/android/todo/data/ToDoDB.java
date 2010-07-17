@@ -784,6 +784,7 @@ public final class ToDoDB extends ADB {
         } else {
           // must only check the supertask if all its subtasks are
           // checked
+          /*
           Cursor subTasksOfSuperTaskC = mDb.query(DB_ENTRY_TABLE, new String[] {
               KEY_NAME, KEY_SUPERTASK, KEY_STATUS }, KEY_SUPERTASK + "='"
               + c.getString(c.getColumnIndex(KEY_SUPERTASK)) + "'", null, null,
@@ -804,7 +805,7 @@ public final class ToDoDB extends ADB {
                   Boolean.FALSE);
             }
           }
-          subTasksOfSuperTaskC.close();
+          subTasksOfSuperTaskC.close();*/
         }
       }
       c.close();

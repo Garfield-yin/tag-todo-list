@@ -413,7 +413,7 @@ public class TagToDoList extends Activity {
           numberOfUnchecked += 1;
         }
         if (SHINY_PRIORITY && maxPriority != 0) {
-          int color = dbHelper.getPriority(c.getString(name)) * 191
+          final int color = dbHelper.getPriority(c.getString(name)) * 191
               / maxPriority + 64;
           cb.setTextColor(Color.rgb(color, color, color));
         } else {
@@ -902,7 +902,7 @@ public class TagToDoList extends Activity {
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, ENTRY_MOVE_ID, 0, R.string.entry_move);
     submenu.add(0, ENTRY_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
-    submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
+    //submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
     submenu = menu.addSubMenu(R.string.entry_group_notes);
     submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
     submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
