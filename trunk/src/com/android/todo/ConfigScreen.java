@@ -344,6 +344,17 @@ public final class ConfigScreen extends Activity {
               }
             });
         ll.addView(cb);
+        
+        // show which tasks have due dates
+        cb = new CheckBox(this);
+        cb.setChecked(sSettings.getBoolean(SHOW_DUE_TIME, false));
+        cb.setText(R.string.config_9_duedate);
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            sEditor.putBoolean(SHOW_DUE_TIME, isChecked).commit();
+          }
+        });
+        ll.addView(cb);
 
         // visually distinguish tasks by priority
         cb = new CheckBox(this);

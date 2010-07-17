@@ -902,7 +902,7 @@ public class TagToDoList extends Activity {
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, ENTRY_MOVE_ID, 0, R.string.entry_move);
     submenu.add(0, ENTRY_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
-    //submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
+    // submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
     submenu = menu.addSubMenu(R.string.entry_group_notes);
     submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
     submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
@@ -1036,12 +1036,12 @@ public class TagToDoList extends Activity {
         } else {
           mTagSpinner.performClick();
         }
-        break;
+        return false;
       case KeyEvent.KEYCODE_DPAD_LEFT:
         mTagSpinner.setSelection(Utils.iterate(mTagSpinner
             .getSelectedItemPosition(), mTagSpinner.getCount(), 1));
         // ???replace this with a method, it's called too many times
-        break;
+        return false;
       case (KeyEvent.KEYCODE_N):
         if (msg.isAltPressed()) {
           mTagSpinner.setSelection(Utils.iterate(mTagSpinner
@@ -1049,11 +1049,14 @@ public class TagToDoList extends Activity {
         } else {
           selectAnotherEntry(1);
         }
-        break;
+        return false;
+      case KeyEvent.KEYCODE_DPAD_DOWN:
+        selectAnotherEntry(1);
+        return true;
       case KeyEvent.KEYCODE_DPAD_RIGHT:
         mTagSpinner.setSelection(Utils.iterate(mTagSpinner
             .getSelectedItemPosition(), mTagSpinner.getCount(), -1));
-        break;
+        return false;
       case (KeyEvent.KEYCODE_P):
         if (msg.isAltPressed()) {
           mTagSpinner.setSelection(Utils.iterate(mTagSpinner
@@ -1061,29 +1064,32 @@ public class TagToDoList extends Activity {
         } else {
           selectAnotherEntry(-1);
         }
-        break;
+        return false;
+      case KeyEvent.KEYCODE_DPAD_UP:
+        selectAnotherEntry(-1);
+        return true;
       case (KeyEvent.KEYCODE_ENTER):
         if (mActiveEntry > -1) {
           ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).performClick();
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_SPACE):
         if (mActiveEntry > -1) {
           ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).performLongClick();
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_A):
         if (msg.isAltPressed()) {
           createTag();
         } else {
           mAddEntryButton.performClick();
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_S):
         mStatButton.performClick();
-        break;
+        return false;
       case (KeyEvent.KEYCODE_D):
         if (msg.isAltPressed()) {
           removeTag();
@@ -1096,7 +1102,7 @@ public class TagToDoList extends Activity {
                 .getChildCount(), -1);
           }
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_E):
       case (KeyEvent.KEYCODE_R):
         if (msg.isAltPressed()) {
@@ -1108,50 +1114,50 @@ public class TagToDoList extends Activity {
             changeTask(ENTRY_EDIT_ID);
           }
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_G):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_GRAPHICAL_ID);
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_F):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_AUDIO_ID);
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_0):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_DOWN_ID);
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_PERIOD):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_SUBTASK_ID);
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_H):
         showHelpScreen();
-        break;
+        return false;
       case (KeyEvent.KEYCODE_O):
         changeSizeLimit(1);
-        break;
+        return false;
       case (KeyEvent.KEYCODE_I):
         changeSizeLimit(-1);
-        break;
+        return false;
       case (KeyEvent.KEYCODE_X):
         removeAllTasks();
-        break;
+        return false;
       case (KeyEvent.KEYCODE_U):
         startActivity(new Intent(this, NotificationActivity.class));
-        break;
+        return false;
       case (KeyEvent.KEYCODE_M):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
@@ -1160,20 +1166,20 @@ public class TagToDoList extends Activity {
           mActiveEntry = Utils.iterate(mActiveEntry, mEntryLayout
               .getChildCount(), -1);
         }
-        break;
+        return false;
       case (KeyEvent.KEYCODE_C):
         startActivity(new Intent(this, ConfigScreen.class));
-        break;
+        return false;
       case KeyEvent.KEYCODE_BACK:
         finish();
-        break;
+        return false;
       case (KeyEvent.KEYCODE_W):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_WRITTEN_ID);
         }
-        break;
+        return false;
     }
 
     if (keyCode > KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9) {
