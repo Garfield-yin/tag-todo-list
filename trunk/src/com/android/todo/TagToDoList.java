@@ -388,6 +388,11 @@ public class TagToDoList extends Activity {
     final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
     final int subtasks = c.getColumnIndex(ToDoDB.KEY_SUBTASKS);
 
+    // these LayoutParams will be used for subtask indentation
+    final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
+        LayoutParams.WRAP_CONTENT);
+    lp.weight = 1;
+    
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
     final boolean hideChecked = HIDE_CHECKED;
@@ -427,10 +432,7 @@ public class TagToDoList extends Activity {
         cb.setOnTouchListener(sGestureListener);
         registerForContextMenu(cb);
         if (depth > 0) {
-          LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
-              LayoutParams.WRAP_CONTENT);
           lp.leftMargin = depth * 30;
-          lp.weight = 1;
           cb.setLayoutParams(lp);
         }
 
@@ -439,16 +441,15 @@ public class TagToDoList extends Activity {
               .findViewById(R.id.taskNotesLayout);
           taskNoteLayout.setOrientation(0);
 
-          int isWrittenNote;
           try {
-            isWrittenNote = sDbHelper.getFlag(taskName,
+            auxInt = sDbHelper.getFlag(taskName,
                 ToDoDB.KEY_NOTE_IS_WRITTEN);
           } catch (Exception e) {
             sDbHelper.repair();
-            isWrittenNote = sDbHelper.getFlag(taskName,
+            auxInt = sDbHelper.getFlag(taskName,
                 ToDoDB.KEY_NOTE_IS_WRITTEN);
           }
-          if (isWrittenNote > 0) {
+          if (auxInt > 0) {
             final ImageButton ib = new ImageButton(this);
             ib.setBackgroundColor(Color.TRANSPARENT);
             ib.setPadding(0, 0, 0, 0);
