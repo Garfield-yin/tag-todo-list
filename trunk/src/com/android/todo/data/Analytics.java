@@ -1,5 +1,7 @@
 package com.android.todo.data;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 /**
  * Container class for Analytics parameters
  * 
@@ -36,8 +38,6 @@ public final class Analytics {
    * Represents the occurence of an exception.
    */
   public static final String EXCEPTION = "EXCEPTION";
-  /**
-   * Represents the button which adds tasks
-   */
-  public static final String ADD_TASK_BUTTON = "ADD_TASK_BUTTON";
+  
+  public static GoogleAnalyticsTracker sTracker = null;
 }

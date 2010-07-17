@@ -46,7 +46,7 @@ starting with the latest version.
 6. STEPS TO COMPILE AN OFFICIAL RELEASE (no point in applying 
 this for the open source project every time you test):
 - copy strings.xml from values-en to values
-- increase version code and version name
+- increase version code and version name in the manifest
 - increase database version (necessary to circumvent alarm
 removal by Android on app update) // done in the ADB class
 - export signed package

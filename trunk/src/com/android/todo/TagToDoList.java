@@ -121,7 +121,6 @@ public class TagToDoList extends Activity {
   private static OnClickListener sDescriptionClickListener;
   private static ToDoDB sDbHelper;
   private static SharedPreferences sSettings;
-  private static GoogleAnalyticsTracker sTracker = null;
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
   private ArrayAdapter<CharSequence> mTagsArrayAdapter;
@@ -280,11 +279,11 @@ public class TagToDoList extends Activity {
     mAddEntryButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         createEntry();
-        if (sTracker != null) {
+        if (Analytics.sTracker != null) {
           // we log the action, pressed button, action trigger and the
           // existing
           // number of tasks #EventLogSyntax
-          sTracker.trackEvent(Analytics.PRESS, Analytics.ADD_TASK_BUTTON,
+          Analytics.sTracker.trackEvent(Analytics.PRESS, "ADD_TASK_BUTTON",
               Analytics.INTERFACE, mEntryLayout.getChildCount());
         }
       }
@@ -392,7 +391,7 @@ public class TagToDoList extends Activity {
     final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
         LayoutParams.WRAP_CONTENT);
     lp.weight = 1;
-    
+
     int numberOfUnchecked = 0;
     final int maxPriority = mMaxPriority;
     final boolean hideChecked = HIDE_CHECKED;
@@ -434,6 +433,8 @@ public class TagToDoList extends Activity {
         if (depth > 0) {
           lp.leftMargin = depth * 30;
           cb.setLayoutParams(lp);
+        } else {
+          lp.leftMargin = 0;
         }
 
         if (SHOW_NOTES) {
@@ -442,12 +443,10 @@ public class TagToDoList extends Activity {
           taskNoteLayout.setOrientation(0);
 
           try {
-            auxInt = sDbHelper.getFlag(taskName,
-                ToDoDB.KEY_NOTE_IS_WRITTEN);
+            auxInt = sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           } catch (Exception e) {
             sDbHelper.repair();
-            auxInt = sDbHelper.getFlag(taskName,
-                ToDoDB.KEY_NOTE_IS_WRITTEN);
+            auxInt = sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           }
           if (auxInt > 0) {
             final ImageButton ib = new ImageButton(this);
@@ -519,7 +518,7 @@ public class TagToDoList extends Activity {
           Chronos.refresh();
           final LinearLayout descLayout = (LinearLayout) ll
               .findViewById(R.id.descriptionLayout);
-          descLayout.setPadding(26, -10, 0, -5);
+          descLayout.setPadding(26 + lp.leftMargin, -10, 0, -5);
           final Button b = new Button(this);
           b.setBackgroundColor(Color.TRANSPARENT);
           b.setTextColor(Color.GRAY);
@@ -761,14 +760,14 @@ public class TagToDoList extends Activity {
       sTts = null;
     }
 
-    if (sTracker != null) {
+    if (Analytics.sTracker != null) {
       final int month = Calendar.getInstance().get(Calendar.MONTH);
       if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
-        sTracker.dispatch();
+        Analytics.sTracker.dispatch();
         sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
             .commit();
       }
-      sTracker.stop();
+      Analytics.sTracker.stop();
     }
     // should we really close this, ToDoDB being a singleton? Figure this
     // out! ???
@@ -859,13 +858,13 @@ public class TagToDoList extends Activity {
     }
 
     // instantiate usage stats tracker (if it's the case)
-    if (sTracker == null
+    if (Analytics.sTracker == null
         && sSettings.getBoolean(ConfigScreen.USAGE_STATS, false)) {
-      sTracker = GoogleAnalyticsTracker.getInstance();
-      sTracker.start(Analytics.UA_CODE, this);
-      sTracker.trackPageView(Analytics.VIEW_MAIN);
+      Analytics.sTracker = GoogleAnalyticsTracker.getInstance();
+      Analytics.sTracker.start(Analytics.UA_CODE, this);
+      Analytics.sTracker.trackPageView(Analytics.VIEW_MAIN);
     } else {
-      sTracker = null;
+      Analytics.sTracker = null;
     }
 
   }
@@ -996,6 +995,12 @@ public class TagToDoList extends Activity {
         startActivity(i);
         break;
       case ENTRY_SMS_ID:
+        if (Analytics.sTracker != null) {
+          // we log the number of characters
+          Analytics.sTracker.trackEvent(Analytics.PRESS,
+              "TASK_MENU_SMS_BUTTON", Analytics.INTERFACE, mContextEntry
+                  .length());
+        }
         i = new Intent(Intent.ACTION_VIEW);
         i.putExtra("sms_body", getString(R.string.todo) + ": " + mContextEntry);
         i.setType("vnd.android-dir/mms-sms");
