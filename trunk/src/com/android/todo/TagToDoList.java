@@ -1075,6 +1075,7 @@ public class TagToDoList extends Activity {
         selectAnotherEntry(-1);
         return true;
       case (KeyEvent.KEYCODE_ENTER):
+      case (KeyEvent.KEYCODE_DPAD_CENTER):
         if (mActiveEntry > -1) {
           ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).performClick();

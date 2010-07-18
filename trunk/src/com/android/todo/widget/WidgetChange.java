@@ -84,11 +84,15 @@ public final class WidgetChange extends BroadcastReceiver {
     ensureRefresh(rv, c);
     switch (intent.getExtras().getInt(ToDoDB.KEY_NAME)) {
       case R.id.widgetItem:
-        c.startActivity(new Intent(c, EditScreen.class).putExtra(
-            WIDGET_INITIATED, true).setAction(
-            TagToDoList.ACTIVITY_EDIT_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
-            sTaskCursor.getString(sTaskCursor.getColumnIndex(ToDoDB.KEY_NAME)))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        if (sTaskCursor.getCount() > 0) {
+          c.startActivity(new Intent(c, EditScreen.class).putExtra(
+              WIDGET_INITIATED, true).setAction(
+              TagToDoList.ACTIVITY_EDIT_ENTRY + "").putExtra(
+              ToDoDB.KEY_NAME,
+              sTaskCursor
+                  .getString(sTaskCursor.getColumnIndex(ToDoDB.KEY_NAME)))
+              .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
         break;
       case R.id.nextTaskButton:
         if (sTaskCursor.getCount() > 0) {
