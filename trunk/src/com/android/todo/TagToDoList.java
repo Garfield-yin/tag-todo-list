@@ -99,6 +99,7 @@ public class TagToDoList extends Activity {
   private static final String ALPHABET_SORT = "alphabeticalSorting";
   private static final String DUEDATE_SORT = "dueDateSorting";
   private static final String HIDE_CHECKED_SORT = "hideChecked";
+  public static final String LAST_TAB = "lastSelectedTab";
 
   // Flags (ideally, should be eliminated sometime in the future)
   public static boolean SYNC_GCAL;
@@ -840,7 +841,7 @@ public class TagToDoList extends Activity {
     }
 
     // Restore the last selected tag
-    int lastSelectedTag = sSettings.getInt("lastSelectedTag", 0);
+    int lastSelectedTag = sSettings.getInt(LAST_TAB, 0);
     if (lastSelectedTag >= mTagSpinner.getCount()) {
       lastSelectedTag = 0;
     }
@@ -876,7 +877,7 @@ public class TagToDoList extends Activity {
     // Saving the selected tag
     SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, 0)
         .edit();
-    editor.putInt("lastSelectedTag", mTagSpinner.getSelectedItemPosition());
+    editor.putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition());
     editor.commit();
   }
 

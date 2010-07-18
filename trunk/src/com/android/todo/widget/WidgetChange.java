@@ -60,7 +60,8 @@ public final class WidgetChange extends BroadcastReceiver {
     }
 
     // initializing UI
-    sTagCursor.moveToPosition(sTag);
+    sSettings = c.getSharedPreferences(TagToDoList.PREFS_NAME, 0);
+    sTagCursor.moveToPosition(sTag = sSettings.getInt(TagToDoList.LAST_TAB, 0));
     final String tag = sTagCursor.getString(sTagCursor
         .getColumnIndex(ToDoDB.KEY_NAME));
     rv.setTextViewText(R.id.tagItem, tag);
@@ -72,7 +73,6 @@ public final class WidgetChange extends BroadcastReceiver {
     } else {
       rv.setTextViewText(R.id.widgetItem, c.getString(R.string.no_tasks));
     }
-    sSettings = c.getSharedPreferences(TagToDoList.PREFS_NAME, 0);
     if (sSettings.getBoolean(CICLE_ON, false)) {
       WidgetChange.cicle(c);
     }
@@ -105,6 +105,7 @@ public final class WidgetChange extends BroadcastReceiver {
       case R.id.nextTagButton:
         sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
             .getCount(), 1));
+        sSettings.edit().putInt(TagToDoList.LAST_TAB, sTag).commit();
         final String tag = sTagCursor.getString(sTagCursor
             .getColumnIndex(ToDoDB.KEY_NAME));
         rv.setTextViewText(R.id.tagItem, tag);
