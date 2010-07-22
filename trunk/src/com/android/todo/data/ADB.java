@@ -34,7 +34,7 @@ public abstract class ADB {
   /**
    * Name of the table containing tasks
    */
-  public static final String DB_ENTRY_TABLE = "entries";
+  public static final String DB_TASK_TABLE = "entries";
 
   /**
    * Name key for tags and tasks
@@ -82,7 +82,7 @@ public abstract class ADB {
    * @return encoded date
    */
   public int getDueDate(String task) {
-    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE }, KEY_NAME
         + " = '" + task + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -102,7 +102,7 @@ public abstract class ADB {
    *         the week set
    */
   public int getDueDayOfWeek(String task) {
-    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_DAY_OF_WEEK }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     // for now, assuming we have a task named like this :)
@@ -120,7 +120,7 @@ public abstract class ADB {
    * @return encoded date
    */
   public int getDueTime(String task) {
-    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_HOUR, KEY_DUE_MINUTE }, KEY_NAME + " = '" + task
         + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -137,7 +137,7 @@ public abstract class ADB {
    * @return a Cursor over the tasks which are not checked
    */
   public Cursor getUncheckedEntries() {
-    return mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+    return mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS }, KEY_STATUS + " = 0", null, null, null, null);
   }
 
@@ -148,7 +148,7 @@ public abstract class ADB {
    * @return true, if a due date has been set
    */
   public boolean isDueDateSet(String task) {
-    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     if (entry.getCount() == 0) {
@@ -169,7 +169,7 @@ public abstract class ADB {
    * @return true, if a due time has been set
    */
   public boolean isDueTimeSet(String task) {
-    final Cursor entry = mDb.query(DB_ENTRY_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     if (entry.getCount() == 0) {

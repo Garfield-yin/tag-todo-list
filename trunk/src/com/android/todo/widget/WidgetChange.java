@@ -65,7 +65,7 @@ public final class WidgetChange extends BroadcastReceiver {
     final String tag = sTagCursor.getString(sTagCursor
         .getColumnIndex(ToDoDB.KEY_NAME));
     rv.setTextViewText(R.id.tagItem, tag);
-    sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+    sTaskCursor = sDbHelper.getUncheckedTasks(tag);
     if (sTaskCursor.getCount() > 0) {
       sTaskCursor.moveToPosition(sTask);
       rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
@@ -109,7 +109,7 @@ public final class WidgetChange extends BroadcastReceiver {
         final String tag = sTagCursor.getString(sTagCursor
             .getColumnIndex(ToDoDB.KEY_NAME));
         rv.setTextViewText(R.id.tagItem, tag);
-        sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+        sTaskCursor = sDbHelper.getUncheckedTasks(tag);
         if (sTaskCursor.getCount() > 0) {
           sTaskCursor.moveToFirst();
           rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
@@ -132,7 +132,7 @@ public final class WidgetChange extends BroadcastReceiver {
         break;
       case R.id.checkButton:
         if (sTaskCursor.getCount() > 0) {
-          sDbHelper.updateEntry(sTaskCursor.getString(sTaskCursor
+          sDbHelper.updateTask(sTaskCursor.getString(sTaskCursor
               .getColumnIndex(ToDoDB.KEY_NAME)), true);
           WidgetChange.refresh(rv, c);
         }
@@ -188,7 +188,7 @@ public final class WidgetChange extends BroadcastReceiver {
           final String tag = sTagCursor.getString(sTagCursor
               .getColumnIndex(ToDoDB.KEY_NAME));
           rv.setTextViewText(R.id.tagItem, tag);
-          sTaskCursor = sDbHelper.getUncheckedEntries(tag);
+          sTaskCursor = sDbHelper.getUncheckedTasks(tag);
           if (sTaskCursor.getCount() > 0) {
             sTaskCursor.moveToFirst();
             rv.setTextViewText(R.id.widgetItem, sTaskCursor

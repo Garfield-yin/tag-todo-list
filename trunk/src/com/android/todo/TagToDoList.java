@@ -84,7 +84,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_REMOVE_ID = 2;
   public static final int ENTRY_GRAPHICAL_ID = 3;
   public static final int ENTRY_AUDIO_ID = 4;
-  public static final int ENTRY_DOWN_ID = 5;
+  //public static final int ENTRY_DOWN_ID = 5;
   // public static final int ENTRY_CLOSE_ID = 6;
   public static final int ENTRY_MOVE_ID = 7;
   public static final int ENTRY_WRITTEN_ID = 8;
@@ -342,7 +342,7 @@ public class TagToDoList extends Activity {
     }
         : new OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
-            sDbHelper.updateEntry(cb.getText().toString(), isChecked);
+            sDbHelper.updateTask(cb.getText().toString(), isChecked);
             selectTag(mTagSpinner.getSelectedItemPosition());
           }
         };
@@ -607,7 +607,7 @@ public class TagToDoList extends Activity {
           args.put(ToDoDB.KEY_SUPERTASK, "");
           c.moveToFirst();
           do {
-            sDbHelper.mDb.update(ToDoDB.DB_ENTRY_TABLE, args, ToDoDB.KEY_NAME
+            sDbHelper.mDb.update(ToDoDB.DB_TASK_TABLE, args, ToDoDB.KEY_NAME
                 + " = '" + c.getString(name) + "'", null);
           } while (c.moveToNext());
         }
@@ -946,7 +946,7 @@ public class TagToDoList extends Activity {
         startActivity(i);
         break;
       case ENTRY_REMOVE_ID:
-        sDbHelper.deleteEntry(mContextEntry);
+        sDbHelper.deleteTask(mContextEntry);
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case ENTRY_GRAPHICAL_ID:
@@ -960,10 +960,6 @@ public class TagToDoList extends Activity {
         i.putExtra(ToDoDB.KEY_STATUS, true);
         startActivity(i);
         break;
-      case ENTRY_DOWN_ID:
-        sDbHelper.pushEntryDown(mContextEntry);
-        selectTag(mTagSpinner.getSelectedItemPosition());
-        break;
       case ENTRY_MOVE_ID:
         final AdapterView.OnItemSelectedListener l = mTagSpinner
             .getOnItemSelectedListener();
@@ -972,7 +968,7 @@ public class TagToDoList extends Activity {
             .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
               public void onItemSelected(AdapterView<?> av, View v, int index,
                   long arg3) {
-                sDbHelper.updateEntryParent(mContextEntry, mTagsArrayAdapter
+                sDbHelper.updateTaskParent(mContextEntry, mTagsArrayAdapter
                     .getItem(index).toString(), 0);
                 av.setOnItemSelectedListener(l);
                 av.setSelection(p);
@@ -1135,13 +1131,6 @@ public class TagToDoList extends Activity {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_AUDIO_ID);
-        }
-        return false;
-      case (KeyEvent.KEYCODE_0):
-        if (mActiveEntry > -1) {
-          mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
-              .findViewById(R.id.taskCheckBox))).getText().toString();
-          changeTask(ENTRY_DOWN_ID);
         }
         return false;
       case (KeyEvent.KEYCODE_PERIOD):

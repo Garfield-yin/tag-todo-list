@@ -211,7 +211,7 @@ public final class EditScreen extends Activity {
                 mDateTb.setTag(Boolean.valueOf(true));
                 if (!(creating)) {
                   mDbHelper.setDueDate(EditScreen.sParameter, true);
-                  mDbHelper.updateEntry(EditScreen.sParameter, year,
+                  mDbHelper.updateTask(EditScreen.sParameter, year,
                       monthOfYear, dayOfMonth);
                   if (mTimeTb.isChecked()) {
                     mDbHelper.deleteAlarm(EditScreen.sParameter);
@@ -350,7 +350,7 @@ public final class EditScreen extends Activity {
         } else if (action.equals(TagToDoList.ACTIVITY_EDIT_TAG + "")) {
           mDbHelper.updateTag(EditScreen.sParameter, name);
         } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
-          String result = mDbHelper.createEntry(EditScreen.sParameter, name);
+          String result = mDbHelper.createTask(EditScreen.sParameter, name);
           if (sSuperTask != null && sSuperTask.length() > 0) {
             try {
               mDbHelper.setSuperTask(name, sSuperTask);
@@ -368,13 +368,13 @@ public final class EditScreen extends Activity {
           // daily or single occurence
           final boolean dateSet = mDateTb.isChecked();
           if (dateSet) {
-            mDbHelper.updateEntry(name, sYear, sMonth, sDate);
+            mDbHelper.updateTask(name, sYear, sMonth, sDate);
             mDbHelper.setDueDate(name, true);
           }
           if (mTimeTb.isChecked()) {
             setAlarm(name, sHour, sMinute);
             if (!(dateSet)) {
-              mDbHelper.updateEntry(name, sDayOfWeek);
+              mDbHelper.updateTask(name, sDayOfWeek);
             }
           }
           mDbHelper.setPriority(name, mPrioritySb.getProgress());
@@ -387,7 +387,7 @@ public final class EditScreen extends Activity {
                 .getInstance(getApplicationContext()));
           }
         } else if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
-          mDbHelper.updateEntry(EditScreen.sParameter, name);
+          mDbHelper.updateTask(EditScreen.sParameter, name);
           mDbHelper.setPriority(EditScreen.sParameter, mPrioritySb
               .getProgress());
           if (mDateTb.isChecked()) {
@@ -441,7 +441,7 @@ public final class EditScreen extends Activity {
               if (getIntent().getAction().equals(
                   TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
                 mDbHelper.deleteAlarm(sParameter);
-                mDbHelper.updateEntry(sParameter, sDayOfWeek);
+                mDbHelper.updateTask(sParameter, sDayOfWeek);
                 setAlarm(sParameter, sHour, sMinute);
               }
               d.dismiss();
@@ -495,7 +495,7 @@ public final class EditScreen extends Activity {
    * @param minute
    */
   private void setAlarm(String name, int hour, int minute) {
-    mDbHelper.updateEntry(name, hour, minute);
+    mDbHelper.updateTask(name, hour, minute);
     mDbHelper.setDueTime(name, true);
     PendingIntent pi = PendingIntent.getBroadcast(this, name.hashCode(), Utils
         .getAlarmIntent(new Intent(this, AlarmReceiver.class), name), 0);

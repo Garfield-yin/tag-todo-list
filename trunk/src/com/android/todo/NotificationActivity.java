@@ -99,7 +99,7 @@ public final class NotificationActivity extends Activity {
 
     CompoundButton.OnCheckedChangeListener ccl = new CompoundButton.OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mDbHelper.updateEntry(buttonView.getText().toString(), isChecked);
+        mDbHelper.updateTask(buttonView.getText().toString(), isChecked);
         populateEntries();
       }
     };
@@ -136,7 +136,6 @@ public final class NotificationActivity extends Activity {
         .add(0, TagToDoList.ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, TagToDoList.ENTRY_MOVE_ID, 0, R.string.entry_move);
-    submenu.add(0, TagToDoList.ENTRY_DOWN_ID, 0, R.string.entry_down);
     menu.setHeaderTitle(R.string.entry_menu);
   }
 
@@ -157,7 +156,7 @@ public final class NotificationActivity extends Activity {
       startActivity(i1);
       break;
     case TagToDoList.ENTRY_REMOVE_ID:
-      mDbHelper.deleteEntry(mContextEntry);
+      mDbHelper.deleteTask(mContextEntry);
       populateEntries();
       break;
     case TagToDoList.ENTRY_GRAPHICAL_ID:
