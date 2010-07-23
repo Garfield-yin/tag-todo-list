@@ -39,10 +39,12 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
+import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.speech.OneTimeTTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
 import com.android.todo.widget.WidgetChange;
+import com.android.todo.olympus.Chronos.Time;
 
 /**
  * This is another activity (basically an editing screen). It will allow the
@@ -383,13 +385,13 @@ public final class EditScreen extends Activity {
           }
           if (getIntent().getExtras().getBoolean(WidgetChange.WIDGET_INITIATED,
               false)) {
-            TagToDoWidget.onUpdate(getApplicationContext(), AppWidgetManager
-                .getInstance(getApplicationContext()));
+            TagToDoWidget.onUpdate(getApplicationContext(),
+                AppWidgetManager.getInstance(getApplicationContext()));
           }
         } else if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
           mDbHelper.updateTask(EditScreen.sParameter, name);
-          mDbHelper.setPriority(EditScreen.sParameter, mPrioritySb
-              .getProgress());
+          mDbHelper.setPriority(EditScreen.sParameter,
+              mPrioritySb.getProgress());
           if (mDateTb.isChecked()) {
             syncToWeb(name);
           }
@@ -489,24 +491,24 @@ public final class EditScreen extends Activity {
   /**
    * Sets the alarm up in Android's AlarmManager system
    * 
-   * @param name
+   * @param task
    *          of task
    * @param hour
    * @param minute
    */
-  private void setAlarm(String name, int hour, int minute) {
-    mDbHelper.updateTask(name, hour, minute);
-    mDbHelper.setDueTime(name, true);
-    PendingIntent pi = PendingIntent.getBroadcast(this, name.hashCode(), Utils
-        .getAlarmIntent(new Intent(this, AlarmReceiver.class), name), 0);
-    AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+  private final void setAlarm(final String task, final int hour,
+      final int minute) {
+    mDbHelper.updateTask(task, hour, minute);
+    mDbHelper.setDueTime(task, true);
+    final PendingIntent pi = PendingIntent.getBroadcast(this, task.hashCode(),
+        Utils.getAlarmIntent(new Intent(this, AlarmReceiver.class), task), 0);
+    final AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
     if (mDateTb.isChecked()) {// single occurence
-      alarmManager.set(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(hour * 60
-          + minute, mDbHelper.getDueDate(name), sDayOfWeek), pi);
+      Chronos.setSingularAlarm(am, pi, new Time(mDbHelper.getDueDate(task),
+          sDayOfWeek), new Date(mDbHelper.getDueDate(task)));
     } else {// daily or weekly
-      alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(
-          hour * 60 + minute, -1, sDayOfWeek), 86400000L * (sDayOfWeek > -1 ? 7
-          : 1), pi);
+      Chronos.setRepeatingAlarm(am, pi, new Time(hour, minute, sDayOfWeek),
+          null);
     }
   }
 
@@ -610,8 +612,9 @@ public final class EditScreen extends Activity {
     if (TagToDoList.SYNC_GCAL) {
       SharedPreferences settings = getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE);
-      GoogleCalendar.setLogin(settings.getString(ConfigScreen.GOOGLE_USERNAME,
-          ""), settings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+      GoogleCalendar.setLogin(
+          settings.getString(ConfigScreen.GOOGLE_USERNAME, ""),
+          settings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
       try {
         GoogleCalendar.createEvent(name, sYear, sMonth, sDate, sHour, sMinute);
       } catch (Exception e) {

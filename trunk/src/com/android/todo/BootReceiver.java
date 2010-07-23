@@ -14,6 +14,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.android.todo.data.ADB;
 import com.android.todo.olympus.Chronos;
+import com.android.todo.olympus.Chronos.Date;
+import com.android.todo.olympus.Chronos.Time;
 
 /**
  * This is an activity used to process status bar notification activations
@@ -23,7 +25,7 @@ public final class BootReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     try {
-      final Context c=context.getApplicationContext();
+      final Context c = context.getApplicationContext();
       final BootDB dbHelper = new BootDB(c);
       dbHelper.open();
       BootReceiver.setOldAlarms(c, dbHelper);
@@ -44,22 +46,19 @@ public final class BootReceiver extends BroadcastReceiver {
     do {
       String task = c.getString(name);
       if (dbHelper.isDueTimeSet(task)) {
-        PendingIntent pi = PendingIntent
-            .getBroadcast(context, task.hashCode(), Utils.getAlarmIntent(
-                new Intent(context, AlarmReceiver.class), task), 0);
-        AlarmManager alarmManager = (AlarmManager) context
+        final PendingIntent pi = PendingIntent.getBroadcast(context, task
+            .hashCode(), Utils.getAlarmIntent(new Intent(context,
+            AlarmReceiver.class), task), 0);
+        final AlarmManager am = (AlarmManager) context
             .getSystemService(Context.ALARM_SERVICE);
-        if (dbHelper.isDueDateSet(task)) {// single occurence
-          long millis = Chronos.getTimeMillis(dbHelper.getDueTime(task), dbHelper
-              .getDueDate(task), dbHelper.getDueDayOfWeek(task));
-          if (millis > 0) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, millis, pi);
-          }
+        final Time t = new Time(dbHelper.getDueTime(task),
+            dbHelper.getDueDayOfWeek(task));
+        final Date d = new Date(dbHelper.getDueDate(task));
+        if (dbHelper.isDueDateSet(task) && Chronos.getTimeMillis(t, d) > 0) {
+          // single occurence
+          Chronos.setSingularAlarm(am, pi, t, d);
         } else {// daily or weekly
-          int dayOfWeek = dbHelper.getDueDayOfWeek(task);
-          alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Chronos
-              .getTimeMillis(dbHelper.getDueTime(task), -1, dayOfWeek),
-              86400000L * (dayOfWeek > -1 ? 7 : 1), pi);
+          Chronos.setRepeatingAlarm(am, pi, t, d);
         }
       }
     } while (c.moveToNext());

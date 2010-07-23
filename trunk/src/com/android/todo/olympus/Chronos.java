@@ -3,16 +3,91 @@ package com.android.todo.olympus;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+
 import com.android.todo.R;
 
 /**
  * This helper class deals with times, dates and stuff like that.
  */
 public final class Chronos {
+
   public static final int[] DAYS = { R.string.monday, R.string.tuesday,
-    R.string.wednesday, R.string.thursday, R.string.friday,
-    R.string.saturday, R.string.sunday };
-  
+      R.string.wednesday, R.string.thursday, R.string.friday,
+      R.string.saturday, R.string.sunday };
+
+  public static class Time {
+    private int mHour;
+    private int mMinute;
+    private Integer mDayOfWeek;
+    private int mEncodedTime;
+
+    public Time(final int encodedTime, final int dayOfWeek) {
+      mHour = encodedTime / 60;
+      mMinute = encodedTime % 60;
+      mDayOfWeek = dayOfWeek;
+      mEncodedTime = encodedTime;
+    }
+
+    public Time(final int hour, final int minute, final int dayOfWeek) {
+      mHour = hour;
+      mMinute = minute;
+      mDayOfWeek = dayOfWeek;
+      mEncodedTime = 60 * hour + minute;
+    }
+
+    public final int getHour() {
+      return mHour;
+    }
+
+    public final int getMinute() {
+      return mMinute;
+    }
+
+    public final int getDayOfWeek() {
+      return mDayOfWeek;
+    }
+
+    public final int getEncodedTime() {
+      return mEncodedTime;
+    }
+
+    public final boolean isWeekly() {
+      return mDayOfWeek != null && mDayOfWeek > -1;
+    }
+  }
+
+  public static class Date {
+    private int mDayOfMonth;
+    private int mMonth;
+    private int mYear;
+    private int mEncodedDate;
+
+    public Date(final int encodedDate) {
+      mDayOfMonth = encodedDate % 31;
+      mMonth = encodedDate / 31 % 12;
+      mYear = encodedDate / 372;
+      mEncodedDate = encodedDate;
+    }
+
+    public final int getDay() {
+      return mDayOfMonth;
+    }
+
+    public final int getMonth() {
+      return mMonth;
+    }
+
+    public final int getYear() {
+      return mYear;
+    }
+
+    public final int getEncodedDate() {
+      return mEncodedDate;
+    }
+  }
+
   private static GregorianCalendar mCal;
 
   /**
@@ -80,7 +155,7 @@ public final class Chronos {
   }
 
   /**
-   * Returns the time millis based on the define date and time
+   * Returns the time millis based on the defined date and time
    * 
    * @param encodedTime
    * @param encodedDate
@@ -88,37 +163,37 @@ public final class Chronos {
    *          (today or tomorrow), relative to current time
    * @return the millis, or -1 if the alarm trigger time is in the past
    */
-  public final static long getTimeMillis(int encodedTime, int encodedDate,
-      int dayOfWeek) {
+  public final static long getTimeMillis(final Time t, final Date d) {
+    final int encodedTime = t.getEncodedTime();
     Calendar c = Calendar.getInstance();
     final int encodedTimeDif = encodedTime - c.get(Calendar.HOUR_OF_DAY) * 60
         - c.get(Calendar.MINUTE);
-    if (encodedDate > 0) {
+    if (d != null) {
+      final int encodedDate = d.getEncodedDate();
       final int encodedDateDif = encodedDate - 372 * c.get(Calendar.YEAR) - 31
           * c.get(Calendar.MONTH) - c.get(Calendar.DAY_OF_MONTH);
       if (encodedDateDif < 0 || (encodedDateDif == 0 && encodedTimeDif < -1)) {
         return -1;
       }
-      c.set(encodedDate / 372, encodedDate / 31 % 12, encodedDate % 31,
-          encodedTime / 60, encodedTime % 60);
+      c.set(d.getYear(), d.getMonth(), d.getDay(), t.getHour(), t.getMinute());
       return c.getTimeInMillis();
     } else {
-      if (dayOfWeek == -1) {
+      if (t.getDayOfWeek() == -1) {
         if (encodedTimeDif > 0) {// today
           return System.currentTimeMillis() + encodedTimeDif * 60000;
         } else {// tomorrow
           return System.currentTimeMillis() + 86400000 + encodedTimeDif * 60000;
         }
       } else {
-        int d = c.get(Calendar.DAY_OF_WEEK) - 2;
-        if (d < 0) {
-          d += 7;
+        int da = c.get(Calendar.DAY_OF_WEEK) - 2;
+        if (da < 0) {
+          da += 7;
         }
-        while (d != dayOfWeek) {
+        while (da != t.getDayOfWeek()) {
           c.setTimeInMillis(c.getTimeInMillis() + 86400000);
-          d = c.get(Calendar.DAY_OF_WEEK) - 2;
-          if (d < 0) {
-            d += 7;
+          da = c.get(Calendar.DAY_OF_WEEK) - 2;
+          if (da < 0) {
+            da += 7;
           }
         }
         if (encodedTimeDif > 0) {// in the past
@@ -128,6 +203,17 @@ public final class Chronos {
         }
       }
     }
+  }
+
+  public final static void setSingularAlarm(final AlarmManager am,
+      final PendingIntent pi, final Time t, final Date d) {
+    am.set(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(t, d), pi);
+  }
+
+  public final static void setRepeatingAlarm(final AlarmManager am,
+      final PendingIntent pi, final Time t, final Date d) {
+    am.setRepeating(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(t, d),
+        86400000L * (t.isWeekly() ? 7 : 1), pi);
   }
 
 }
