@@ -36,7 +36,7 @@ public final class BootReceiver extends BroadcastReceiver {
 
   public final static synchronized void setOldAlarms(final Context context,
       final ADB dbHelper) {
-    Cursor c = dbHelper.getUncheckedEntries();
+    final Cursor c = dbHelper.getUncheckedEntries();
     if (c.getCount() <= 0) {
       c.close();
       return;
@@ -44,7 +44,7 @@ public final class BootReceiver extends BroadcastReceiver {
     final int name = c.getColumnIndex(BootDB.KEY_NAME);
     c.moveToFirst();
     do {
-      String task = c.getString(name);
+      final String task = c.getString(name);
       if (dbHelper.isDueTimeSet(task)) {
         final PendingIntent pi = PendingIntent.getBroadcast(context, task
             .hashCode(), Utils.getAlarmIntent(new Intent(context,

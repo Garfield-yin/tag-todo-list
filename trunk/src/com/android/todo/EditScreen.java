@@ -504,7 +504,7 @@ public final class EditScreen extends Activity {
         Utils.getAlarmIntent(new Intent(this, AlarmReceiver.class), task), 0);
     final AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
     if (mDateTb.isChecked()) {// single occurence
-      Chronos.setSingularAlarm(am, pi, new Time(mDbHelper.getDueDate(task),
+      Chronos.setSingularAlarm(am, pi, new Time(mDbHelper.getDueTime(task),
           sDayOfWeek), new Date(mDbHelper.getDueDate(task)));
     } else {// daily or weekly
       Chronos.setRepeatingAlarm(am, pi, new Time(hour, minute, sDayOfWeek),
