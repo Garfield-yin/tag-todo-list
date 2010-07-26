@@ -19,9 +19,6 @@
 		<activity android:name=".ConfigScreen"></activity>
 		<uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
 
-		<provider android:icon="@drawable/icon" android:name=".sync.Provider"
-			android:label="Tag-ToDo-List" android:authorities="com.android.todo.sync.provider"></provider>
-
 		<receiver android:label="@string/full_name" android:name=".widget.TagToDoWidget">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
