@@ -1,7 +1,0 @@
-#summary Some tips to understand the code
-#labels Phase-Design
-
-=How to understand the code easily=
-Basically, the easiest way to see what a class does is to see what Android class it inherits. You should know that the main class of the app is {{{TagToDoList}}}; it also corresponds to the main screen of the app. From there on you should navigate from reference to reference or call to call to get to the feature you want to improve or add.
-
-It's unlikely you'll need to go through all the classes, just start with {{{TagToDoList}}} and check out the {{{onCreate}}}, {{{onResume}}} methods. Read the comments and annotations too, they help :)
