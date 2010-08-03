@@ -77,7 +77,7 @@
 <string name="help_text">Tasks are organised into tags, which can be selected in the upper spinner.\n\nTo handle tags (creation, deletion, renaming) you can use the general menu.\n\nTo create tasks you just need to click the \'Add\' button at the bottom. For a task-specific menu, long-click a certain task.\n\nYou can also use keyboard shortcuts. Press K now if you want to check them out.</string>
 <string name="help_site">Visit web page</string>
 <string name="keyboard_title">Keyboard shortcuts</string>
-<string name="keyboard_help_text">---Task handling:\nNext=N, Previous=P\nAdd=A, Delete=D\nEdit or Rename = E or R,\nAudio note=F\nGraphical note=G\nWritten note=W\nMove to another tag=M\nPush down=0\nMenu for selected task=SPACE\nShow all the tasks=SHIFT+T\n\n---Tag handling:\nSame as before (N,P,A,D,R) + ALT\nShow all the tags=T\nClear all the tasks=X\n1,2,...,9 to open a specific tag\n\n---General:\nHelp=H, Stats=S\nConfiguration=C\n'Visually Challenged' mode=V\nImport backup from SDcard=B\nChange to-do list size limit=O,I\nSee due tasks only=U\n\'Ok\' or \'Use\' or \'Yes\'=ENTER\n\'Cancel\' or \'No\'=DEL\n</string>
+<string name="keyboard_help_text">---Task handling:\nNext=N, Previous=P\nAdd=A, Delete=D\nEdit or Rename = E or R,\nAudio note=F\nGraphical note=G\nWritten note=W\nMove to another tag=M\nPush down=0\nMenu for selected task=SPACE\nShow all the tasks=SHIFT+T\n\n---Tag handling:\nSame as before (N,P,A,D,R) + ALT\nShow all the tags=T\nClear all the tasks=X\n1,2,...,9 to open a specific tag\n\n---General:\nHelp=H, Stats=S\nConfiguration=C\n\'Visually Challenged\' mode=V\nImport backup from SDcard=B\nChange to-do list size limit=O,I\nSee due tasks only=U\n\'Ok\' or \'Use\' or \'Yes\'=ENTER\n\'Cancel\' or \'No\'=DEL\n</string>
 <string name="url_help">http://www.teodorfilimon.com/android/Tag-ToDo-List/index.html</string>
 
 <!-- Graphical notes screen -->
@@ -100,7 +100,7 @@
 <string name="notification_view">Press here to see the due tasks</string>
 <string name="months">January February March April May June July August September October November December</string>
 <string name="notification_view_info_short">More about this screen</string>
-<string name="notification_view_info_long">This screen shows you tasks that are due today or earlier.\n\nYou can go back to the normal todo list view by pressing 'Go back'.\n\nAlso, you can access this screen from the normal view by pressing the U key.\n</string>
+<string name="notification_view_info_long">This screen shows you tasks that are due today or earlier.\n\nYou can go back to the normal todo list view by pressing \'Go back\'.\n\nAlso, you can access this screen from the normal view by pressing the U key.\n</string>
 <string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 100 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 100 checked tasks). You can change it by closing this note and pressing O or I.\n\nThis message appeared because the next checked task will reach the limit :)</string>
 <string name="alarm">Tag-ToDo-List alarm</string>
 <string name="daily">Daily</string>
@@ -116,7 +116,7 @@
 <string name="password">Password</string>
 <string name="login_confirm">Confirm (the app will perform an online login and sync all the tasks with due dates)</string>
 <string name="login_sync_succes">Login and data synchronization successful. Every time a task with a due date will be added, the app will connect to the internet and add it to the Google Calendar.\n</string>
-<string name="login_succes_sync_fail">Although the login was successful, the app wasn't able to synchronize the tasks.\n</string>
+<string name="login_succes_sync_fail">Although the login was successful, the app wasn\'t able to synchronize the tasks.\n</string>
 <string name="login_fail">For some reason the login failed. Check the username/password and the availability of an internet connection.\n</string>
 <string name="checked_tasks_limit_description">This limit prevents the app from keeping more than so many checked tasks. When the limit is reached, the app automatically deletes the oldest checked tasks.</string>
 <string name="max_priority_description">Some people prefer to fine tune task priority, some prefer a simpler system with fewer levels (e.g. 5).</string>
@@ -178,5 +178,9 @@
 <string name="day">day</string>
 <string name="SMS">SMS</string>
 <string name="todo">TO-DO</string>
+
+<!-- From this point on, appending strings chronologically -->
+<string name="search_label">Search Tag-ToDo-List</string>
+<string name="settings_description">Tasks</string>
 
 </resources>

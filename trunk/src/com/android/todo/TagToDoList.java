@@ -84,7 +84,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_REMOVE_ID = 2;
   public static final int ENTRY_GRAPHICAL_ID = 3;
   public static final int ENTRY_AUDIO_ID = 4;
-  //public static final int ENTRY_DOWN_ID = 5;
+  // public static final int ENTRY_DOWN_ID = 5;
   // public static final int ENTRY_CLOSE_ID = 6;
   public static final int ENTRY_MOVE_ID = 7;
   public static final int ENTRY_WRITTEN_ID = 8;
@@ -306,8 +306,8 @@ public class TagToDoList extends Activity {
     sGestureListener = new OnTouchListener() {
       public boolean onTouch(View v, MotionEvent event) {
         if (sGestureDetector.onTouchEvent(event)) {
-          mTagSpinner.setSelection(Utils.iterate(mTagSpinner
-              .getSelectedItemPosition(), mTagSpinner.getCount(),
+          mTagSpinner.setSelection(Utils.iterate(
+              mTagSpinner.getSelectedItemPosition(), mTagSpinner.getCount(),
               MyGestureDetector.getDirection()));
           return true;
         }
@@ -335,23 +335,21 @@ public class TagToDoList extends Activity {
           ((LinearLayout) findViewById(R.id.lowerLayout))
               .setVisibility(View.VISIBLE);
         } catch (Exception e) {
-          Utils.showDialog(R.string.notification, R.string.move_fail, cb
-              .getContext());
+          Utils.showDialog(R.string.notification, R.string.move_fail,
+              cb.getContext());
         }
       }
-    }
-        : new OnCheckedChangeListener() {
-          public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
-            sDbHelper.updateTask(cb.getText().toString(), isChecked);
-            selectTag(mTagSpinner.getSelectedItemPosition());
-          }
-        };
+    } : new OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
+        sDbHelper.updateTask(cb.getText().toString(), isChecked);
+        selectTag(mTagSpinner.getSelectedItemPosition());
+      }
+    };
 
     final ToDoDB dbHelper = sDbHelper;
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(processDepth(dbHelper, inflater, el, ccl, selectedTag,
-        0, null)
-        + "");
+        0, null) + "");
   }
 
   /**
@@ -503,8 +501,8 @@ public class TagToDoList extends Activity {
                 : android.R.drawable.ic_menu_close_clear_cancel);
             ib.setOnClickListener(new OnClickListener() {
               public void onClick(View v) {
-                sDbHelper.setFlag(taskName, ToDoDB.KEY_COLLAPSED, (Boolean) ib
-                    .getTag() ? 0 : 1);
+                sDbHelper.setFlag(taskName, ToDoDB.KEY_COLLAPSED,
+                    (Boolean) ib.getTag() ? 0 : 1);
                 selectTag(mTagSpinner.getSelectedItemPosition());
               }
             });
@@ -598,8 +596,9 @@ public class TagToDoList extends Activity {
         removeAllTasks();
         return true;
       case TAG_UNINDENT_ID:
-        final Cursor c = sDbHelper.getTasks(mTagsArrayAdapter.getItem(
-            mTagSpinner.getSelectedItemPosition()).toString(), -1, null);
+        final Cursor c = sDbHelper.getTasks(
+            mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+                .toString(), -1, null);
         final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
         if (c.getCount() > 0) {
           final ContentValues args = new ContentValues();
@@ -642,8 +641,9 @@ public class TagToDoList extends Activity {
       return;
     }
     Intent i = new Intent(this, ConfirmationScreen.class);
-    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
-        mTagSpinner.getSelectedItemPosition()).toString());
+    i.putExtra(ToDoDB.KEY_NAME,
+        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            .toString());
     i.setAction(ACTIVITY_DELETE_TAG + "");
     startActivity(i);
   }
@@ -653,8 +653,9 @@ public class TagToDoList extends Activity {
    */
   private final void removeAllTasks() {
     Intent i = new Intent(this, ConfirmationScreen.class);
-    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
-        mTagSpinner.getSelectedItemPosition()).toString());
+    i.putExtra(ToDoDB.KEY_NAME,
+        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            .toString());
     i.setAction(ACTIVITY_CLEAR_ENTRIES + "");
     startActivity(i);
   }
@@ -664,8 +665,9 @@ public class TagToDoList extends Activity {
    */
   private void editTag() {
     Intent i = new Intent(this, EditScreen.class);
-    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
-        mTagSpinner.getSelectedItemPosition()).toString());
+    i.putExtra(ToDoDB.KEY_NAME,
+        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            .toString());
     i.setAction(ACTIVITY_EDIT_TAG + "");
     startActivity(i);
   }
@@ -685,8 +687,9 @@ public class TagToDoList extends Activity {
    */
   private void createEntry() {
     Intent i = new Intent(this, EditScreen.class);
-    i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
-        mTagSpinner.getSelectedItemPosition()).toString());
+    i.putExtra(ToDoDB.KEY_NAME,
+        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            .toString());
     i.putExtra(ToDoDB.KEY_SUPERTASK, "");
     i.setAction(ACTIVITY_CREATE_ENTRY + "");
     startActivity(i);
@@ -774,8 +777,8 @@ public class TagToDoList extends Activity {
     // out! ???
     // sDbHelper.close();
 
-    TagToDoWidget.onUpdate(getApplicationContext(), AppWidgetManager
-        .getInstance(getApplicationContext()));
+    TagToDoWidget.onUpdate(getApplicationContext(),
+        AppWidgetManager.getInstance(getApplicationContext()));
     super.onDestroy();
   }
 
@@ -829,8 +832,9 @@ public class TagToDoList extends Activity {
 
     // Is a Google Calendar sync enabled?
     if (SYNC_GCAL = sSettings.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
-      GoogleCalendar.setLogin(sSettings.getString(ConfigScreen.GOOGLE_USERNAME,
-          ""), sSettings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+      GoogleCalendar.setLogin(
+          sSettings.getString(ConfigScreen.GOOGLE_USERNAME, ""),
+          sSettings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
     }
 
     // do we visually distinguish tasks by priority?
@@ -892,7 +896,7 @@ public class TagToDoList extends Activity {
     // menu.add(0, ENTRY_CLOSE_ID, 0, R.string.entry_exit);
     final Action a = new Action();
     final String possibleAction = a.setAndExtractAction(mContextEntry);
-    if (!("".equals(possibleAction))) {
+    if (possibleAction != null) {
       mContextAction = a;
       menu.add(0, ENTRY_INSTANTACTION_ID, 0, possibleAction);
     }
@@ -933,8 +937,9 @@ public class TagToDoList extends Activity {
     switch (selectedItem) {
       case ENTRY_SUBTASK_ID:
         i = new Intent(this, EditScreen.class);
-        i.putExtra(ToDoDB.KEY_NAME, mTagsArrayAdapter.getItem(
-            mTagSpinner.getSelectedItemPosition()).toString());
+        i.putExtra(ToDoDB.KEY_NAME,
+            mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+                .toString());
         i.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
         i.setAction(ACTIVITY_CREATE_ENTRY + "");
         startActivity(i);
@@ -995,8 +1000,8 @@ public class TagToDoList extends Activity {
         if (Analytics.sTracker != null) {
           // we log the number of characters
           Analytics.sTracker.trackEvent(Analytics.PRESS,
-              "TASK_MENU_SMS_BUTTON", Analytics.INTERFACE, mContextEntry
-                  .length());
+              "TASK_MENU_SMS_BUTTON", Analytics.INTERFACE,
+              mContextEntry.length());
         }
         i = new Intent(Intent.ACTION_VIEW);
         i.putExtra("sms_body", getString(R.string.todo) + ": " + mContextEntry);
@@ -1041,14 +1046,16 @@ public class TagToDoList extends Activity {
         }
         return false;
       case KeyEvent.KEYCODE_DPAD_LEFT:
-        mTagSpinner.setSelection(Utils.iterate(mTagSpinner
-            .getSelectedItemPosition(), mTagSpinner.getCount(), 1));
+        mTagSpinner.setSelection(Utils.iterate(
+            mTagSpinner.getSelectedItemPosition(), mTagSpinner.getCount(), 1));
         // ???replace this with a method, it's called too many times
         return false;
       case (KeyEvent.KEYCODE_N):
         if (msg.isAltPressed()) {
-          mTagSpinner.setSelection(Utils.iterate(mTagSpinner
-              .getSelectedItemPosition(), mTagSpinner.getCount(), 1));
+          mTagSpinner
+              .setSelection(Utils.iterate(
+                  mTagSpinner.getSelectedItemPosition(),
+                  mTagSpinner.getCount(), 1));
         } else {
           selectAnotherEntry(1);
         }
@@ -1057,13 +1064,15 @@ public class TagToDoList extends Activity {
         selectAnotherEntry(1);
         return true;
       case KeyEvent.KEYCODE_DPAD_RIGHT:
-        mTagSpinner.setSelection(Utils.iterate(mTagSpinner
-            .getSelectedItemPosition(), mTagSpinner.getCount(), -1));
+        mTagSpinner.setSelection(Utils.iterate(
+            mTagSpinner.getSelectedItemPosition(), mTagSpinner.getCount(), -1));
         return false;
       case (KeyEvent.KEYCODE_P):
         if (msg.isAltPressed()) {
-          mTagSpinner.setSelection(Utils.iterate(mTagSpinner
-              .getSelectedItemPosition(), mTagSpinner.getCount(), -1));
+          mTagSpinner
+              .setSelection(Utils.iterate(
+                  mTagSpinner.getSelectedItemPosition(),
+                  mTagSpinner.getCount(), -1));
         } else {
           selectAnotherEntry(-1);
         }
@@ -1102,8 +1111,8 @@ public class TagToDoList extends Activity {
             mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
                 .findViewById(R.id.taskCheckBox))).getText().toString();
             changeTask(ENTRY_REMOVE_ID);
-            mActiveEntry = Utils.iterate(mActiveEntry, mEntryLayout
-                .getChildCount(), -1);
+            mActiveEntry = Utils.iterate(mActiveEntry,
+                mEntryLayout.getChildCount(), -1);
           }
         }
         return false;
@@ -1160,8 +1169,8 @@ public class TagToDoList extends Activity {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
           changeTask(ENTRY_MOVE_ID);
-          mActiveEntry = Utils.iterate(mActiveEntry, mEntryLayout
-              .getChildCount(), -1);
+          mActiveEntry = Utils.iterate(mActiveEntry,
+              mEntryLayout.getChildCount(), -1);
         }
         return false;
       case (KeyEvent.KEYCODE_C):
@@ -1228,8 +1237,8 @@ public class TagToDoList extends Activity {
    *          only when the return value is of interest)
    * @return false, if there are no due tasks
    */
-  private boolean showDueTasks(boolean showDialog) {
-    Cursor dueEntries = sDbHelper.getDueEntries();
+  private final boolean showDueTasks(boolean showDialog) {
+    final Cursor dueEntries = sDbHelper.getDueEntries();
     if (dueEntries.getCount() > 0) {
       if (showDialog) {
         dueEntries.moveToFirst();
@@ -1237,19 +1246,21 @@ public class TagToDoList extends Activity {
         try {
           name = dueEntries.getColumnIndexOrThrow(ToDoDB.KEY_NAME);
         } catch (Exception e) {
+          dueEntries.close();
           return false;
         }
-        StringBuilder sb = new StringBuilder(this
-            .getString(R.string.due_date_notification)
-            + "\n");
+        StringBuilder sb = new StringBuilder(
+            this.getString(R.string.due_date_notification) + "\n");
         do {
           sb.append(dueEntries.getString(name));
           sb.append("\n");
         } while (dueEntries.moveToNext());
         Utils.showDueTasksNotification(sb.toString(), TagToDoList.this);
       }
+      dueEntries.close();
       return true;
     }
+    dueEntries.close();
     return false;
   }
 
@@ -1500,8 +1511,8 @@ public class TagToDoList extends Activity {
           editor.putInt(DUEDATE_SORT, 0);
         }
 
-        editor.putBoolean(HIDE_CHECKED_SORT, HIDE_CHECKED = hideChecked
-            .isChecked());
+        editor.putBoolean(HIDE_CHECKED_SORT,
+            HIDE_CHECKED = hideChecked.isChecked());
 
         editor.commit();
         selectTag(mTagSpinner.getSelectedItemPosition());

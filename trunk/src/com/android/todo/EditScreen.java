@@ -8,16 +8,16 @@ import java.util.GregorianCalendar;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -28,6 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -35,16 +36,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
+import com.android.todo.olympus.Chronos.Time;
 import com.android.todo.speech.OneTimeTTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
-import com.android.todo.widget.WidgetChange;
-import com.android.todo.olympus.Chronos.Time;
 
 /**
  * This is another activity (basically an editing screen). It will allow the
@@ -53,6 +52,7 @@ import com.android.todo.olympus.Chronos.Time;
  * existing to-do list entry
  */
 public final class EditScreen extends Activity {
+  public final static String EXTERNAL_INVOKER="widgetInitiated";
 
   private TextView mTaskText;
   private EditText mBodyText;
@@ -383,7 +383,7 @@ public final class EditScreen extends Activity {
           if (dateSet) {
             syncToWeb(name);
           }
-          if (getIntent().getExtras().getBoolean(WidgetChange.WIDGET_INITIATED,
+          if (getIntent().getExtras().getBoolean(EXTERNAL_INVOKER,
               false)) {
             TagToDoWidget.onUpdate(getApplicationContext(),
                 AppWidgetManager.getInstance(getApplicationContext()));

@@ -30,7 +30,6 @@ public final class WidgetChange extends BroadcastReceiver {
   private static SharedPreferences sSettings;
 
   private final static String CICLE_ON = "widgetCicle";
-  public final static String WIDGET_INITIATED = "widgetInitiated";
 
   /**
    * Makes sure the refresh method has been called. If it hasn't, it will be
@@ -86,7 +85,7 @@ public final class WidgetChange extends BroadcastReceiver {
       case R.id.widgetItem:
         if (sTaskCursor.getCount() > 0) {
           c.startActivity(new Intent(c, EditScreen.class).putExtra(
-              WIDGET_INITIATED, true).setAction(
+              EditScreen.EXTERNAL_INVOKER, true).setAction(
               TagToDoList.ACTIVITY_EDIT_ENTRY + "").putExtra(
               ToDoDB.KEY_NAME,
               sTaskCursor
@@ -124,7 +123,7 @@ public final class WidgetChange extends BroadcastReceiver {
         return;
       case R.id.addTaskButton:
         c.startActivity(new Intent(c, EditScreen.class).putExtra(
-            WIDGET_INITIATED, true).setAction(
+            EditScreen.EXTERNAL_INVOKER, true).setAction(
             TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
             sTagCursor.getString(sTagCursor.getColumnIndex(ToDoDB.KEY_NAME)))
             .putExtra(ToDoDB.KEY_SUPERTASK, "").addFlags(

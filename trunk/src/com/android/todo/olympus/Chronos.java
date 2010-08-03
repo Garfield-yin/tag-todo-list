@@ -86,6 +86,10 @@ public final class Chronos {
     public final int getEncodedDate() {
       return mEncodedDate;
     }
+
+    public final boolean isNull() {
+      return mDayOfMonth == 0 && mMonth == 0 && mYear == 0;
+    }
   }
 
   private static GregorianCalendar mCal;
@@ -164,26 +168,23 @@ public final class Chronos {
    * @return the millis, or -1 if the alarm trigger time is in the past
    */
   public final static long getTimeMillis(final Time t, final Date d) {
-    final int encodedTime = t.getEncodedTime();
-    Calendar c = Calendar.getInstance();
-    final int encodedTimeDif = encodedTime - c.get(Calendar.HOUR_OF_DAY) * 60
-        - c.get(Calendar.MINUTE);
-    if (d != null) {
-      final int encodedDate = d.getEncodedDate();
-      final int encodedDateDif = encodedDate - 372 * c.get(Calendar.YEAR) - 31
-          * c.get(Calendar.MONTH) - c.get(Calendar.DAY_OF_MONTH);
+    final Calendar c = Calendar.getInstance();
+    final int encodedTimeDif = t.getEncodedTime() - c.get(Calendar.HOUR_OF_DAY)
+        * 60 - c.get(Calendar.MINUTE);
+    if (d != null && !d.isNull()) {
+      final int encodedDateDif = d.getEncodedDate() - 372
+          * c.get(Calendar.YEAR) - 31 * c.get(Calendar.MONTH)
+          - c.get(Calendar.DAY_OF_MONTH);
       if (encodedDateDif < 0 || (encodedDateDif == 0 && encodedTimeDif < -1)) {
         return -1;
       }
       c.set(d.getYear(), d.getMonth(), d.getDay(), t.getHour(), t.getMinute());
       return c.getTimeInMillis();
     } else {
-      if (t.getDayOfWeek() == -1) {
-        if (encodedTimeDif > 0) {// today
-          return System.currentTimeMillis() + encodedTimeDif * 60000;
-        } else {// tomorrow
-          return System.currentTimeMillis() + 86400000 + encodedTimeDif * 60000;
-        }
+      if (!t.isWeekly()) {// meaning it's daily
+        return System.currentTimeMillis()
+            + (encodedTimeDif > 0 ? 0L : 86400000L) + encodedTimeDif * 60000;
+
       } else {
         int da = c.get(Calendar.DAY_OF_WEEK) - 2;
         if (da < 0) {
@@ -196,11 +197,8 @@ public final class Chronos {
             da += 7;
           }
         }
-        if (encodedTimeDif > 0) {// in the past
-          return c.getTimeInMillis() + 60000L * encodedTimeDif;
-        } else {// next week
-          return 604800000L + c.getTimeInMillis() + 60000L * encodedTimeDif;
-        }
+        return (encodedTimeDif > 0 ? 0L : 604800000L) + c.getTimeInMillis()
+            + 60000L * encodedTimeDif;
       }
     }
   }

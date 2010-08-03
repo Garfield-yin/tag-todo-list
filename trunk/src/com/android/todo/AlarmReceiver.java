@@ -18,7 +18,7 @@ import com.android.todo.olympus.Apollo;
 /**
  * This is an activity used to process status bar notification activations
  */
-public class AlarmReceiver extends BroadcastReceiver {
+public final class AlarmReceiver extends BroadcastReceiver {
   public final static String RINGTONE = "Ringtone";
   public final static String VIBRATION = "vibrationPatern";
 
