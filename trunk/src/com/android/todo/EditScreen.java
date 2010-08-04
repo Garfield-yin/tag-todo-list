@@ -35,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.android.todo.data.ToDoDB;
@@ -52,7 +53,7 @@ import com.android.todo.widget.TagToDoWidget;
  * existing to-do list entry
  */
 public final class EditScreen extends Activity {
-  public final static String EXTERNAL_INVOKER="widgetInitiated";
+  public final static String EXTERNAL_INVOKER = "widgetInitiated";
 
   private TextView mTaskText;
   private EditText mBodyText;
@@ -151,40 +152,39 @@ public final class EditScreen extends Activity {
     final boolean creating = action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY
         + "");
 
-    if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "") || creating) {
+    if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))
+        || creating) {
       LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
 
       // now comes priority stuff
       mPriorityText = creating ? this.getString(R.string.priority_default)
           : this.getString(R.string.priority);
-      final TextView priorityTv = new TextView(this);
-      priorityTv.setGravity(Gravity.CENTER);
       mPrioritySb = new SeekBar(this);
       mPrioritySb.setMax(getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE).getInt(ConfigScreen.PRIORITY_MAX, 100) + 1);
       int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
           .getPriority(EditScreen.sParameter);
-      priorityTv.setText(mPriorityText + priority);
       mPrioritySb.setPadding(0, 0, 0, 10);
       mPrioritySb.setProgress(priority);
+      final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
       mPrioritySb
           .setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-              priorityTv.setText(mPriorityText + arg1);
+              t.setText(mPriorityText + arg1);
             }
 
             public void onStartTrackingTouch(SeekBar arg0) {
+              t.setGravity(Gravity.TOP, 0, mBodyText.getTop()+(int)(32*dm.ydpi/240));
               mPriorityText = EditScreen.this.getString(R.string.priority);
-              priorityTv.setTextSize(20);
+              t.show();
             }
 
             public void onStopTrackingTouch(SeekBar arg0) {
-              priorityTv.setTextSize(14);
+              t.show();
             }
 
           });
-      ll.addView(priorityTv);
       ll.addView(mPrioritySb);
 
       mDateTimeLayout = new LinearLayout(this);
@@ -344,14 +344,16 @@ public final class EditScreen extends Activity {
     mConfirmButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         String name = mBodyText.getText().toString().replaceAll("'", "`");
-        if (action.equals(TagToDoList.ACTIVITY_CREATE_TAG + "")) {
+        if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_TAG))) {
           if (!(mDbHelper.createTag(name))) {
             showMessage(view.getContext().getString(R.string.tag_existent));
             return;
           }
-        } else if (action.equals(TagToDoList.ACTIVITY_EDIT_TAG + "")) {
+        } else if (action.equals(Integer
+            .toString(TagToDoList.ACTIVITY_EDIT_TAG))) {
           mDbHelper.updateTag(EditScreen.sParameter, name);
-        } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
+        } else if (action.equals(Integer
+            .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
           String result = mDbHelper.createTask(EditScreen.sParameter, name);
           if (sSuperTask != null && sSuperTask.length() > 0) {
             try {
@@ -383,19 +385,20 @@ public final class EditScreen extends Activity {
           if (dateSet) {
             syncToWeb(name);
           }
-          if (getIntent().getExtras().getBoolean(EXTERNAL_INVOKER,
-              false)) {
+          if (getIntent().getExtras().getBoolean(EXTERNAL_INVOKER, false)) {
             TagToDoWidget.onUpdate(getApplicationContext(),
                 AppWidgetManager.getInstance(getApplicationContext()));
           }
-        } else if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
+        } else if (action.equals(Integer
+            .toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
           mDbHelper.updateTask(EditScreen.sParameter, name);
           mDbHelper.setPriority(EditScreen.sParameter,
               mPrioritySb.getProgress());
           if (mDateTb.isChecked()) {
             syncToWeb(name);
           }
-        } else if (action.equals(TagToDoList.ACTIVITY_WRITE_NOTE + "")) {
+        } else if (action.equals(Integer
+            .toString(TagToDoList.ACTIVITY_WRITE_NOTE))) {
           mDbHelper.setWrittenNote(EditScreen.sParameter, name);
         }
         finish();
@@ -441,7 +444,7 @@ public final class EditScreen extends Activity {
               mWhenButton.setTextOn(getString(Chronos.DAYS[sDayOfWeek]));
               mWhenButton.setChecked(true);
               if (getIntent().getAction().equals(
-                  TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
+                  Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
                 mDbHelper.deleteAlarm(sParameter);
                 mDbHelper.updateTask(sParameter, sDayOfWeek);
                 setAlarm(sParameter, sHour, sMinute);
@@ -519,22 +522,25 @@ public final class EditScreen extends Activity {
   private void populateFields() {
     String action = getIntent().getAction();
     if (sParameter != null) {
-      if (action.equals(TagToDoList.ACTIVITY_EDIT_TAG + "")) {
+      if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_TAG))) {
         mTaskText.setText(R.string.edit_tag);
         mBodyText.setText(sParameter);
         mBodyText.setSelection(sParameter.length(), sParameter.length());
-      } else if (action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY + "")) {
+      } else if (action.equals(Integer
+          .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
         mTaskText.setText(R.string.entry_create);
-      } else if (action.equals(TagToDoList.ACTIVITY_EDIT_ENTRY + "")) {
+      } else if (action.equals(Integer
+          .toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
         mTaskText.setText(R.string.edit_entry);
         mBodyText.setText(sParameter);
         mBodyText.setSelection(sParameter.length(), sParameter.length());
-      } else if (action.equals(TagToDoList.ACTIVITY_WRITE_NOTE + "")) {
+      } else if (action.equals(Integer
+          .toString(TagToDoList.ACTIVITY_WRITE_NOTE))) {
         mTaskText.setText(R.string.edit_written_note);
         mBodyText.setText(mDbHelper.getWrittenNote(sParameter));
       }
     } else {
-      if (action.equals(TagToDoList.ACTIVITY_CREATE_TAG + "")) {
+      if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_TAG))) {
         mTaskText.setText(R.string.create_tag);
       }
     }

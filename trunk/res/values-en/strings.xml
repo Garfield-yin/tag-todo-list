@@ -28,7 +28,7 @@
 <string name="sort">Sort</string>
 <string name="descending">descending</string>
 <string name="ascending">ascending</string>
-<string name="priority">priority:</string>
+<string name="priority">Priority: </string>
 <string name="priority_default">default priority:</string>
 <string name="alphabetical">alphabetical:</string>
 <string name="hide_checked">hide checked tasks</string>

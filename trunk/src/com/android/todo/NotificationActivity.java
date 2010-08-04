@@ -152,7 +152,7 @@ public final class NotificationActivity extends Activity {
     case TagToDoList.ENTRY_EDIT_ID:
       Intent i1 = new Intent(this, EditScreen.class);
       i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      i1.setAction(TagToDoList.ACTIVITY_EDIT_ENTRY + "");
+      i1.setAction(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY));
       startActivity(i1);
       break;
     case TagToDoList.ENTRY_REMOVE_ID:
@@ -173,7 +173,7 @@ public final class NotificationActivity extends Activity {
     case TagToDoList.ENTRY_WRITTEN_ID:
       Intent i4 = new Intent(this, EditScreen.class);
       i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      i4.setAction(TagToDoList.ACTIVITY_WRITE_NOTE + "");
+      i4.setAction(Integer.toString(TagToDoList.ACTIVITY_WRITE_NOTE));
       startActivity(i4);
       break;
     }

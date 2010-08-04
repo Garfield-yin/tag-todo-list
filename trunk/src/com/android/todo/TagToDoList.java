@@ -623,7 +623,7 @@ public class TagToDoList extends Activity {
         return true;
       case TAG_IMPORTBACKUP_ID:
         final Intent i = new Intent(this, ConfirmationScreen.class);
-        i.setAction(ACTIVITY_BACKUP_IMPORT + "");
+        i.setAction(Integer.toString(ACTIVITY_BACKUP_IMPORT));
         startActivity(i);
         break;
     }
@@ -636,7 +636,7 @@ public class TagToDoList extends Activity {
    */
   private void createTag() {
     Intent i = new Intent(this, EditScreen.class);
-    i.setAction(ACTIVITY_CREATE_TAG + "");
+    i.setAction(Integer.toString(ACTIVITY_CREATE_TAG));
     startActivity(i);
   }
 
@@ -652,7 +652,7 @@ public class TagToDoList extends Activity {
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
-    i.setAction(ACTIVITY_DELETE_TAG + "");
+    i.setAction(Integer.toString(ACTIVITY_DELETE_TAG));
     startActivity(i);
   }
 
@@ -664,7 +664,7 @@ public class TagToDoList extends Activity {
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
-    i.setAction(ACTIVITY_CLEAR_ENTRIES + "");
+    i.setAction(Integer.toString(ACTIVITY_CLEAR_ENTRIES));
     startActivity(i);
   }
 
@@ -676,7 +676,7 @@ public class TagToDoList extends Activity {
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
-    i.setAction(ACTIVITY_EDIT_TAG + "");
+    i.setAction(Integer.toString(ACTIVITY_EDIT_TAG));
     startActivity(i);
   }
 
@@ -685,7 +685,7 @@ public class TagToDoList extends Activity {
    */
   private void showHelpScreen() {
     Intent i = new Intent(this, ConfirmationScreen.class);
-    i.setAction(ACTIVITY_INSTRUCTIONS + "");
+    i.setAction(Integer.toString(ACTIVITY_INSTRUCTIONS));
     startActivity(i);
   }
 
@@ -699,7 +699,7 @@ public class TagToDoList extends Activity {
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
     i.putExtra(ToDoDB.KEY_SUPERTASK, "");
-    i.setAction(ACTIVITY_CREATE_ENTRY + "");
+    i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
     startActivity(i);
   }
 
@@ -952,7 +952,7 @@ public class TagToDoList extends Activity {
       case ENTRY_EDIT_ID:
         i = new Intent(this, EditScreen.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i.setAction(ACTIVITY_EDIT_ENTRY + "");
+        i.setAction(Integer.toString(ACTIVITY_EDIT_ENTRY));
         startActivity(i);
         break;
       case ENTRY_SUBTASK_ID:
@@ -961,7 +961,7 @@ public class TagToDoList extends Activity {
             mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
                 .toString());
         i.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
-        i.setAction(ACTIVITY_CREATE_ENTRY + "");
+        i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
         startActivity(i);
         break;
       case ENTRY_REMOVE_ID:
@@ -1007,7 +1007,7 @@ public class TagToDoList extends Activity {
       case ENTRY_WRITTEN_ID:
         i = new Intent(this, EditScreen.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i.setAction(ACTIVITY_WRITE_NOTE + "");
+        i.setAction(Integer.toString(ACTIVITY_WRITE_NOTE));
         startActivity(i);
         break;
       case ENTRY_SMS_ID:

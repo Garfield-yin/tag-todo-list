@@ -45,7 +45,7 @@ public final class ConfirmationScreen extends Activity {
 
 		mFirstButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				if (mAction.equals(TagToDoList.ACTIVITY_DELETE_TAG + "")) {
+				if (mAction.equals(Integer.toString(TagToDoList.ACTIVITY_DELETE_TAG))) {
 					mDbHelper.deleteTag(mTagName);
 					setResult(RESULT_OK);
 					finish();
@@ -79,19 +79,19 @@ public final class ConfirmationScreen extends Activity {
 	 */
 	private void populateFields() {
 		if (mTagName != null) {
-			if (mAction.equals(TagToDoList.ACTIVITY_DELETE_TAG + "")) {
+			if (mAction.equals(Integer.toString(TagToDoList.ACTIVITY_DELETE_TAG))) {
 				mMessage.setText(R.string.confirm_tag_deletion);
-			} else if (mAction.equals(TagToDoList.ACTIVITY_CLEAR_ENTRIES + "")) {
+			} else if (mAction.equals(Integer.toString(TagToDoList.ACTIVITY_CLEAR_ENTRIES))) {
 				mMessage.setText(R.string.confirm_entry_clearing);
 			}
 			mFirstButton.setText(R.string.ok);
 			mSecondButton.setText(R.string.no);
 		} else {
-			if (mAction.equals(TagToDoList.ACTIVITY_INSTRUCTIONS + "")) {
+			if (mAction.equals(Integer.toString(TagToDoList.ACTIVITY_INSTRUCTIONS))) {
 				mMessage.setText(R.string.help_text);
 				mFirstButton.setText(R.string.help_site);
 				mSecondButton.setText(R.string.go_back);
-			} else if (mAction.equals(TagToDoList.ACTIVITY_BACKUP_IMPORT + "")) {
+			} else if (mAction.equals(Integer.toString(TagToDoList.ACTIVITY_BACKUP_IMPORT))) {
 				mMessage.setText(R.string.confirm_backup_import);
 				mFirstButton.setText(R.string.ok);
 				mSecondButton.setText(R.string.no);
@@ -117,7 +117,7 @@ public final class ConfirmationScreen extends Activity {
 		super.onResume();
 		mAction = getIntent().getAction();
 		mDbHelper = ToDoDB.getInstance(getApplicationContext());
-		if (mAction.equals(TagToDoList.ACTIVITY_INSTRUCTIONS + "")) {
+		if (mAction.equals(Integer.toString(TagToDoList.ACTIVITY_INSTRUCTIONS))) {
 			final LinearLayout ll = (LinearLayout) findViewById(R.id.standardButtonLayout);
 			if (ll.getChildCount() < 3) {
 				final ImageButton ib = new ImageButton(this);
