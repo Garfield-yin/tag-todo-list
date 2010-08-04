@@ -45,7 +45,6 @@
 <string name="entry_subtask_add">Add subtask</string>
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
-<string name="entry_email">Email this task</string>
 <string name="entry_move">Move to another tag</string>
 <string name="entry_move_under_task">Move under a task</string>
 <string name="entry_written_note">Written note</string>
@@ -177,9 +176,11 @@
 <string name="every">every</string>
 <string name="day">day</string>
 <string name="SMS">SMS</string>
+<string name="email">Email</string>
 <string name="todo">TO-DO</string>
+<string name="tasks">Task</string>
 
-<!-- From this point on, appending strings chronologically -->
+<!-- Search -->
 <string name="search_label">Search Tag-ToDo-List</string>
 <string name="settings_description">Tasks</string>
 

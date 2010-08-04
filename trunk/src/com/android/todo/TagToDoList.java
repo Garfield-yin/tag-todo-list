@@ -907,16 +907,15 @@ public class TagToDoList extends Activity {
     menu.add(0, ENTRY_SUBTASK_ID, 0, R.string.entry_subtask_add);
     menu.add(0, ENTRY_EDIT_ID, 0, R.string.entry_edit);
     menu.add(0, ENTRY_REMOVE_ID, 0, R.string.entry_delete);
-    // menu.add(0, ENTRY_EMAIL_ID, 0, R.string.entry_email);
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, ENTRY_MOVE_ID, 0, R.string.entry_move);
     submenu.add(0, ENTRY_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
-    // submenu.add(0, ENTRY_DOWN_ID, 0, R.string.entry_down);
     submenu = menu.addSubMenu(R.string.entry_group_notes);
     submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
     submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
     submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_share);
+    submenu.add(0, ENTRY_EMAIL_ID, 0, R.string.email);
     submenu.add(0, ENTRY_SMS_ID, 0, R.string.SMS);
     menu.setHeaderTitle(R.string.entry_menu);
   }
@@ -939,6 +938,12 @@ public class TagToDoList extends Activity {
   private boolean changeTask(int selectedItem) {
     Intent i;
     switch (selectedItem) {
+      case ENTRY_EDIT_ID:
+        i = new Intent(this, EditScreen.class);
+        i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i.setAction(ACTIVITY_EDIT_ENTRY + "");
+        startActivity(i);
+        break;
       case ENTRY_SUBTASK_ID:
         i = new Intent(this, EditScreen.class);
         i.putExtra(ToDoDB.KEY_NAME,
@@ -946,12 +951,6 @@ public class TagToDoList extends Activity {
                 .toString());
         i.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
         i.setAction(ACTIVITY_CREATE_ENTRY + "");
-        startActivity(i);
-        break;
-      case ENTRY_EDIT_ID:
-        i = new Intent(this, EditScreen.class);
-        i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i.setAction(ACTIVITY_EDIT_ENTRY + "");
         startActivity(i);
         break;
       case ENTRY_REMOVE_ID:
@@ -1013,15 +1012,14 @@ public class TagToDoList extends Activity {
         startActivity(i);
         break;
       case ENTRY_EMAIL_ID:
-        String[] mailto = { "" };
         // Create a new Intent to send messages
         i = new Intent(Intent.ACTION_SEND);
         // Add attributes to the intent
-        i.putExtra(Intent.EXTRA_EMAIL, mailto);
-        i.putExtra(Intent.EXTRA_SUBJECT, "subiect");
-        i.putExtra(Intent.EXTRA_TEXT, "corp");
-        i.setType("text/plain");
-        startActivity(Intent.createChooser(i, "MySendMail"));
+        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.tasks) + " - "
+            + mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition()));
+        i.putExtra(Intent.EXTRA_TEXT, mContextEntry);
+        i.setType("plain/text");
+        startActivity(Intent.createChooser(i, getString(R.string.email)));
         break;
       case ENTRY_INSTANTACTION_ID:
         mContextAction.perform(this);
