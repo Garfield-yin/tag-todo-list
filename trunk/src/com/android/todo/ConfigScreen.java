@@ -141,8 +141,8 @@ public final class ConfigScreen extends Activity {
                 .parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=GB&item_name=Teo%27s%20free%20projects&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG_global%2egif%3aNonHosted"));
         startActivity(i);
         if (Analytics.sTracker != null) {
-          Analytics.sTracker.trackEvent(Analytics.PRESS, "CONFIG_SCREEN_DONATION_BUTTON",
-              Analytics.INTERFACE, 0);
+          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS, "CONFIG_SCREEN_DONATION_BUTTON",
+              Analytics.SPACE_INTERFACE, 0);
         }
       }
     });

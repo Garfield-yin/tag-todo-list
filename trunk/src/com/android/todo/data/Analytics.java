@@ -28,12 +28,22 @@ public final class Analytics {
   /**
    * Represents a press action.
    */
-  public static final String PRESS = "PRESS";
+  public static final String ACTION_PRESS = "PRESS";
+  
   /**
-   * Represents an attribute which is used to described various actions (e.g. we
+   * Represents a notification action.
+   */
+  public static final String ACTION_NOTIFY = "NOTIFY";
+  
+  /**
+   * Represents some state info, not necessarily related to something the user has done.
+   */
+  public static final String SPACE_STATE = "STATE";
+  /**
+   * Represents an attribute which is used to describe various actions (e.g. we
    * know the action is triggered by a finger and not from code).
    */
-  public static final String INTERFACE = "INTERFACE";
+  public static final String SPACE_INTERFACE = "INTERFACE";
   /**
    * Represents the occurence of an exception.
    */

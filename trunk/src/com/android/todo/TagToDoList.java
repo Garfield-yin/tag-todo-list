@@ -18,6 +18,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
@@ -37,15 +38,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout.LayoutParams;
 
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -284,8 +285,9 @@ public class TagToDoList extends Activity {
           // we log the action, pressed button, action trigger and the
           // existing
           // number of tasks #EventLogSyntax
-          Analytics.sTracker.trackEvent(Analytics.PRESS, "ADD_TASK_BUTTON",
-              Analytics.INTERFACE, mEntryLayout.getChildCount());
+          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
+              "ADD_TASK_BUTTON", Analytics.SPACE_INTERFACE,
+              mEntryLayout.getChildCount());
         }
       }
     });
@@ -767,6 +769,8 @@ public class TagToDoList extends Activity {
     if (Analytics.sTracker != null) {
       final int month = Calendar.getInstance().get(Calendar.MONTH);
       if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            "ANDROID_VERSION", Analytics.SPACE_STATE, VERSION.SDK_INT);
         Analytics.sTracker.dispatch();
         sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
             .commit();
@@ -999,8 +1003,8 @@ public class TagToDoList extends Activity {
       case ENTRY_SMS_ID:
         if (Analytics.sTracker != null) {
           // we log the number of characters
-          Analytics.sTracker.trackEvent(Analytics.PRESS,
-              "TASK_MENU_SMS_BUTTON", Analytics.INTERFACE,
+          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
+              "TASK_MENU_SMS_BUTTON", Analytics.SPACE_INTERFACE,
               mContextEntry.length());
         }
         i = new Intent(Intent.ACTION_VIEW);
