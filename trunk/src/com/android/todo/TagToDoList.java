@@ -21,6 +21,7 @@ import android.graphics.Paint;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -118,6 +119,7 @@ public class TagToDoList extends Activity {
   private static boolean CHOICE_MODE = false;
 
   public static TTS sTts = null; // text to speech
+  private static int sDescriptionAlignment;
   private static GestureDetector sGestureDetector;
   private static OnTouchListener sGestureListener;
   private static OnClickListener sDescriptionClickListener;
@@ -343,7 +345,10 @@ public class TagToDoList extends Activity {
       }
     } : new OnCheckedChangeListener() {
       public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
-        sDbHelper.updateTask(cb.getText().toString(), isChecked);
+        if (sDbHelper.updateTask(cb.getText().toString(), isChecked)) {
+          Utils.showDialog(R.string.notification,
+              R.string.notification_checked_tasks_limit, cb.getContext());
+        }
         selectTag(mTagSpinner.getSelectedItemPosition());
       }
     };
@@ -519,7 +524,8 @@ public class TagToDoList extends Activity {
           Chronos.refresh();
           final LinearLayout descLayout = (LinearLayout) ll
               .findViewById(R.id.descriptionLayout);
-          descLayout.setPadding(26 + lp.leftMargin, -10, 0, -5);
+          descLayout.setPadding(sDescriptionAlignment + lp.leftMargin, -10, 0,
+              -5);
           final Button b = new Button(this);
           b.setBackgroundColor(Color.TRANSPARENT);
           b.setTextColor(Color.GRAY);
@@ -829,6 +835,11 @@ public class TagToDoList extends Activity {
           changeTask(ENTRY_EDIT_ID);
         }
       };
+      // this positions the description under the task, but to the right of the
+      // checkbox icon
+      final DisplayMetrics dm = new DisplayMetrics();
+      getWindowManager().getDefaultDisplay().getMetrics(dm);
+      sDescriptionAlignment = (int) (26 * dm.xdpi / 150);
     }
 
     // Should checked tasks be hidden?
@@ -1012,6 +1023,12 @@ public class TagToDoList extends Activity {
         startActivity(i);
         break;
       case ENTRY_EMAIL_ID:
+        if (Analytics.sTracker != null) {
+          // we log the number of characters
+          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
+              "TASK_MENU_EMAIL_BUTTON", Analytics.SPACE_INTERFACE,
+              mContextEntry.length());
+        }
         // Create a new Intent to send messages
         i = new Intent(Intent.ACTION_SEND);
         // Add attributes to the intent

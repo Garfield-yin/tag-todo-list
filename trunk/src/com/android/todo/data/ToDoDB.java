@@ -48,6 +48,7 @@ public final class ToDoDB extends ADB {
   public static final String KEY_NOTE_IS_AUDIO = "isaudionote";
   // if 1 it means the task is collapsed
   public static final String KEY_COLLAPSED = "iscollapsed";
+  private static final String KEY_CHECKED_TASKS_LIMIT_AWARE = "checkedTasksLimitAware";
 
   private static final String DB_TAG_TABLE = "tags";
   private DatabaseHelper mDbHelper;
@@ -681,9 +682,11 @@ public final class ToDoDB extends ADB {
    * 
    * @param task
    * @param checked
-   * @return
+   * @return true if checking this task led to passing the checked tasks limit
    */
-  public final void updateTask(final String task, final boolean checked) {
+  public final boolean updateTask(final String task, final boolean checked) {
+    boolean returnValue=false;
+    
     updateTask(task, checked, null); // actual task
     updateTask(task, checked, Boolean.TRUE); // subtasks
     updateTask(task, checked, Boolean.FALSE); // supertasks too
@@ -691,9 +694,9 @@ public final class ToDoDB extends ADB {
     if (checked) {
       // removing tasks if their number surpasses a certain limit;
       // the removed tasks can only be checked ones (finished)
-      Cursor checkedC = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
+      final Cursor checkedC = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
           KEY_STATUS }, KEY_STATUS + " = 1", null, null, null, null);
-      SharedPreferences settings = mCtx.getSharedPreferences(
+      final SharedPreferences settings = mCtx.getSharedPreferences(
           TagToDoList.PREFS_NAME, 50);
       int limit = settings.getInt("listSizeLimit", 50);
       if (checkedC.getCount() >= limit) {
@@ -706,12 +709,9 @@ public final class ToDoDB extends ADB {
           counter -= 1;
         } while (counter > limit);
       } else if (checkedC.getCount() == limit - 1
-          && !(settings.getBoolean("checkedTasksLimitAware", false))) {
-        Utils.showDialog(R.string.notification,
-            R.string.notification_checked_tasks_limit, ToDoDB.mCtx);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("checkedTasksLimitAware", true);
-        editor.commit();
+          && !(settings.getBoolean(KEY_CHECKED_TASKS_LIMIT_AWARE, false))) {
+        settings.edit().putBoolean(KEY_CHECKED_TASKS_LIMIT_AWARE, true).commit();
+        returnValue=true;
       }
       checkedC.close();
 
@@ -734,6 +734,7 @@ public final class ToDoDB extends ADB {
         }
       }
     }
+    return returnValue;
   }
 
   /**

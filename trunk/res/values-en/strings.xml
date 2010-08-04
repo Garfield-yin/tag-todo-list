@@ -100,7 +100,7 @@
 <string name="months">January February March April May June July August September October November December</string>
 <string name="notification_view_info_short">More about this screen</string>
 <string name="notification_view_info_long">This screen shows you tasks that are due today or earlier.\n\nYou can go back to the normal todo list view by pressing \'Go back\'.\n\nAlso, you can access this screen from the normal view by pressing the U key.\n</string>
-<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 100 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 100 checked tasks). You can change it by closing this note and pressing O or I.\n\nThis message appeared because the next checked task will reach the limit :)</string>
+<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 100 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 100 checked tasks).\n\nThis message appeared because the next checked task will reach the limit :)</string>
 <string name="alarm">Tag-ToDo-List alarm</string>
 <string name="daily">Daily</string>
 <string name="weekly">Weekly</string>

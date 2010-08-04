@@ -121,7 +121,7 @@ public final class EditScreen extends Activity {
     // setting a maximum height for the edit box;
     // we can't have it overlapping other stuff (it will usually be in
     // landscape mode)
-    DisplayMetrics dm = new DisplayMetrics();
+    final DisplayMetrics dm = new DisplayMetrics();
     getWindowManager().getDefaultDisplay().getMetrics(dm);
     mBodyText.setMaxHeight(dm.heightPixels - 270);
 
