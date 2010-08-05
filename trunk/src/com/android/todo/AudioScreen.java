@@ -6,8 +6,6 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.android.todo.data.ToDoDB;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,10 +15,13 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.android.todo.data.ToDoDB;
 
 /**
  * This is another activity (basically an audio screen). It will allow the user
@@ -30,8 +31,9 @@ import android.widget.TextView;
 public final class AudioScreen extends Activity {
 
 	private static final int MAX_RECORDING_DURATION = 50; // in seconds
-	private Button mAudioExitButton;
-	private Button mAudioRecordButton;
+	private static Button sAudioExitButton;
+	private static Button sAudioRecordButton;
+	private static Button sAudioDeleteButton;
 	private Button mReplayButton = null;
 	private static String sEntry = null;
 	private static boolean sStatus = false;
@@ -47,7 +49,7 @@ public final class AudioScreen extends Activity {
 		setContentView(R.layout.audio);
 
 		// checking if the necessary folders exist on the sdcard
-		File f = new File("/sdcard/Tag-ToDo_data/audio/");
+		final File f = new File("/sdcard/Tag-ToDo_data/audio/");
 		if (f.exists() == false) {
 			try {
 				f.mkdirs();
@@ -93,7 +95,7 @@ public final class AudioScreen extends Activity {
 						positionTextView.append(" " + MAX_RECORDING_DURATION
 								+ " s");
 					} else if (progress == MAX_RECORDING_DURATION) {
-						mAudioRecordButton.performClick();
+						sAudioRecordButton.performClick();
 					}
 				}
 			}
@@ -111,15 +113,24 @@ public final class AudioScreen extends Activity {
 		ll.addView(sb);
 		sPlayer = new MediaPlayer();
 
-		mAudioExitButton = (Button) findViewById(R.id.audioExitButton);
-		mAudioRecordButton = (Button) findViewById(R.id.audioRecordButton);
+		sAudioExitButton = (Button) findViewById(R.id.audioExitButton);
+		sAudioRecordButton = (Button) findViewById(R.id.audioRecordButton);
+		sAudioDeleteButton = (Button) findViewById(R.id.audioDelButton);
 
-		mAudioExitButton.setOnClickListener(new View.OnClickListener() {
+		sAudioExitButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				setResult(RESULT_OK);
 				finish();
 			}
 		});
+		
+		sAudioDeleteButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View view) {
+        ToDoDB.getInstance(getApplicationContext()).setFlag(
+            sEntry, ToDoDB.KEY_NOTE_IS_AUDIO, 0);
+        new File(Utils.getAudioName(sEntry)).delete();
+        finish();
+      }
+    });
 
 		/*
 		 * A TimerTask that will be given to a timer. It's responsible with
@@ -142,7 +153,7 @@ public final class AudioScreen extends Activity {
 			}
 		}
 
-		mAudioRecordButton.setOnClickListener(new View.OnClickListener() {
+		sAudioRecordButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
 				RECORDING_STATE = !(RECORDING_STATE);
 				((Button) view)
@@ -259,7 +270,7 @@ public final class AudioScreen extends Activity {
 	private void populateFields() {
 		// initializing some stuff
 		RECORDING_STATE = false;
-		mAudioRecordButton.setTextColor(Color.argb(255, 33, 150, 0));
+		sAudioRecordButton.setTextColor(Color.argb(255, 33, 150, 0));
 	}
 
 	@Override
@@ -285,7 +296,7 @@ public final class AudioScreen extends Activity {
 	 */
 	private void saveState() {
 		if (RECORDING_STATE) {
-			mAudioRecordButton.performClick();
+			sAudioRecordButton.performClick();
 		}
 		sPlayer.stop();
 		if (sSeekBarTimer != null) {
@@ -296,22 +307,22 @@ public final class AudioScreen extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent msg) {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_ENTER:
-			mAudioRecordButton.performClick();
+			sAudioRecordButton.performClick();
 			break;
 		case KeyEvent.KEYCODE_DEL:
-			mAudioExitButton.performClick();
+			sAudioExitButton.performClick();
 			break;
 		case KeyEvent.KEYCODE_BACK:
 			finish();
 			break;
 		case KeyEvent.KEYCODE_R:
 			if (!(RECORDING_STATE)) {
-				mAudioRecordButton.performClick();
+				sAudioRecordButton.performClick();
 			}
 			break;
 		case KeyEvent.KEYCODE_S:
 			if (RECORDING_STATE) {
-				mAudioRecordButton.performClick();
+				sAudioRecordButton.performClick();
 			}
 			break;
 		}
