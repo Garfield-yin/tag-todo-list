@@ -50,9 +50,11 @@
 <string name="entry_written_note">Written note</string>
 <string name="entry_graphical_note">Graphical note</string>
 <string name="entry_audio_note">Audio note</string>
+<string name="entry_photo_note">Photo note (beta)</string>
 <string name="entry_down">Push down</string>
 <string name="entry_exit">close this menu ...</string>
 <string name="entry_menu">task menu</string>
+<string name="error_photo">Some kind of an error appeared. Are you sure the SD card is inserted?</string>
 
 <!-- Edit screen -->
 <string name="create_tag"> Type a name for the new tag:</string>
@@ -80,8 +82,9 @@
 <string name="url_help">http://www.teodorfilimon.com/android/Tag-ToDo-List/index.html</string>
 
 <!-- Graphical notes screen -->
-<string name="note_clear">Clear image</string>
-<string name="note_close">Close and save</string>
+<string name="note_clear">Clear</string>
+<string name="note_close">Close &amp; Save</string>
+<string name="note_delete">Delete note</string>
 <string name="note_title">Draw a note for the task:</string>
 
 <!-- Audio notes screen -->

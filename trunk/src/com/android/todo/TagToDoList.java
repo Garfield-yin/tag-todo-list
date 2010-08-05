@@ -18,9 +18,11 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -48,6 +50,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -95,6 +98,7 @@ public class TagToDoList extends Activity {
   public static final int ENTRY_MOVE_UNDER_TASK_ID = 11;
   public static final int ENTRY_EMAIL_ID = 12;
   public static final int ENTRY_SMS_ID = 13;
+  public static final int ENTRY_PHOTO_ID = 14;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -892,13 +896,22 @@ public class TagToDoList extends Activity {
   /**
    * Saves the state on pause
    */
-  private void saveState() {
+  private final void saveState() {
     // Saving the selected tag
-    SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, 0)
-        .edit();
-    editor.putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition());
-    editor.commit();
+    getSharedPreferences(PREFS_NAME, 0).edit().putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition()).commit();
   }
+  
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == ENTRY_PHOTO_ID) {
+        if (resultCode == RESULT_OK) {
+            //use imageUri here to access the image
+        } else {
+            Toast.makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG);
+        }
+    }
+    }
+
 
   /**
    * Creates the context menu for a to-do list entry (task editing, deletion,
@@ -908,7 +921,6 @@ public class TagToDoList extends Activity {
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenu.ContextMenuInfo menuInfo) {
     mContextEntry = ((CheckBox) v).getText().toString();
-    // menu.add(0, ENTRY_CLOSE_ID, 0, R.string.entry_exit);
     final Action a = new Action();
     final String possibleAction = a.setAndExtractAction(mContextEntry);
     if (possibleAction != null) {
@@ -924,6 +936,7 @@ public class TagToDoList extends Activity {
     submenu = menu.addSubMenu(R.string.entry_group_notes);
     submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
     submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
+    submenu.add(0, ENTRY_PHOTO_ID, 0, R.string.entry_photo_note);
     submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_share);
     submenu.add(0, ENTRY_EMAIL_ID, 0, R.string.email);
@@ -1003,6 +1016,17 @@ public class TagToDoList extends Activity {
         ((LinearLayout) findViewById(R.id.lowerLayout))
             .setVisibility(View.GONE);
         selectTag(mTagSpinner.getSelectedItemPosition());
+        break;
+      case ENTRY_PHOTO_ID:
+        final ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, Utils.getPhotoName(mContextEntry));
+        values.put(MediaStore.Images.Media.DESCRIPTION,getString(R.string.entry_photo_note));
+        final Uri imageUri = getContentResolver().insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        startActivityForResult(i, ENTRY_PHOTO_ID);
         break;
       case ENTRY_WRITTEN_ID:
         i = new Intent(this, EditScreen.class);

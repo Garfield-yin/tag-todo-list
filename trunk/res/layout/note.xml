@@ -12,6 +12,10 @@
 			android:layout_height="wrap_content" android:layout_weight="1"
 			android:text="@string/note_clear" />
 			
+			<Button android:id="@+id/deleteButton" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:text="@string/note_delete" />
+			
 		<Button android:id="@+id/exitButton" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:layout_weight="1"
 			android:text="@string/note_close" />

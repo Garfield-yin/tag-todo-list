@@ -74,6 +74,16 @@ public final class Utils {
   public final static String getAudioName(final String original) {
     return "/sdcard/Tag-ToDo_data/audio/" + original.hashCode() + ".3gpp";
   }
+  
+  /**
+   * This function is used to get a photo filename
+   * 
+   * @param original
+   * @return the audio file name
+   */
+  public final static String getPhotoName(final String original) {
+    return original.hashCode() + ".jpg";
+  }
 
   /**
    * Returns an alarm intent which will be passed to the AlarmReceiver
