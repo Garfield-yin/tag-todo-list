@@ -46,6 +46,7 @@ public final class ToDoDB extends ADB {
   public static final String KEY_NOTE_IS_WRITTEN = "iswrittennote";
   public static final String KEY_NOTE_IS_GRAPHICAL = "isgraphicalnote";
   public static final String KEY_NOTE_IS_AUDIO = "isaudionote";
+  public static final String KEY_NOTE_IS_PHOTO = "isphotonote";
   // if 1 it means the task is collapsed
   public static final String KEY_COLLAPSED = "iscollapsed";
   private static final String KEY_CHECKED_TASKS_LIMIT_AWARE = "checkedTasksLimitAware";
@@ -118,6 +119,7 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 81, 82);
       onUpgrade(db, 85, 86);
       onUpgrade(db, 91, 92);
+      onUpgrade(db, 100, 101);
     }
 
     @Override
@@ -301,6 +303,16 @@ public final class ToDoDB extends ADB {
       if (oldVersion < 92 && newVersion >= 92) {
         try {
           db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_COLLAPSED
+              + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
+      }
+
+      // upgrade to db v101 (corresponding to app v3.5.0) or bigger;
+      // this is for photo notes
+      if (oldVersion < 101 && newVersion >= 101) {
+        try {
+          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_NOTE_IS_PHOTO
               + " INTEGER DEFAULT 0");
         } catch (Exception e) {
         }
@@ -685,8 +697,8 @@ public final class ToDoDB extends ADB {
    * @return true if checking this task led to passing the checked tasks limit
    */
   public final boolean updateTask(final String task, final boolean checked) {
-    boolean returnValue=false;
-    
+    boolean returnValue = false;
+
     updateTask(task, checked, null); // actual task
     updateTask(task, checked, Boolean.TRUE); // subtasks
     updateTask(task, checked, Boolean.FALSE); // supertasks too
@@ -710,8 +722,9 @@ public final class ToDoDB extends ADB {
         } while (counter > limit);
       } else if (checkedC.getCount() == limit - 1
           && !(settings.getBoolean(KEY_CHECKED_TASKS_LIMIT_AWARE, false))) {
-        settings.edit().putBoolean(KEY_CHECKED_TASKS_LIMIT_AWARE, true).commit();
-        returnValue=true;
+        settings.edit().putBoolean(KEY_CHECKED_TASKS_LIMIT_AWARE, true)
+            .commit();
+        returnValue = true;
       }
       checkedC.close();
 
@@ -720,7 +733,8 @@ public final class ToDoDB extends ADB {
     } else {
       if (isDueTimeSet(task)) {
         // if it is unchecked and has an alarm, it needs to be remade
-        final PendingIntent pi = PendingIntent.getBroadcast(mCtx, task.hashCode(),
+        final PendingIntent pi = PendingIntent.getBroadcast(mCtx,
+            task.hashCode(),
             Utils.getAlarmIntent(new Intent(mCtx, AlarmReceiver.class), task),
             0);
         final AlarmManager am = (AlarmManager) mCtx

@@ -898,20 +898,22 @@ public class TagToDoList extends Activity {
    */
   private final void saveState() {
     // Saving the selected tag
-    getSharedPreferences(PREFS_NAME, 0).edit().putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition()).commit();
+    getSharedPreferences(PREFS_NAME, 0).edit()
+        .putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition()).commit();
   }
-  
+
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == ENTRY_PHOTO_ID) {
-        if (resultCode == RESULT_OK) {
-            //use imageUri here to access the image
-        } else {
-            Toast.makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG);
-        }
+      if (resultCode == RESULT_OK) {
+        sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
+      } else {
+        Toast
+            .makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG)
+            .show();
+      }
     }
-    }
-
+  }
 
   /**
    * Creates the context menu for a to-do list entry (task editing, deletion,
@@ -959,7 +961,7 @@ public class TagToDoList extends Activity {
    *          basically is the function that needs to be done
    * @return
    */
-  private boolean changeTask(int selectedItem) {
+  private final boolean changeTask(final int selectedItem) {
     Intent i;
     switch (selectedItem) {
       case ENTRY_EDIT_ID:
@@ -1018,15 +1020,23 @@ public class TagToDoList extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case ENTRY_PHOTO_ID:
-        final ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.TITLE, Utils.getPhotoName(mContextEntry));
-        values.put(MediaStore.Images.Media.DESCRIPTION,getString(R.string.entry_photo_note));
-        final Uri imageUri = getContentResolver().insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-        startActivityForResult(i, ENTRY_PHOTO_ID);
+        if (sDbHelper.getFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO) != 0) {
+          final ContentValues values = new ContentValues();
+          values.put(MediaStore.Images.Media.TITLE,
+              Utils.getPhotoName(mContextEntry));
+          values.put(MediaStore.Images.Media.DESCRIPTION,
+              getString(R.string.entry_photo_note));
+          final Uri imageUri = getContentResolver().insert(
+              MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+          i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+          i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+          i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+          startActivityForResult(i, ENTRY_PHOTO_ID);
+        } else {
+          i = new Intent(this, PhotoScreen.class);
+          i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+          startActivity(i);
+        }
         break;
       case ENTRY_WRITTEN_ID:
         i = new Intent(this, EditScreen.class);

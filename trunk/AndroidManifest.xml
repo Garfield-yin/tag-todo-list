@@ -15,6 +15,7 @@
 			android:launchMode="singleInstance">
 		</activity>
 		<activity android:name=".ConfirmationScreen"></activity>
+		<activity android:name=".PhotoScreen"></activity>
 		<activity android:name=".PaintScreen"></activity>
 		<activity android:name=".AudioScreen"></activity>
 		<activity android:name=".NotificationActivity"></activity>

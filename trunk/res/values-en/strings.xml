@@ -86,6 +86,7 @@
 <string name="note_close">Close &amp; Save</string>
 <string name="note_delete">Delete note</string>
 <string name="note_title">Draw a note for the task:</string>
+<string name="note_camera">Camera</string>
 
 <!-- Audio notes screen -->
 <string name="audio_note_title">Record up to 50s of audio on the SD card</string>
