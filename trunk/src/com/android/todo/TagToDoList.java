@@ -110,7 +110,6 @@ public class TagToDoList extends Activity {
   // Flags (ideally, should be eliminated sometime in the future)
   public static boolean SYNC_GCAL;
   public static boolean SHINY_PRIORITY;
-  public static boolean BLIND_MODE = false;
   public static boolean HIDE_CHECKED;
   public static boolean SHOW_NOTES;
   public static boolean SHOW_COLLAPSE;
@@ -155,12 +154,12 @@ public class TagToDoList extends Activity {
               int position, long id) {
             mActiveEntry = -1;
             selectTag(position);
-            if (BLIND_MODE) {
+            //if (BLIND_MODE) {
               if (sTts != null) {
                 sTts.speak(mTagsArrayAdapter.getItem(
                     mTagSpinner.getSelectedItemPosition()).toString());
               }
-            }
+            //}
           }
 
           public void onNothingSelected(AdapterView<?> arg0) {
@@ -459,59 +458,23 @@ public class TagToDoList extends Activity {
             auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           }
           if (auxInt > 0) {
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(0, 0, 0, 0);
-            ib.setImageResource(R.drawable.written);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_WRITTEN_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
+            taskNoteLayout.addView(getNoteButton(taskName, R.drawable.written,
+                ENTRY_WRITTEN_ID));
           }
 
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(0, 0, 0, 0);
-            ib.setImageResource(android.R.drawable.ic_menu_edit);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_GRAPHICAL_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
+            taskNoteLayout.addView(getNoteButton(taskName,
+                android.R.drawable.ic_menu_edit, ENTRY_GRAPHICAL_ID));
           }
 
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(0, 0, 0, 0);
-            ib.setImageResource(R.drawable.audio);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_AUDIO_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
+            taskNoteLayout.addView(getNoteButton(taskName, R.drawable.audio,
+                ENTRY_AUDIO_ID));
           }
 
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO) > 0) {
-            final ImageButton ib = new ImageButton(this);
-            ib.setBackgroundColor(Color.TRANSPARENT);
-            ib.setPadding(0, 0, 0, 0);
-            ib.setImageResource(android.R.drawable.ic_menu_camera);
-            ib.setOnClickListener(new View.OnClickListener() {
-              public void onClick(View v) {
-                mContextEntry = taskName;
-                changeTask(ENTRY_PHOTO_ID);
-              }
-            });
-            taskNoteLayout.addView(ib);
+            taskNoteLayout.addView(getNoteButton(taskName,
+                android.R.drawable.ic_menu_camera, ENTRY_PHOTO_ID));
           }
         }
 
@@ -588,6 +551,32 @@ public class TagToDoList extends Activity {
     }
     c.close();
     return numberOfUnchecked;
+  }
+
+  /**
+   * Returns the image button which is actually the small thumbnail that shows
+   * up next to the task, if there are notes.
+   * 
+   * @param taskName
+   * @param resId
+   *          The resource id for the image
+   * @param changeId
+   * @see {@link #changeTask(int)}
+   * @return
+   */
+  public final ImageButton getNoteButton(final String taskName,
+      final int resId, final int changeId) {
+    final ImageButton ib = new ImageButton(this);
+    ib.setBackgroundColor(Color.TRANSPARENT);
+    ib.setPadding(0, 0, 0, 0);
+    ib.setImageResource(resId);
+    ib.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        mContextEntry = taskName;
+        changeTask(changeId);
+      }
+    });
+    return ib;
   }
 
   /**
@@ -785,7 +774,7 @@ public class TagToDoList extends Activity {
       ToDoDB.createBackup();
     }
 
-    if (BLIND_MODE) {
+    if (sTts!=null) {
       sTts.shutdown();
       sTts = null;
     }
@@ -874,7 +863,6 @@ public class TagToDoList extends Activity {
     if (SHINY_PRIORITY = sSettings.getBoolean(ConfigScreen.VISUAL_PRIORITY,
         false)) {
       mMaxPriority = sSettings.getInt(ConfigScreen.PRIORITY_MAX, 100);
-      // selectTag(mTagSpinner.getSelectedItemPosition());
     }
 
     // Restore the last selected tag
@@ -884,7 +872,7 @@ public class TagToDoList extends Activity {
     }
     mTagSpinner.setSelection(lastSelectedTag, true);
 
-    if (BLIND_MODE = sSettings.getBoolean(ConfigScreen.BLIND_MODE, false)) {
+    if (sSettings.getBoolean(ConfigScreen.BLIND_MODE, false)) {
       if (sTts == null) {
         sTts = new TTS(getApplicationContext(), null);
       }
@@ -1298,7 +1286,7 @@ public class TagToDoList extends Activity {
     final LinearLayout ll = ((LinearLayout) mEntryLayout
         .getChildAt(mActiveEntry));
     ll.setBackgroundColor(Color.DKGRAY);
-    if (BLIND_MODE) {
+    if (sTts!=null) {
       final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
       sTts.speak(cb.getText().toString()
           + (cb.isChecked() ? ')' + getString(R.string.checked) : ""));

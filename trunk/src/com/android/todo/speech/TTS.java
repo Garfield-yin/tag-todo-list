@@ -20,8 +20,9 @@ public class TTS implements OnInitListener {
 	 * @param c
 	 * @param s
 	 */
-	public TTS(Context c, String s) {
+	public TTS(final Context c, final String s) {
 		mTts = new TextToSpeech(c, this);
+		mTts.setLanguage(c.getResources().getConfiguration().locale);
 		mText = s;
 	}
 

@@ -546,7 +546,7 @@ public final class EditScreen extends Activity {
         mTaskText.setText(R.string.create_tag);
       }
     }
-    if (TagToDoList.BLIND_MODE) {
+    if (TagToDoList.sTts!=null) {
       new OneTimeTTS(this, mTaskText.getText().toString());
     }
   }

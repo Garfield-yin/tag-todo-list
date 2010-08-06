@@ -10,7 +10,7 @@ import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 public final class OneTimeTTS extends TTS implements
     OnUtteranceCompletedListener {
 
-  public OneTimeTTS(Context c, String s) {
+  public OneTimeTTS(final Context c, final String s) {
     super(c, s);
   }
 

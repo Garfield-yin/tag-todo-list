@@ -54,7 +54,7 @@
 <string name="entry_down">Push down</string>
 <string name="entry_exit">close this menu ...</string>
 <string name="entry_menu">task menu</string>
-<string name="error_photo">Some kind of an error appeared. Are you sure the SD card is inserted?</string>
+<string name="error_photo">Some kind of an error appeared.</string>
 
 <!-- Edit screen -->
 <string name="create_tag"> Type a name for the new tag:</string>
