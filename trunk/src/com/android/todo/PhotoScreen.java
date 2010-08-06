@@ -25,62 +25,74 @@ public final class PhotoScreen extends Activity {
   private static Button sCamButton, sDelButton, sCloseButton;
   private static ImageView sImageView;
   private static Uri sUri;
+  private static ToDoDB sDbHelper;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-	  sUri=Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Utils.getPhotoName(sEntry));
-		sCamButton=(Button) findViewById(R.id.camButton);
-		sCamButton.setOnClickListener(new OnClickListener(){
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setTitle(R.string.entry_photo_note);
+    setContentView(R.layout.photo);
+    final Bundle extras = getIntent().getExtras();
+    if (sEntry == null) {
+      sEntry = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
+    }
+    sDbHelper=ToDoDB.getInstance(getApplicationContext());
+    sUri = Uri.parse(sDbHelper.getStringFlag(sEntry, ToDoDB.KEY_PHOTO_NOTE_URI));
+    sCamButton = (Button) findViewById(R.id.camButton);
+    sCamButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         final Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         i.putExtra(MediaStore.EXTRA_OUTPUT, sUri);
         i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
         startActivityForResult(i, TagToDoList.ENTRY_PHOTO_ID);
       }
-		});
-		sDelButton=(Button) findViewById(R.id.photoDelButton);
-		sDelButton.setOnClickListener(new OnClickListener(){
+    });
+    sDelButton = (Button) findViewById(R.id.photoDelButton);
+    sDelButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        ToDoDB.getInstance(getApplicationContext()).setFlag(sEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 0);
+        sDbHelper.setFlag(sEntry,
+            ToDoDB.KEY_NOTE_IS_PHOTO, 0);
         finish();
       }
     });
-		sCloseButton=(Button) findViewById(R.id.photoCloseButton);
-		sCloseButton.setOnClickListener(new OnClickListener(){
+    sCloseButton = (Button) findViewById(R.id.photoCloseButton);
+    sCloseButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         finish();
       }
-		});
-		sImageView=(ImageView) findViewById(R.id.imageView);
-	}
+    });
+    sImageView = (ImageView) findViewById(R.id.imageView);
+  }
 
-	/**
-	 * Creates all the UI elements
-	 */
-	private final void populateFields() {
-	  sImageView.setImageURI(sUri);
-	}
+  /**
+   * Creates all the UI elements
+   */
+  private final void populateFields() {
+    sImageView.setImageURI(sUri);
+  }
 
-	@Override
+  @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == TagToDoList.ENTRY_PHOTO_ID) {
-        if (resultCode == RESULT_OK) {
-            populateFields();
-        } else {
-            Toast.makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG).show();
-        }
+      if (resultCode == RESULT_OK) {
+        populateFields();
+      } else {
+        Toast
+            .makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG)
+            .show();
+      }
     }
   }
-	
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(ToDoDB.KEY_NAME, sEntry);
-	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		populateFields();
-	}
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putString(ToDoDB.KEY_NAME, sEntry);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    populateFields();
+  }
 }

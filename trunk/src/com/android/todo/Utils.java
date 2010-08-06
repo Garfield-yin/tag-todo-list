@@ -81,8 +81,8 @@ public final class Utils {
    * @param original
    * @return the audio file name
    */
-  public final static String getPhotoName(final String original) {
-    return original.hashCode() + ".jpg";
+  public final static String getPhotoName(final int original) {
+    return "/sdcard/Tag-ToDo_data/photo/".concat(Integer.toString(original).concat(".jpg"));
   }
 
   /**

@@ -37,6 +37,9 @@ public final class ToDoDB extends ADB {
 
   // key for the written note (if any)
   public static final String KEY_WRITTEN_NOTE = "writtennote";
+  
+  // key for the uri of the photo note
+  public static final String KEY_PHOTO_NOTE_URI = "photonoteuri";
 
   // keys useful for the subtasks feature
   public static final String KEY_DEPTH = "depth";
@@ -120,6 +123,7 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 85, 86);
       onUpgrade(db, 91, 92);
       onUpgrade(db, 100, 101);
+      onUpgrade(db, 101, 102);
     }
 
     @Override
@@ -314,6 +318,16 @@ public final class ToDoDB extends ADB {
         try {
           db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_NOTE_IS_PHOTO
               + " INTEGER DEFAULT 0");
+        } catch (Exception e) {
+        }
+      }
+      
+   // upgrade to db v102 (corresponding to app v3.5.1) or bigger;
+      // this is for photo notes
+      if (oldVersion < 102 && newVersion >= 102) {
+        try {
+          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_PHOTO_NOTE_URI
+              + " TEXT");
         } catch (Exception e) {
         }
       }
@@ -537,13 +551,31 @@ public final class ToDoDB extends ADB {
    * @param key
    * @return
    */
-  public final int getFlag(final String task, final String key) {
+  public final int getIntFlag(final String task, final String key) {
     // a try-catch clause should go here
     final Cursor tasks = mDb.query(DB_TASK_TABLE,
         new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
         null, null, null);
     tasks.moveToFirst();
     final int value = tasks.getInt(1);
+    tasks.close();
+    return value;
+  }
+  
+  /**
+   * Returns the value of the given key on the given task
+   * 
+   * @param task
+   * @param key
+   * @return
+   */
+  public final String getStringFlag(final String task, final String key) {
+    // a try-catch clause should go here
+    final Cursor tasks = mDb.query(DB_TASK_TABLE,
+        new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
+        null, null, null);
+    tasks.moveToFirst();
+    final String value = tasks.getString(1);
     tasks.close();
     return value;
   }
@@ -666,6 +698,19 @@ public final class ToDoDB extends ADB {
    * @param value
    */
   public final void setFlag(final String task, final String key, final int value) {
+    final ContentValues args = new ContentValues();
+    args.put(key, value);
+    mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+  }
+  
+  /**
+   * Sets the given flag on the given task with the given value.
+   * 
+   * @param task
+   * @param key
+   * @param value
+   */
+  public final void setFlag(final String task, final String key, final String value) {
     final ContentValues args = new ContentValues();
     args.put(key, value);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);

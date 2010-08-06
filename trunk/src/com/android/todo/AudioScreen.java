@@ -62,7 +62,7 @@ public final class AudioScreen extends Activity {
 		sEntry = savedInstanceState != null ? savedInstanceState
 				.getString(ToDoDB.KEY_NAME) : null;
 
-		Bundle extras = getIntent().getExtras();
+		final Bundle extras = getIntent().getExtras();
 		if (sEntry == null) {
 			sEntry = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
 		}

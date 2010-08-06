@@ -28,7 +28,7 @@
 <string name="sort">Sort</string>
 <string name="descending">descending</string>
 <string name="ascending">ascending</string>
-<string name="priority">priority:</string>
+<string name="priority">Priority: </string>
 <string name="priority_default">default priority:</string>
 <string name="alphabetical">alphabetical:</string>
 <string name="hide_checked">hide checked tasks</string>
@@ -45,15 +45,16 @@
 <string name="entry_subtask_add">Add subtask</string>
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
-<string name="entry_email">Email this task</string>
 <string name="entry_move">Move to another tag</string>
 <string name="entry_move_under_task">Move under a task</string>
 <string name="entry_written_note">Written note</string>
 <string name="entry_graphical_note">Graphical note</string>
 <string name="entry_audio_note">Audio note</string>
+<string name="entry_photo_note">Photo note (beta)</string>
 <string name="entry_down">Push down</string>
 <string name="entry_exit">close this menu ...</string>
 <string name="entry_menu">task menu</string>
+<string name="error_photo">Some kind of an error appeared. Are you sure the SD card is inserted?</string>
 
 <!-- Edit screen -->
 <string name="create_tag"> Type a name for the new tag:</string>
@@ -81,9 +82,11 @@
 <string name="url_help">http://www.teodorfilimon.com/android/Tag-ToDo-List/index.html</string>
 
 <!-- Graphical notes screen -->
-<string name="note_clear">Clear image</string>
-<string name="note_close">Close and save</string>
+<string name="note_clear">Clear</string>
+<string name="note_close">Close &amp; Save</string>
+<string name="note_delete">Delete note</string>
 <string name="note_title">Draw a note for the task:</string>
+<string name="note_camera">Camera</string>
 
 <!-- Audio notes screen -->
 <string name="audio_note_title">Record up to 50s of audio on the SD card</string>
@@ -101,7 +104,7 @@
 <string name="months">January February March April May June July August September October November December</string>
 <string name="notification_view_info_short">More about this screen</string>
 <string name="notification_view_info_long">This screen shows you tasks that are due today or earlier.\n\nYou can go back to the normal todo list view by pressing \'Go back\'.\n\nAlso, you can access this screen from the normal view by pressing the U key.\n</string>
-<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 100 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 100 checked tasks). You can change it by closing this note and pressing O or I.\n\nThis message appeared because the next checked task will reach the limit :)</string>
+<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 100 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 100 checked tasks).\n\nThis message appeared because the next checked task will reach the limit :)</string>
 <string name="alarm">Tag-ToDo-List alarm</string>
 <string name="daily">Daily</string>
 <string name="weekly">Weekly</string>
@@ -177,9 +180,11 @@
 <string name="every">every</string>
 <string name="day">day</string>
 <string name="SMS">SMS</string>
+<string name="email">Email</string>
 <string name="todo">TO-DO</string>
+<string name="tasks">Task</string>
 
-<!-- From this point on, appending strings chronologically -->
+<!-- Search -->
 <string name="search_label">Search Tag-ToDo-List</string>
 <string name="settings_description">Tasks</string>
 

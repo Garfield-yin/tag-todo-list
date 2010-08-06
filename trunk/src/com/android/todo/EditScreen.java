@@ -348,6 +348,8 @@ public final class EditScreen extends Activity {
           if (!(mDbHelper.createTag(name))) {
             showMessage(view.getContext().getString(R.string.tag_existent));
             return;
+          }else{
+            EditScreen.this.setResult(RESULT_OK, new Intent().putExtra(ToDoDB.KEY_NAME, name));
           }
         } else if (action.equals(Integer
             .toString(TagToDoList.ACTIVITY_EDIT_TAG))) {

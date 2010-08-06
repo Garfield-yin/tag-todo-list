@@ -453,10 +453,10 @@ public class TagToDoList extends Activity {
           taskNoteLayout.setOrientation(0);
 
           try {
-            auxInt = sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
+            auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           } catch (Exception e) {
             sDbHelper.repair();
-            auxInt = sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
+            auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           }
           if (auxInt > 0) {
             final ImageButton ib = new ImageButton(this);
@@ -472,7 +472,7 @@ public class TagToDoList extends Activity {
             taskNoteLayout.addView(ib);
           }
 
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
+          if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
             final ImageButton ib = new ImageButton(this);
             ib.setBackgroundColor(Color.TRANSPARENT);
             ib.setPadding(0, 0, 0, 0);
@@ -486,7 +486,7 @@ public class TagToDoList extends Activity {
             taskNoteLayout.addView(ib);
           }
 
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
+          if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
             final ImageButton ib = new ImageButton(this);
             ib.setBackgroundColor(Color.TRANSPARENT);
             ib.setPadding(0, 0, 0, 0);
@@ -499,15 +499,29 @@ public class TagToDoList extends Activity {
             });
             taskNoteLayout.addView(ib);
           }
+
+          if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO) > 0) {
+            final ImageButton ib = new ImageButton(this);
+            ib.setBackgroundColor(Color.TRANSPARENT);
+            ib.setPadding(0, 0, 0, 0);
+            ib.setImageResource(android.R.drawable.ic_menu_camera);
+            ib.setOnClickListener(new View.OnClickListener() {
+              public void onClick(View v) {
+                mContextEntry = taskName;
+                changeTask(ENTRY_PHOTO_ID);
+              }
+            });
+            taskNoteLayout.addView(ib);
+          }
         }
 
         boolean collapsed = false;
         if (SHOW_COLLAPSE) {
           final ImageButton ib = (ImageButton) ll
               .findViewById(R.id.taskCollapseButton);
-          if (sDbHelper.getFlag(taskName, ToDoDB.KEY_SUBTASKS) > 0) {
-            ib.setTag(Boolean.valueOf(collapsed = sDbHelper.getFlag(taskName,
-                ToDoDB.KEY_COLLAPSED) != 0));
+          if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_SUBTASKS) > 0) {
+            ib.setTag(Boolean.valueOf(collapsed = sDbHelper.getIntFlag(
+                taskName, ToDoDB.KEY_COLLAPSED) != 0));
             ib.setImageResource(collapsed ? android.R.drawable.ic_menu_add
                 : android.R.drawable.ic_menu_close_clear_cancel);
             ib.setOnClickListener(new OnClickListener() {
@@ -524,7 +538,8 @@ public class TagToDoList extends Activity {
 
         // should we show the due time?
         if (SHOW_DUE_TIME
-            && (auxInt = sDbHelper.getFlag(taskName, ToDoDB.KEY_EXTRA_OPTIONS)) > 0) {
+            && (auxInt = sDbHelper.getIntFlag(taskName,
+                ToDoDB.KEY_EXTRA_OPTIONS)) > 0) {
           Chronos.refresh();
           final LinearLayout descLayout = (LinearLayout) ll
               .findViewById(R.id.descriptionLayout);
@@ -638,10 +653,9 @@ public class TagToDoList extends Activity {
    * Triggers the activity which asks for the tag's name, and when the response
    * reaches that activity, the tag is created with the given name
    */
-  private void createTag() {
-    Intent i = new Intent(this, EditScreen.class);
-    i.setAction(Integer.toString(ACTIVITY_CREATE_TAG));
-    startActivity(i);
+  private final void createTag() {
+    startActivityForResult(new Intent(this, EditScreen.class).setAction(Integer
+        .toString(ACTIVITY_CREATE_TAG)), ACTIVITY_CREATE_TAG);
   }
 
   /**
@@ -904,14 +918,23 @@ public class TagToDoList extends Activity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == ENTRY_PHOTO_ID) {
-      if (resultCode == RESULT_OK) {
-        sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
-      } else {
-        Toast
-            .makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG)
-            .show();
-      }
+    switch (requestCode) {
+      case ENTRY_PHOTO_ID:
+        if (resultCode == RESULT_OK) {
+          sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
+        } else if (resultCode == RESULT_CANCELED) {
+          // sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 0);
+        } else {
+          Toast.makeText(this, getString(R.string.error_photo),
+              Toast.LENGTH_LONG).show();
+        }
+        break;
+      case ACTIVITY_CREATE_TAG:
+        if (resultCode == RESULT_OK) {
+          selectTag(mTagsArrayAdapter.getPosition(data
+              .getStringExtra(ToDoDB.KEY_NAME)));
+        }
+        break;
     }
   }
 
@@ -1020,14 +1043,18 @@ public class TagToDoList extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case ENTRY_PHOTO_ID:
-        if (sDbHelper.getFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO) != 0) {
+        if (sDbHelper.getIntFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO) == 0) {
+          final int taskId = sDbHelper.getIntFlag(mContextEntry,
+              ToDoDB.KEY_ROWID);
           final ContentValues values = new ContentValues();
-          values.put(MediaStore.Images.Media.TITLE,
-              Utils.getPhotoName(mContextEntry));
+          values.put(MediaStore.Images.Media.TITLE, Utils.getPhotoName(taskId));
           values.put(MediaStore.Images.Media.DESCRIPTION,
               getString(R.string.entry_photo_note));
           final Uri imageUri = getContentResolver().insert(
               MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+          sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
+          sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_PHOTO_NOTE_URI,
+              imageUri.toString());
           i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
           i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
           i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
