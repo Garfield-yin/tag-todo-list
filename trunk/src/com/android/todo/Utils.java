@@ -56,11 +56,16 @@ public final class Utils {
    * extension) from an original string, for example a task which wants a
    * graphical note.
    * 
-   * @param original
+   * @param task
    * @return the image file name
    */
-  public final static String getImageName(String original) {
-    return "note_" + original.hashCode() + ".png";
+  public final static String getImageName(final String task,
+      final boolean newWay) {
+    // remove this last parameter when Android2.2 is not supported anymore
+    if (!newWay) {
+      return "note_" + task.hashCode() + ".png";
+    }
+    return PaintScreen.PATH + task.hashCode() + ".png";
   }
 
   /**
@@ -68,21 +73,11 @@ public final class Utils {
    * extension) from an original string, for example a task which wants an audio
    * note. It only works on sdcard?!
    * 
-   * @param original
+   * @param task
    * @return the audio file name
    */
-  public final static String getAudioName(final String original) {
-    return "/sdcard/Tag-ToDo_data/audio/" + original.hashCode() + ".3gpp";
-  }
-  
-  /**
-   * This function is used to get a photo filename
-   * 
-   * @param original
-   * @return the audio file name
-   */
-  public final static String getPhotoName(final int original) {
-    return "/sdcard/Tag-ToDo_data/photo/".concat(Integer.toString(original).concat(".jpg"));
+  public final static String getAudioName(final String task) {
+    return AudioScreen.PATH + task.hashCode() + ".3gpp";
   }
 
   /**
@@ -100,8 +95,8 @@ public final class Utils {
     // the following notification extras don't really need to be here from a
     // design point of a view, but thinking about a possible future feature of
     // individual alarms
-    i.putExtra(AlarmReceiver.RINGTONE, Uri
-        .parse("android.resource://com.android.todo/" + R.raw.beep));
+    i.putExtra(AlarmReceiver.RINGTONE,
+        Uri.parse("android.resource://com.android.todo/" + R.raw.beep));
     i.putExtra(AlarmReceiver.VIBRATION, new long[] { 200, 300 });
     return i;
   }
@@ -170,10 +165,10 @@ public final class Utils {
     PendingIntent contentIntent = PendingIntent.getActivity(c, 0, new Intent(c,
         NotificationActivity.class), 0);
 
-    Notification n = new Notification(R.drawable.small_icon, text, System
-        .currentTimeMillis());
-    n.setLatestEventInfo(c, c.getString(R.string.notification), c
-        .getString(R.string.notification_view), contentIntent);
+    Notification n = new Notification(R.drawable.small_icon, text,
+        System.currentTimeMillis());
+    n.setLatestEventInfo(c, c.getString(R.string.notification),
+        c.getString(R.string.notification_view), contentIntent);
 
     NotificationManager nm = (NotificationManager) c
         .getSystemService(Context.NOTIFICATION_SERVICE);

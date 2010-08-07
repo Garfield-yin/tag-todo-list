@@ -3,7 +3,8 @@
 package com.android.todo;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,6 +30,8 @@ import com.android.todo.data.ToDoDB;
  * ToDo list entry
  */
 public final class PaintScreen extends GraphicsActivity {
+  public final static String PATH="/sdcard/Tag-ToDo_data/graphics/";
+  
   private Paint mPaint;
   private MyView mView;
   private LinearLayout mLL;
@@ -40,6 +43,17 @@ public final class PaintScreen extends GraphicsActivity {
     super.onCreate(savedInstanceState);
     setTitle(R.string.note_title);
     setContentView(R.layout.note);
+
+    // checking if the necessary folders exist on the sdcard
+    final File f = new File(PATH);
+    if (f.exists() == false) {
+      try {
+        f.mkdirs();
+      } catch (Exception e) {
+        Utils.showDialog(R.string.notification,
+            R.string.audio_recording_impossible, this);
+      }
+    }
 
     mEntry = savedInstanceState != null ? savedInstanceState
         .getString(ToDoDB.KEY_NAME) : null;
@@ -65,7 +79,7 @@ public final class PaintScreen extends GraphicsActivity {
     sExitButton = (Button) findViewById(R.id.exitButton);
     sExitButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
-        mView.save(Utils.getImageName(mEntry));
+        mView.save(Utils.getImageName(mEntry, (Boolean) mView.getTag()));
         finish();
       }
     });
@@ -75,7 +89,11 @@ public final class PaintScreen extends GraphicsActivity {
       public void onClick(View v) {
         ToDoDB.getInstance(getApplicationContext()).setFlag(mEntry,
             ToDoDB.KEY_NOTE_IS_GRAPHICAL, 0);
-        new File(Utils.getImageName(mEntry)).delete();
+        // the next line should be removed when Android 2.2 is no longer
+        // supported
+        new File(Utils.getImageName(mEntry, false)).delete();
+
+        new File(Utils.getImageName(mEntry, true)).delete();
         finish();
       }
     });
@@ -110,15 +128,34 @@ public final class PaintScreen extends GraphicsActivity {
       super(c);
       InputStream fIn = null;
       boolean found = true;
+      final File f = new File(Utils.getImageName(mEntry, true));
       try {
-        fIn = getContext().openFileInput(Utils.getImageName(mEntry));
-      } catch (FileNotFoundException e) {
-        found = false;
+        if (!f.exists()) {
+          throw new Exception();
+        } else {
+          fIn = new FileInputStream(f.getCanonicalPath());
+          this.setTag(new Boolean(true));
+        }
+      } catch (Exception e) {
+        try {
+          // the next line should be removed when Android 2.2 is no longer
+          // supported
+          fIn = getContext().openFileInput(Utils.getImageName(mEntry, false));
+          this.setTag(new Boolean(false));
+        } catch (Exception e2) {
+          found = false;
+          try {
+            f.createNewFile();
+            fIn = new FileInputStream(f.getCanonicalPath());
+          } catch (IOException e1) {
+          }
+          this.setTag(new Boolean(true));
+        }
       }
 
       found = found && fromScratch;
 
-      DisplayMetrics dm = new DisplayMetrics();
+      final DisplayMetrics dm = new DisplayMetrics();
       getWindowManager().getDefaultDisplay().getMetrics(dm);
       mBitmap = Bitmap.createBitmap(dm.widthPixels, dm.heightPixels - 100,
           Bitmap.Config.ARGB_8888);
@@ -211,7 +248,11 @@ public final class PaintScreen extends GraphicsActivity {
     public void save(String path) {
       OutputStream fOut = null;
       try {
-        fOut = getContext().openFileOutput(path, Context.MODE_PRIVATE);
+        try {
+          fOut = getContext().openFileOutput(path, Context.MODE_PRIVATE);
+        } catch (Exception e1) {
+          fOut = new FileOutputStream(path);
+        }
         mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
         fOut.flush();
         fOut.close();

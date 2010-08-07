@@ -272,7 +272,7 @@ public final class ToDoDB extends ADB {
             // checking for a graphical note
             boolean found = true;
             try {
-              mCtx.openFileInput(Utils.getImageName(taskName));
+              mCtx.openFileInput(Utils.getImageName(taskName,false));
             } catch (Exception e) {
               found = false;
             }
@@ -875,8 +875,10 @@ public final class ToDoDB extends ADB {
   public final void updateTask(final String task, final String newName) {
     // chaging things dependent to the name. The name should be replaced with
     // the ROWID soon...
-    new File(Utils.getImageName(task)).renameTo(new File(Utils
-        .getImageName(newName)));
+    new File(Utils.getImageName(task,false)).renameTo(new File(Utils
+        .getImageName(newName,false)));
+    new File(Utils.getImageName(task,true)).renameTo(new File(Utils
+        .getImageName(newName,true)));
     new File(Utils.getAudioName(task)).renameTo(new File(Utils
         .getAudioName(newName)));
     deleteAlarm(task);
@@ -1235,7 +1237,12 @@ public final class ToDoDB extends ADB {
 
     // now we actually delete it:
     mDb.delete(DB_TASK_TABLE, KEY_NAME + "='" + task + "'", null);
-    mCtx.deleteFile(Utils.getImageName(task));
+    
+    //the next line is to be removed when Android 2.2 is no longer supported:
+    mCtx.deleteFile(Utils.getImageName(task,false));
+    
+    mCtx.deleteFile(Utils.getImageName(task,true));
+    
     new File(Utils.getAudioName(task)).delete();
     deleteAlarm(task);
   }

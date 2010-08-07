@@ -30,6 +30,7 @@ import com.android.todo.data.ToDoDB;
  */
 public final class AudioScreen extends Activity {
 
+  public static final String PATH="/sdcard/Tag-ToDo_data/audio/";
 	private static final int MAX_RECORDING_DURATION = 50; // in seconds
 	private static Button sAudioExitButton;
 	private static Button sAudioRecordButton;
@@ -49,7 +50,7 @@ public final class AudioScreen extends Activity {
 		setContentView(R.layout.audio);
 
 		// checking if the necessary folders exist on the sdcard
-		final File f = new File("/sdcard/Tag-ToDo_data/audio/");
+		final File f = new File(PATH);
 		if (f.exists() == false) {
 			try {
 				f.mkdirs();

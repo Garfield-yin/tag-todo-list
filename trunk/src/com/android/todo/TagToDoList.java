@@ -1028,10 +1028,8 @@ public class TagToDoList extends Activity {
         break;
       case TASK_PHOTO_ID:
         if (sDbHelper.getIntFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO) == 0) {
-          final int taskId = sDbHelper.getIntFlag(mContextEntry,
-              ToDoDB.KEY_ROWID);
           final ContentValues values = new ContentValues();
-          values.put(MediaStore.Images.Media.TITLE, Utils.getPhotoName(taskId));
+          values.put(MediaStore.Images.Media.TITLE, mContextEntry);
           values.put(MediaStore.Images.Media.DESCRIPTION,
               getString(R.string.entry_photo_note));
           final Uri imageUri = getContentResolver().insert(
