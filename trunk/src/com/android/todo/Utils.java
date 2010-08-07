@@ -88,22 +88,22 @@ public final class Utils {
   /**
    * Returns an alarm intent which will be passed to the AlarmReceiver
    * 
-   * @param intent
+   * @param i
    *          initial intent
    * @param task
    *          the name of the task as a String
    * @return the new intent (actually the same, just updated)
    */
-  public final static Intent getAlarmIntent(Intent intent, String task) {
-    intent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-    intent.putExtra(ToDoDB.KEY_NAME, task);
+  public final static Intent getAlarmIntent(final Intent i, final String task) {
+    i.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+    i.putExtra(ToDoDB.KEY_NAME, task);
     // the following notification extras don't really need to be here from a
     // design point of a view, but thinking about a possible future feature of
     // individual alarms
-    intent.putExtra(AlarmReceiver.RINGTONE, Uri
+    i.putExtra(AlarmReceiver.RINGTONE, Uri
         .parse("android.resource://com.android.todo/" + R.raw.beep));
-    intent.putExtra(AlarmReceiver.VIBRATION, new long[] { 200, 300 });
-    return intent;
+    i.putExtra(AlarmReceiver.VIBRATION, new long[] { 200, 300 });
+    return i;
   }
 
   /**

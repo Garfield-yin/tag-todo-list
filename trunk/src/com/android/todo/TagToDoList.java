@@ -778,6 +778,8 @@ public class TagToDoList extends Activity {
       if (month != sPref.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             "ANDROID_VERSION", Analytics.SPACE_STATE, VERSION.SDK_INT);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            "TAG_NUMBER", Analytics.SPACE_STATE, mTagSpinner.getChildCount());
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }

@@ -37,7 +37,7 @@ public final class ToDoDB extends ADB {
 
   // key for the written note (if any)
   public static final String KEY_WRITTEN_NOTE = "writtennote";
-  
+
   // key for the uri of the photo note
   public static final String KEY_PHOTO_NOTE_URI = "photonoteuri";
 
@@ -316,18 +316,18 @@ public final class ToDoDB extends ADB {
       // this is for photo notes
       if (oldVersion < 101 && newVersion >= 101) {
         try {
-          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_NOTE_IS_PHOTO
-              + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD "
+              + KEY_NOTE_IS_PHOTO + " INTEGER DEFAULT 0");
         } catch (Exception e) {
         }
       }
-      
-   // upgrade to db v102 (corresponding to app v3.5.1) or bigger;
+
+      // upgrade to db v102 (corresponding to app v3.5.1) or bigger;
       // this is for photo notes
       if (oldVersion < 102 && newVersion >= 102) {
         try {
-          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_PHOTO_NOTE_URI
-              + " TEXT");
+          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD "
+              + KEY_PHOTO_NOTE_URI + " TEXT");
         } catch (Exception e) {
         }
       }
@@ -561,7 +561,7 @@ public final class ToDoDB extends ADB {
     tasks.close();
     return value;
   }
-  
+
   /**
    * Returns the value of the given key on the given task
    * 
@@ -702,7 +702,7 @@ public final class ToDoDB extends ADB {
     args.put(key, value);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
   }
-  
+
   /**
    * Sets the given flag on the given task with the given value.
    * 
@@ -710,7 +710,8 @@ public final class ToDoDB extends ADB {
    * @param key
    * @param value
    */
-  public final void setFlag(final String task, final String key, final String value) {
+  public final void setFlag(final String task, final String key,
+      final String value) {
     final ContentValues args = new ContentValues();
     args.put(key, value);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
@@ -863,19 +864,43 @@ public final class ToDoDB extends ADB {
   }
 
   /**
-   * Updates the specified entry with the specified new name.
+   * Updates the specified task with the specified new name.
    * 
-   * @param taskName
-   *          The name of the entry to be modified
+   * @param task
+   *          The name of the task to be modified
    * @param newName
    *          The new name
    * @return true if successfully updated
    */
-  public final void updateTask(final String taskName, final String newName) {
-    ContentValues args = new ContentValues();
+  public final void updateTask(final String task, final String newName) {
+    // chaging things dependent to the name. The name should be replaced with
+    // the ROWID soon...
+    new File(Utils.getImageName(task)).renameTo(new File(Utils
+        .getImageName(newName)));
+    new File(Utils.getAudioName(task)).renameTo(new File(Utils
+        .getAudioName(newName)));
+    deleteAlarm(task);
+    if (isDueTimeSet(task)) {
+      final PendingIntent pi = PendingIntent.getBroadcast(mCtx,
+          newName.hashCode(),
+          Utils.getAlarmIntent(new Intent(mCtx, AlarmReceiver.class), newName),
+          0);
+      final AlarmManager am = (AlarmManager) mCtx
+          .getSystemService(Context.ALARM_SERVICE);
+      final Time t = new Time(getDueTime(task), getDueDayOfWeek(task));
+      final Date d = new Date(getDueDate(task));
+      if (isDueDateSet(task) && Chronos.getTimeMillis(t, d) > 0) {
+        // single occurence
+        Chronos.setSingularAlarm(am, pi, t, d);
+      } else {// daily or weekly
+        Chronos.setRepeatingAlarm(am, pi, t, d);
+      }
+    }
+
+    final ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
-    mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + taskName + "'", null);
-    final Cursor subtasks = getTasks(null, 1, taskName);
+    mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    final Cursor subtasks = getTasks(null, 1, task);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
       subtasks.moveToFirst();
