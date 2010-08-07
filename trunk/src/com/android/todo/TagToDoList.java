@@ -458,6 +458,7 @@ public class TagToDoList extends Activity {
             sDbHelper.repair();
             auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           }
+          
           if (auxInt > 0) {
             taskNoteLayout.addView(getNoteButton(taskName, R.drawable.written,
                 ENTRY_WRITTEN_ID));
@@ -558,22 +559,22 @@ public class TagToDoList extends Activity {
    * Returns the image button which is actually the small thumbnail that shows
    * up next to the task, if there are notes.
    * 
-   * @param taskName
+   * @param task
    * @param resId
    *          The resource id for the image
    * @param changeId
    * @see {@link #changeTask(int)}
    * @return
    */
-  public final ImageButton getNoteButton(final String taskName,
-      final int resId, final int changeId) {
+  public final ImageButton getNoteButton(final String task, final int resId,
+      final int changeId) {
     final ImageButton ib = new ImageButton(this);
     ib.setBackgroundColor(Color.TRANSPARENT);
     ib.setPadding(0, 0, 0, 0);
     ib.setImageResource(resId);
-    ib.setOnClickListener(new View.OnClickListener() {
+    ib.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        mContextEntry = taskName;
+        mContextEntry = task;
         changeTask(changeId);
       }
     });
@@ -899,8 +900,7 @@ public class TagToDoList extends Activity {
    */
   private final void saveState() {
     // Saving the selected tag
-    sEditor
-        .putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition()).commit();
+    sEditor.putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition()).commit();
   }
 
   @Override
@@ -919,11 +919,10 @@ public class TagToDoList extends Activity {
       case ACTIVITY_CREATE_TAG:
         if (resultCode == RESULT_OK) {
           fillTagData();
-          sEditor
-              .putInt(
-                  LAST_TAB,
-                  mTagsArrayAdapter.getPosition(data
-                      .getStringExtra(ToDoDB.KEY_NAME))).commit();
+          sEditor.putInt(
+              LAST_TAB,
+              mTagsArrayAdapter.getPosition(data
+                  .getStringExtra(ToDoDB.KEY_NAME))).commit();
         }
         break;
     }
