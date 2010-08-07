@@ -22,12 +22,10 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1225,12 +1223,6 @@ public class TagToDoList extends Activity {
       case (KeyEvent.KEYCODE_H):
         showHelpScreen();
         return false;
-      case (KeyEvent.KEYCODE_O):
-        changeSizeLimit(1);
-        return false;
-      case (KeyEvent.KEYCODE_I):
-        changeSizeLimit(-1);
-        return false;
       case (KeyEvent.KEYCODE_X):
         removeAllTasks();
         return false;
@@ -1335,78 +1327,6 @@ public class TagToDoList extends Activity {
     }
     dueEntries.close();
     return false;
-  }
-
-  /**
-   * Increases or decreases the to-do list size by 50 tasks. This refers to the
-   * number of checked items you still want to have stored.
-   * 
-   * @param direction
-   *          is positive (+1) if we want an increase
-   */
-  private void changeSizeLimit(int direction) {
-    int currentLimit = sPref.getInt(ConfigScreen.CHECKED_LIMIT, 50);
-    int newLimit = direction * 10 + currentLimit;
-    if (newLimit < 0) {
-      newLimit = 0;
-    } else if (newLimit > 5000) {
-      newLimit = 5000;
-    }
-    sEditor.putInt(ConfigScreen.CHECKED_LIMIT, newLimit).commit();
-
-    final Dialog d = new Dialog(TagToDoList.this);
-    LinearLayout h = new LinearLayout(TagToDoList.this);
-    h.setPadding(0, 10, 0, 10);
-    h.setGravity(Gravity.CENTER_HORIZONTAL);
-    h.setOrientation(1);
-
-    final TextView tv = new TextView(TagToDoList.this);
-    tv.setGravity(Gravity.CENTER_HORIZONTAL);
-    tv.setBackgroundColor(Color.DKGRAY);
-    tv.setTextColor(Color.YELLOW);
-    tv.setTextSize(60);
-    tv.setText(newLimit + "");
-    h.addView(tv);
-
-    d.setContentView(h);
-
-    d.setTitle(R.string.size_change);
-    d.show();
-
-    final Handler handler = new Handler();
-    final Runnable task = new Runnable() {
-      public void run() {
-        d.dismiss();
-      }
-    };
-    handler.postDelayed(task, 1500);
-    d.setOnKeyListener(new Dialog.OnKeyListener() {
-      public boolean onKey(DialogInterface di, int keyCode, KeyEvent msg) {
-        if (msg.getAction() != KeyEvent.ACTION_DOWN) {
-          return true;
-        }
-        if (keyCode == KeyEvent.KEYCODE_O) {
-          handler.removeCallbacks(task);
-          int newValue = Integer.valueOf(tv.getText().toString()) + 10;
-          if (newValue > 5000) {
-            newValue = 5000;
-          }
-          tv.setText(newValue + "");
-          sEditor.putInt(ConfigScreen.CHECKED_LIMIT, newValue).commit();
-          handler.postDelayed(task, 1500);
-        } else if (keyCode == KeyEvent.KEYCODE_I) {
-          handler.removeCallbacks(task);
-          int newValue = Integer.valueOf(tv.getText().toString()) - 10;
-          if (newValue < 0) {
-            newValue = 0;
-          }
-          tv.setText(newValue + "");
-          sEditor.putInt(ConfigScreen.CHECKED_LIMIT, newValue).commit();
-          handler.postDelayed(task, 1500);
-        }
-        return true;
-      }
-    });
   }
 
   /**
