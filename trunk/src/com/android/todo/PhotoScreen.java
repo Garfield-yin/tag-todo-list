@@ -45,7 +45,7 @@ public final class PhotoScreen extends Activity {
         final Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         i.putExtra(MediaStore.EXTRA_OUTPUT, sUri);
         i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-        startActivityForResult(i, TagToDoList.ENTRY_PHOTO_ID);
+        startActivityForResult(i, TagToDoList.TASK_PHOTO_ID);
       }
     });
     sDelButton = (Button) findViewById(R.id.photoDelButton);
@@ -75,7 +75,7 @@ public final class PhotoScreen extends Activity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == TagToDoList.ENTRY_PHOTO_ID) {
+    if (requestCode == TagToDoList.TASK_PHOTO_ID) {
       if (resultCode == RESULT_OK) {
         populateFields();
       } else {

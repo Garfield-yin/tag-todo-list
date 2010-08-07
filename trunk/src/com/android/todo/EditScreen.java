@@ -344,7 +344,7 @@ public final class EditScreen extends Activity {
     mConfirmButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         String name = mBodyText.getText().toString().replaceAll("'", "`");
-        if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_TAG))) {
+        if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
           if (!(mDbHelper.createTag(name))) {
             showMessage(view.getContext().getString(R.string.tag_existent));
             return;
@@ -352,7 +352,7 @@ public final class EditScreen extends Activity {
             EditScreen.this.setResult(RESULT_OK, new Intent().putExtra(ToDoDB.KEY_NAME, name));
           }
         } else if (action.equals(Integer
-            .toString(TagToDoList.ACTIVITY_EDIT_TAG))) {
+            .toString(TagToDoList.TAG_EDIT_ID))) {
           mDbHelper.updateTag(EditScreen.sParameter, name);
         } else if (action.equals(Integer
             .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
@@ -400,7 +400,7 @@ public final class EditScreen extends Activity {
             syncToWeb(name);
           }
         } else if (action.equals(Integer
-            .toString(TagToDoList.ACTIVITY_WRITE_NOTE))) {
+            .toString(TagToDoList.TASK_WRITTEN_ID))) {
           mDbHelper.setWrittenNote(EditScreen.sParameter, name);
         }
         finish();
@@ -524,7 +524,7 @@ public final class EditScreen extends Activity {
   private void populateFields() {
     String action = getIntent().getAction();
     if (sParameter != null) {
-      if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_TAG))) {
+      if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
         mTaskText.setText(R.string.edit_tag);
         mBodyText.setText(sParameter);
         mBodyText.setSelection(sParameter.length(), sParameter.length());
@@ -537,12 +537,12 @@ public final class EditScreen extends Activity {
         mBodyText.setText(sParameter);
         mBodyText.setSelection(sParameter.length(), sParameter.length());
       } else if (action.equals(Integer
-          .toString(TagToDoList.ACTIVITY_WRITE_NOTE))) {
+          .toString(TagToDoList.TASK_WRITTEN_ID))) {
         mTaskText.setText(R.string.edit_written_note);
         mBodyText.setText(mDbHelper.getWrittenNote(sParameter));
       }
     } else {
-      if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_TAG))) {
+      if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
         mTaskText.setText(R.string.create_tag);
       }
     }

@@ -64,40 +64,33 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
  * list entries.
  */
 public class TagToDoList extends Activity {
-  // Activities:
-  public static final int ACTIVITY_CREATE_TAG = 1;
-  public static final int ACTIVITY_EDIT_TAG = 2;
-  public static final int ACTIVITY_DELETE_TAG = 3;
-  public static final int ACTIVITY_INSTRUCTIONS = 4;
+  // Activities: (keeping these as activities so as not to confuse with some of
+  // the ones below)
   public static final int ACTIVITY_CREATE_ENTRY = 5;
   public static final int ACTIVITY_EDIT_ENTRY = 6;
-  public static final int ACTIVITY_DRAW_NOTE = 7;
-  public static final int ACTIVITY_CLEAR_ENTRIES = 8;
-  public static final int ACTIVITY_WRITE_NOTE = 9;
-  public static final int ACTIVITY_BACKUP_IMPORT = 10;
-  // Menu IDs:
-  public static final int TAG_INSERT_ID = 1;
-  public static final int TAG_REMOVE_ID = 2;
-  public static final int TAG_EDIT_ID = 3;
-  public static final int TAG_HELP_ID = 4;
-  public static final int TAG_CLEAR_ID = 5;
-  public static final int TAG_UNINDENT_ID = 6;
-  public static final int TAG_IMPORTBACKUP_ID = 7;
+
   // Task menu IDs:
-  public static final int ENTRY_EDIT_ID = 1;
-  public static final int ENTRY_REMOVE_ID = 2;
-  public static final int ENTRY_GRAPHICAL_ID = 3;
-  public static final int ENTRY_AUDIO_ID = 4;
-  // public static final int ENTRY_DOWN_ID = 5;
-  // public static final int ENTRY_CLOSE_ID = 6;
-  public static final int ENTRY_MOVE_ID = 7;
-  public static final int ENTRY_WRITTEN_ID = 8;
-  public static final int ENTRY_INSTANTACTION_ID = 9;
-  public static final int ENTRY_SUBTASK_ID = 10;
-  public static final int ENTRY_MOVE_UNDER_TASK_ID = 11;
-  public static final int ENTRY_EMAIL_ID = 12;
-  public static final int ENTRY_SMS_ID = 13;
-  public static final int ENTRY_PHOTO_ID = 14;
+  public static final int TASK_EDIT_ID = 1;
+  public static final int TASK_REMOVE_ID = 2;
+  public static final int TASK_GRAPHICAL_ID = 3;
+  public static final int TASK_AUDIO_ID = 4;
+  public static final int TASK_MOVE_ID = 7;
+  public static final int TASK_WRITTEN_ID = 8;
+  public static final int TASK_INSTANTACTION_ID = 9;
+  public static final int TASK_SUBTASK_ID = 10;
+  public static final int TASK_MOVE_UNDER_TASK_ID = 11;
+  public static final int TASK_EMAIL_ID = 12;
+  public static final int TASK_SMS_ID = 13;
+  public static final int TASK_PHOTO_ID = 14;
+
+  // Menu IDs:
+  public static final int TAG_CREATE_ID = 15;
+  public static final int TAG_DELETE_ID = 16;
+  public static final int TAG_EDIT_ID = 17;
+  public static final int TAG_HELP_ID = 18;
+  public static final int TAG_CLEAR_ID = 19;
+  public static final int TAG_UNINDENT_ID = 20;
+  public static final int TAG_IMPORTBACKUP_ID = 21;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -458,25 +451,25 @@ public class TagToDoList extends Activity {
             sDbHelper.repair();
             auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_WRITTEN);
           }
-          
+
           if (auxInt > 0) {
             taskNoteLayout.addView(getNoteButton(taskName, R.drawable.written,
-                ENTRY_WRITTEN_ID));
+                TASK_WRITTEN_ID));
           }
 
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_GRAPHICAL) > 0) {
             taskNoteLayout.addView(getNoteButton(taskName,
-                android.R.drawable.ic_menu_edit, ENTRY_GRAPHICAL_ID));
+                android.R.drawable.ic_menu_edit, TASK_GRAPHICAL_ID));
           }
 
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
             taskNoteLayout.addView(getNoteButton(taskName, R.drawable.audio,
-                ENTRY_AUDIO_ID));
+                TASK_AUDIO_ID));
           }
 
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO) > 0) {
             taskNoteLayout.addView(getNoteButton(taskName,
-                android.R.drawable.ic_menu_camera, ENTRY_PHOTO_ID));
+                android.R.drawable.ic_menu_camera, TASK_PHOTO_ID));
           }
         }
 
@@ -598,10 +591,10 @@ public class TagToDoList extends Activity {
    */
   private final boolean applyMenuChoice(MenuItem item) {
     switch (item.getItemId()) {
-      case TAG_INSERT_ID:
+      case TAG_CREATE_ID:
         createTag();
         return true;
-      case TAG_REMOVE_ID:
+      case TAG_DELETE_ID:
         removeTag();
         return true;
       case TAG_EDIT_ID:
@@ -633,7 +626,7 @@ public class TagToDoList extends Activity {
         return true;
       case TAG_IMPORTBACKUP_ID:
         final Intent i = new Intent(this, ConfirmationScreen.class);
-        i.setAction(Integer.toString(ACTIVITY_BACKUP_IMPORT));
+        i.setAction(Integer.toString(TAG_IMPORTBACKUP_ID));
         startActivity(i);
         break;
     }
@@ -646,7 +639,7 @@ public class TagToDoList extends Activity {
    */
   private final void createTag() {
     startActivityForResult(new Intent(this, EditScreen.class).setAction(Integer
-        .toString(ACTIVITY_CREATE_TAG)), ACTIVITY_CREATE_TAG);
+        .toString(TAG_CREATE_ID)), TAG_CREATE_ID);
   }
 
   /**
@@ -661,7 +654,7 @@ public class TagToDoList extends Activity {
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
-    i.setAction(Integer.toString(ACTIVITY_DELETE_TAG));
+    i.setAction(Integer.toString(TAG_DELETE_ID));
     startActivity(i);
   }
 
@@ -673,7 +666,7 @@ public class TagToDoList extends Activity {
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
-    i.setAction(Integer.toString(ACTIVITY_CLEAR_ENTRIES));
+    i.setAction(Integer.toString(TAG_CLEAR_ID));
     startActivity(i);
   }
 
@@ -685,7 +678,7 @@ public class TagToDoList extends Activity {
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
-    i.setAction(Integer.toString(ACTIVITY_EDIT_TAG));
+    i.setAction(Integer.toString(TAG_EDIT_ID));
     startActivity(i);
   }
 
@@ -693,9 +686,8 @@ public class TagToDoList extends Activity {
    * Triggers an activity which shows a help screen
    */
   private void showHelpScreen() {
-    Intent i = new Intent(this, ConfirmationScreen.class);
-    i.setAction(Integer.toString(ACTIVITY_INSTRUCTIONS));
-    startActivity(i);
+    startActivity(new Intent(this, ConfirmationScreen.class).setAction(Integer
+        .toString(TAG_HELP_ID)));
   }
 
   /**
@@ -725,9 +717,9 @@ public class TagToDoList extends Activity {
     sb.add(0, TAG_UNINDENT_ID, 0, R.string.menu_unindent);
     MenuItem item = menu.add(0, TAG_HELP_ID, 0, R.string.menu_instructions);
     item.setIcon(R.drawable.help);
-    item = menu.add(0, TAG_INSERT_ID, 0, R.string.menu_create_tag);
+    item = menu.add(0, TAG_CREATE_ID, 0, R.string.menu_create_tag);
     item.setIcon(R.drawable.add);
-    item = menu.add(0, TAG_REMOVE_ID, 0, R.string.menu_delete_tag);
+    item = menu.add(0, TAG_DELETE_ID, 0, R.string.menu_delete_tag);
     item.setIcon(R.drawable.delete);
     return true;
   }
@@ -840,7 +832,7 @@ public class TagToDoList extends Activity {
           mContextEntry = ((CheckBox) ((LinearLayout) ((LinearLayout) v
               .getParent().getParent()).getChildAt(0)).getChildAt(0)).getText()
               .toString();
-          changeTask(ENTRY_EDIT_ID);
+          changeTask(TASK_EDIT_ID);
         }
       };
       // this positions the description under the task, but to the right of the
@@ -906,7 +898,7 @@ public class TagToDoList extends Activity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     switch (requestCode) {
-      case ENTRY_PHOTO_ID:
+      case TASK_PHOTO_ID:
         if (resultCode == RESULT_OK) {
           sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
         } else if (resultCode == RESULT_CANCELED) {
@@ -916,7 +908,7 @@ public class TagToDoList extends Activity {
               Toast.LENGTH_LONG).show();
         }
         break;
-      case ACTIVITY_CREATE_TAG:
+      case TAG_CREATE_ID:
         if (resultCode == RESULT_OK) {
           fillTagData();
           sEditor.putInt(
@@ -940,22 +932,22 @@ public class TagToDoList extends Activity {
     final String possibleAction = a.setAndExtractAction(mContextEntry);
     if (possibleAction != null) {
       mContextAction = a;
-      menu.add(0, ENTRY_INSTANTACTION_ID, 0, possibleAction);
+      menu.add(0, TASK_INSTANTACTION_ID, 0, possibleAction);
     }
-    menu.add(0, ENTRY_SUBTASK_ID, 0, R.string.entry_subtask_add);
-    menu.add(0, ENTRY_EDIT_ID, 0, R.string.entry_edit);
-    menu.add(0, ENTRY_REMOVE_ID, 0, R.string.entry_delete);
+    menu.add(0, TASK_SUBTASK_ID, 0, R.string.entry_subtask_add);
+    menu.add(0, TASK_EDIT_ID, 0, R.string.entry_edit);
+    menu.add(0, TASK_REMOVE_ID, 0, R.string.entry_delete);
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_move);
-    submenu.add(0, ENTRY_MOVE_ID, 0, R.string.entry_move);
-    submenu.add(0, ENTRY_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
+    submenu.add(0, TASK_MOVE_ID, 0, R.string.entry_move);
+    submenu.add(0, TASK_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
     submenu = menu.addSubMenu(R.string.entry_group_notes);
-    submenu.add(0, ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
-    submenu.add(0, ENTRY_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
-    submenu.add(0, ENTRY_PHOTO_ID, 0, R.string.entry_photo_note);
-    submenu.add(0, ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
+    submenu.add(0, TASK_AUDIO_ID, 0, R.string.entry_audio_note);
+    submenu.add(0, TASK_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
+    submenu.add(0, TASK_PHOTO_ID, 0, R.string.entry_photo_note);
+    submenu.add(0, TASK_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_share);
-    submenu.add(0, ENTRY_EMAIL_ID, 0, R.string.email);
-    submenu.add(0, ENTRY_SMS_ID, 0, R.string.SMS);
+    submenu.add(0, TASK_EMAIL_ID, 0, R.string.email);
+    submenu.add(0, TASK_SMS_ID, 0, R.string.SMS);
     menu.setHeaderTitle(R.string.entry_menu);
   }
 
@@ -977,13 +969,13 @@ public class TagToDoList extends Activity {
   private final boolean changeTask(final int selectedItem) {
     Intent i;
     switch (selectedItem) {
-      case ENTRY_EDIT_ID:
+      case TASK_EDIT_ID:
         i = new Intent(this, EditScreen.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         i.setAction(Integer.toString(ACTIVITY_EDIT_ENTRY));
         startActivity(i);
         break;
-      case ENTRY_SUBTASK_ID:
+      case TASK_SUBTASK_ID:
         i = new Intent(this, EditScreen.class);
         i.putExtra(ToDoDB.KEY_NAME,
             mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
@@ -992,22 +984,22 @@ public class TagToDoList extends Activity {
         i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
         startActivity(i);
         break;
-      case ENTRY_REMOVE_ID:
+      case TASK_REMOVE_ID:
         sDbHelper.deleteTask(mContextEntry);
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
-      case ENTRY_GRAPHICAL_ID:
+      case TASK_GRAPHICAL_ID:
         i = new Intent(this, PaintScreen.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         startActivity(i);
         break;
-      case ENTRY_AUDIO_ID:
+      case TASK_AUDIO_ID:
         i = new Intent(this, AudioScreen.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         i.putExtra(ToDoDB.KEY_STATUS, true);
         startActivity(i);
         break;
-      case ENTRY_MOVE_ID:
+      case TASK_MOVE_ID:
         final AdapterView.OnItemSelectedListener l = mTagSpinner
             .getOnItemSelectedListener();
         final int p = mTagSpinner.getSelectedItemPosition();
@@ -1026,13 +1018,13 @@ public class TagToDoList extends Activity {
             });
         mTagSpinner.performClick();
         break;
-      case ENTRY_MOVE_UNDER_TASK_ID:
+      case TASK_MOVE_UNDER_TASK_ID:
         CHOICE_MODE = true;
         ((LinearLayout) findViewById(R.id.lowerLayout))
             .setVisibility(View.GONE);
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
-      case ENTRY_PHOTO_ID:
+      case TASK_PHOTO_ID:
         if (sDbHelper.getIntFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO) == 0) {
           final int taskId = sDbHelper.getIntFlag(mContextEntry,
               ToDoDB.KEY_ROWID);
@@ -1048,20 +1040,20 @@ public class TagToDoList extends Activity {
           i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
           i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
           i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-          startActivityForResult(i, ENTRY_PHOTO_ID);
+          startActivityForResult(i, TASK_PHOTO_ID);
         } else {
           i = new Intent(this, PhotoScreen.class);
           i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
           startActivity(i);
         }
         break;
-      case ENTRY_WRITTEN_ID:
+      case TASK_WRITTEN_ID:
         i = new Intent(this, EditScreen.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-        i.setAction(Integer.toString(ACTIVITY_WRITE_NOTE));
+        i.setAction(Integer.toString(TASK_WRITTEN_ID));
         startActivity(i);
         break;
-      case ENTRY_SMS_ID:
+      case TASK_SMS_ID:
         if (Analytics.sTracker != null) {
           // we log the number of characters
           Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
@@ -1073,7 +1065,7 @@ public class TagToDoList extends Activity {
         i.setType("vnd.android-dir/mms-sms");
         startActivity(i);
         break;
-      case ENTRY_EMAIL_ID:
+      case TASK_EMAIL_ID:
         if (Analytics.sTracker != null) {
           // we log the number of characters
           Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
@@ -1089,7 +1081,7 @@ public class TagToDoList extends Activity {
         i.setType("plain/text");
         startActivity(Intent.createChooser(i, getString(R.string.email)));
         break;
-      case ENTRY_INSTANTACTION_ID:
+      case TASK_INSTANTACTION_ID:
         mContextAction.perform(this);
         break;
     }
@@ -1180,7 +1172,7 @@ public class TagToDoList extends Activity {
           if (mActiveEntry > -1) {
             mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
                 .findViewById(R.id.taskCheckBox))).getText().toString();
-            changeTask(ENTRY_REMOVE_ID);
+            changeTask(TASK_REMOVE_ID);
             mActiveEntry = Utils.iterate(mActiveEntry,
                 mEntryLayout.getChildCount(), -1);
           }
@@ -1194,7 +1186,7 @@ public class TagToDoList extends Activity {
           if (mActiveEntry > -1) {
             mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
                 .findViewById(R.id.taskCheckBox))).getText().toString();
-            changeTask(ENTRY_EDIT_ID);
+            changeTask(TASK_EDIT_ID);
           }
         }
         return false;
@@ -1202,21 +1194,21 @@ public class TagToDoList extends Activity {
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
-          changeTask(ENTRY_GRAPHICAL_ID);
+          changeTask(TASK_GRAPHICAL_ID);
         }
         return false;
       case (KeyEvent.KEYCODE_F):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
-          changeTask(ENTRY_AUDIO_ID);
+          changeTask(TASK_AUDIO_ID);
         }
         return false;
       case (KeyEvent.KEYCODE_PERIOD):
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
-          changeTask(ENTRY_SUBTASK_ID);
+          changeTask(TASK_SUBTASK_ID);
         }
         return false;
       case (KeyEvent.KEYCODE_H):
@@ -1232,7 +1224,7 @@ public class TagToDoList extends Activity {
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
-          changeTask(ENTRY_MOVE_ID);
+          changeTask(TASK_MOVE_ID);
           mActiveEntry = Utils.iterate(mActiveEntry,
               mEntryLayout.getChildCount(), -1);
         }
@@ -1247,7 +1239,7 @@ public class TagToDoList extends Activity {
         if (mActiveEntry > -1) {
           mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)
               .findViewById(R.id.taskCheckBox))).getText().toString();
-          changeTask(ENTRY_WRITTEN_ID);
+          changeTask(TASK_WRITTEN_ID);
         }
         return false;
     }

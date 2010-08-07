@@ -126,16 +126,16 @@ public final class NotificationActivity extends Activity {
       ContextMenu.ContextMenuInfo menuInfo) {
     mContextEntry = ((CheckBox) v).getText().toString();
     // menu.add(0, TagToDoList.ENTRY_CLOSE_ID, 0, R.string.entry_exit);
-    menu.add(0, TagToDoList.ENTRY_EDIT_ID, 0, R.string.entry_edit);
-    menu.add(0, TagToDoList.ENTRY_REMOVE_ID, 0, R.string.entry_delete);
+    menu.add(0, TagToDoList.TASK_EDIT_ID, 0, R.string.entry_edit);
+    menu.add(0, TagToDoList.TASK_REMOVE_ID, 0, R.string.entry_delete);
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_notes);
-    submenu.add(0, TagToDoList.ENTRY_AUDIO_ID, 0, R.string.entry_audio_note);
-    submenu.add(0, TagToDoList.ENTRY_GRAPHICAL_ID, 0,
+    submenu.add(0, TagToDoList.TASK_AUDIO_ID, 0, R.string.entry_audio_note);
+    submenu.add(0, TagToDoList.TASK_GRAPHICAL_ID, 0,
         R.string.entry_graphical_note);
     submenu
-        .add(0, TagToDoList.ENTRY_WRITTEN_ID, 0, R.string.entry_written_note);
+        .add(0, TagToDoList.TASK_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_move);
-    submenu.add(0, TagToDoList.ENTRY_MOVE_ID, 0, R.string.entry_move);
+    submenu.add(0, TagToDoList.TASK_MOVE_ID, 0, R.string.entry_move);
     menu.setHeaderTitle(R.string.entry_menu);
   }
 
@@ -149,31 +149,31 @@ public final class NotificationActivity extends Activity {
    */
   private boolean changeTask(int selectedItem) {
     switch (selectedItem) {
-    case TagToDoList.ENTRY_EDIT_ID:
+    case TagToDoList.TASK_EDIT_ID:
       Intent i1 = new Intent(this, EditScreen.class);
       i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i1.setAction(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY));
       startActivity(i1);
       break;
-    case TagToDoList.ENTRY_REMOVE_ID:
+    case TagToDoList.TASK_REMOVE_ID:
       mDbHelper.deleteTask(mContextEntry);
       populateEntries();
       break;
-    case TagToDoList.ENTRY_GRAPHICAL_ID:
+    case TagToDoList.TASK_GRAPHICAL_ID:
       Intent i2 = new Intent(this, PaintScreen.class);
       i2.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       startActivity(i2);
       break;
-    case TagToDoList.ENTRY_AUDIO_ID:
+    case TagToDoList.TASK_AUDIO_ID:
       Intent i3 = new Intent(this, AudioScreen.class);
       i3.putExtra(ToDoDB.KEY_NAME, mContextEntry);
       i3.putExtra(ToDoDB.KEY_STATUS, true);
       startActivity(i3);
       break;
-    case TagToDoList.ENTRY_WRITTEN_ID:
+    case TagToDoList.TASK_WRITTEN_ID:
       Intent i4 = new Intent(this, EditScreen.class);
       i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      i4.setAction(Integer.toString(TagToDoList.ACTIVITY_WRITE_NOTE));
+      i4.setAction(Integer.toString(TagToDoList.TASK_WRITTEN_ID));
       startActivity(i4);
       break;
     }
@@ -209,7 +209,7 @@ public final class NotificationActivity extends Activity {
       if (mActiveEntry > -1) {
         mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
             .getText().toString();
-        changeTask(TagToDoList.ENTRY_REMOVE_ID);
+        changeTask(TagToDoList.TASK_REMOVE_ID);
         mActiveEntry = Utils.iterate(mActiveEntry,
             mEntryLayout.getChildCount(), -1);
       }
@@ -219,21 +219,21 @@ public final class NotificationActivity extends Activity {
       if (mActiveEntry > -1) {
         mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
             .getText().toString();
-        changeTask(TagToDoList.ENTRY_EDIT_ID);
+        changeTask(TagToDoList.TASK_EDIT_ID);
       }
       break;
     case (KeyEvent.KEYCODE_G):
       if (mActiveEntry > -1) {
         mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
             .getText().toString();
-        changeTask(TagToDoList.ENTRY_GRAPHICAL_ID);
+        changeTask(TagToDoList.TASK_GRAPHICAL_ID);
       }
       break;
     case (KeyEvent.KEYCODE_F):
       if (mActiveEntry > -1) {
         mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
             .getText().toString();
-        changeTask(TagToDoList.ENTRY_AUDIO_ID);
+        changeTask(TagToDoList.TASK_AUDIO_ID);
       }
       break;
     case (KeyEvent.KEYCODE_DEL):
@@ -243,7 +243,7 @@ public final class NotificationActivity extends Activity {
       if (mActiveEntry > -1) {
         mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
             .getText().toString();
-        changeTask(TagToDoList.ENTRY_WRITTEN_ID);
+        changeTask(TagToDoList.TASK_WRITTEN_ID);
       }
       break;
     }
