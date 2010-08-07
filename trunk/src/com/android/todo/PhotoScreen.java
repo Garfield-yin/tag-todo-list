@@ -36,8 +36,9 @@ public final class PhotoScreen extends Activity {
     if (sEntry == null) {
       sEntry = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
     }
-    sDbHelper=ToDoDB.getInstance(getApplicationContext());
-    sUri = Uri.parse(sDbHelper.getStringFlag(sEntry, ToDoDB.KEY_PHOTO_NOTE_URI));
+    sDbHelper = ToDoDB.getInstance(getApplicationContext());
+    sUri = Uri
+        .parse(sDbHelper.getStringFlag(sEntry, ToDoDB.KEY_PHOTO_NOTE_URI));
     sCamButton = (Button) findViewById(R.id.camButton);
     sCamButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
@@ -50,8 +51,7 @@ public final class PhotoScreen extends Activity {
     sDelButton = (Button) findViewById(R.id.photoDelButton);
     sDelButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        sDbHelper.setFlag(sEntry,
-            ToDoDB.KEY_NOTE_IS_PHOTO, 0);
+        sDbHelper.setFlag(sEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 0);
         finish();
       }
     });
@@ -62,6 +62,8 @@ public final class PhotoScreen extends Activity {
       }
     });
     sImageView = (ImageView) findViewById(R.id.imageView);
+    sImageView.setDrawingCacheEnabled(false);
+    sImageView.setWillNotCacheDrawing(false);
   }
 
   /**
@@ -82,6 +84,12 @@ public final class PhotoScreen extends Activity {
             .show();
       }
     }
+  }
+
+  @Override
+  protected void onDestroy() {
+    sEntry = null;
+    super.onDestroy();
   }
 
   @Override
