@@ -154,12 +154,12 @@ public class TagToDoList extends Activity {
               int position, long id) {
             mActiveEntry = -1;
             selectTag(position);
-            //if (BLIND_MODE) {
-              if (sTts != null) {
-                sTts.speak(mTagsArrayAdapter.getItem(
-                    mTagSpinner.getSelectedItemPosition()).toString());
-              }
-            //}
+            // if (BLIND_MODE) {
+            if (sTts != null) {
+              sTts.speak(mTagsArrayAdapter.getItem(
+                  mTagSpinner.getSelectedItemPosition()).toString());
+            }
+            // }
           }
 
           public void onNothingSelected(AdapterView<?> arg0) {
@@ -358,8 +358,8 @@ public class TagToDoList extends Activity {
 
     final ToDoDB dbHelper = sDbHelper;
     final LayoutInflater inflater = getLayoutInflater();
-    mStatButton.setText(processDepth(dbHelper, inflater, el, ccl, selectedTag,
-        0, null) + "");
+    mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el, ccl, selectedTag,
+        0, null)));
   }
 
   /**
@@ -733,7 +733,7 @@ public class TagToDoList extends Activity {
   /**
    * Populates the interface with tags
    */
-  private void fillTagData() {
+  private final void fillTagData() {
     mTagsArrayAdapter = new ArrayAdapter<CharSequence>(this,
         android.R.layout.simple_spinner_item);
     mTagsArrayAdapter
@@ -774,7 +774,7 @@ public class TagToDoList extends Activity {
       ToDoDB.createBackup();
     }
 
-    if (sTts!=null) {
+    if (sTts != null) {
       sTts.shutdown();
       sTts = null;
     }
@@ -919,8 +919,10 @@ public class TagToDoList extends Activity {
         break;
       case ACTIVITY_CREATE_TAG:
         if (resultCode == RESULT_OK) {
-          selectTag(mTagsArrayAdapter.getPosition(data
-              .getStringExtra(ToDoDB.KEY_NAME)));
+          fillTagData();
+          getSharedPreferences(PREFS_NAME, 0).edit()
+          .putInt(LAST_TAB, mTagsArrayAdapter.getPosition(data
+              .getStringExtra(ToDoDB.KEY_NAME))).commit();
         }
         break;
     }
@@ -1286,7 +1288,7 @@ public class TagToDoList extends Activity {
     final LinearLayout ll = ((LinearLayout) mEntryLayout
         .getChildAt(mActiveEntry));
     ll.setBackgroundColor(Color.DKGRAY);
-    if (sTts!=null) {
+    if (sTts != null) {
       final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
       sTts.speak(cb.getText().toString()
           + (cb.isChecked() ? ')' + getString(R.string.checked) : ""));
