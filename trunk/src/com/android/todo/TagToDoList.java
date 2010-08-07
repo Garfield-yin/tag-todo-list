@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -127,7 +128,8 @@ public class TagToDoList extends Activity {
   private static OnTouchListener sGestureListener;
   private static OnClickListener sDescriptionClickListener;
   private static ToDoDB sDbHelper;
-  private static SharedPreferences sSettings;
+  public static SharedPreferences sPref;
+  public static Editor sEditor;
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
   private ArrayAdapter<CharSequence> mTagsArrayAdapter;
@@ -141,8 +143,9 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
-    sSettings = getSharedPreferences(PREFS_NAME, 0);
-    setTheme(sSettings.getInt(ConfigScreen.THEME, android.R.style.Theme));
+    sPref = getSharedPreferences(PREFS_NAME, 0);
+    sEditor = sPref.edit();
+    setTheme(sPref.getInt(ConfigScreen.THEME, android.R.style.Theme));
     super.onCreate(icicle);
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
@@ -358,8 +361,8 @@ public class TagToDoList extends Activity {
 
     final ToDoDB dbHelper = sDbHelper;
     final LayoutInflater inflater = getLayoutInflater();
-    mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el, ccl, selectedTag,
-        0, null)));
+    mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
+        ccl, selectedTag, 0, null)));
   }
 
   /**
@@ -770,7 +773,7 @@ public class TagToDoList extends Activity {
 
   @Override
   protected void onDestroy() {
-    if (sSettings.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
+    if (sPref.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
       ToDoDB.createBackup();
     }
 
@@ -781,12 +784,11 @@ public class TagToDoList extends Activity {
 
     if (Analytics.sTracker != null) {
       final int month = Calendar.getInstance().get(Calendar.MONTH);
-      if (month != sSettings.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
+      if (month != sPref.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             "ANDROID_VERSION", Analytics.SPACE_STATE, VERSION.SDK_INT);
         Analytics.sTracker.dispatch();
-        sSettings.edit().putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month)
-            .commit();
+        sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
       Analytics.sTracker.stop();
     }
@@ -821,19 +823,19 @@ public class TagToDoList extends Activity {
     // populating the fields:
     fillTagData();
 
-    setPrioritySort(sSettings.getInt(PRIORITY_SORT, 0));
-    setAlphabeticalSort(sSettings.getInt(ALPHABET_SORT, 0));
-    setDueDateSort(sSettings.getInt(DUEDATE_SORT, 0));
+    setPrioritySort(sPref.getInt(PRIORITY_SORT, 0));
+    setAlphabeticalSort(sPref.getInt(ALPHABET_SORT, 0));
+    setDueDateSort(sPref.getInt(DUEDATE_SORT, 0));
 
     // Is the notes preview feature enabled?
-    SHOW_NOTES = sSettings.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
+    SHOW_NOTES = sPref.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
         || getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
     // Should the collapse buttons be shown?
-    SHOW_COLLAPSE = sSettings.getBoolean(ConfigScreen.SHOW_COLLAPSE, false);
+    SHOW_COLLAPSE = sPref.getBoolean(ConfigScreen.SHOW_COLLAPSE, false);
 
     // Should due time be shown for the tasks that have it?
-    if (SHOW_DUE_TIME = sSettings.getBoolean(ConfigScreen.SHOW_DUE_TIME, false)) {
+    if (SHOW_DUE_TIME = sPref.getBoolean(ConfigScreen.SHOW_DUE_TIME, false)) {
       sDescriptionClickListener = new OnClickListener() {
         public void onClick(View v) {
           mContextEntry = ((CheckBox) ((LinearLayout) ((LinearLayout) v
@@ -850,29 +852,28 @@ public class TagToDoList extends Activity {
     }
 
     // Should checked tasks be hidden?
-    HIDE_CHECKED = sSettings.getBoolean(HIDE_CHECKED_SORT, false);
+    HIDE_CHECKED = sPref.getBoolean(HIDE_CHECKED_SORT, false);
 
     // Is a Google Calendar sync enabled?
-    if (SYNC_GCAL = sSettings.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
+    if (SYNC_GCAL = sPref.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
       GoogleCalendar.setLogin(
-          sSettings.getString(ConfigScreen.GOOGLE_USERNAME, ""),
-          sSettings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+          sPref.getString(ConfigScreen.GOOGLE_USERNAME, ""),
+          sPref.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
     }
 
     // do we visually distinguish tasks by priority?
-    if (SHINY_PRIORITY = sSettings.getBoolean(ConfigScreen.VISUAL_PRIORITY,
-        false)) {
-      mMaxPriority = sSettings.getInt(ConfigScreen.PRIORITY_MAX, 100);
+    if (SHINY_PRIORITY = sPref.getBoolean(ConfigScreen.VISUAL_PRIORITY, false)) {
+      mMaxPriority = sPref.getInt(ConfigScreen.PRIORITY_MAX, 100);
     }
 
     // Restore the last selected tag
-    int lastSelectedTag = sSettings.getInt(LAST_TAB, 0);
+    int lastSelectedTag = sPref.getInt(LAST_TAB, 0);
     if (lastSelectedTag >= mTagSpinner.getCount()) {
       lastSelectedTag = 0;
     }
     mTagSpinner.setSelection(lastSelectedTag, true);
 
-    if (sSettings.getBoolean(ConfigScreen.BLIND_MODE, false)) {
+    if (sPref.getBoolean(ConfigScreen.BLIND_MODE, false)) {
       if (sTts == null) {
         sTts = new TTS(getApplicationContext(), null);
       }
@@ -885,7 +886,7 @@ public class TagToDoList extends Activity {
 
     // instantiate usage stats tracker (if it's the case)
     if (Analytics.sTracker == null
-        && sSettings.getBoolean(ConfigScreen.USAGE_STATS, false)) {
+        && sPref.getBoolean(ConfigScreen.USAGE_STATS, false)) {
       Analytics.sTracker = GoogleAnalyticsTracker.getInstance();
       Analytics.sTracker.start(Analytics.UA_CODE, this);
       Analytics.sTracker.trackPageView(Analytics.VIEW_MAIN);
@@ -900,7 +901,7 @@ public class TagToDoList extends Activity {
    */
   private final void saveState() {
     // Saving the selected tag
-    getSharedPreferences(PREFS_NAME, 0).edit()
+    sEditor
         .putInt(LAST_TAB, mTagSpinner.getSelectedItemPosition()).commit();
   }
 
@@ -920,9 +921,11 @@ public class TagToDoList extends Activity {
       case ACTIVITY_CREATE_TAG:
         if (resultCode == RESULT_OK) {
           fillTagData();
-          getSharedPreferences(PREFS_NAME, 0).edit()
-          .putInt(LAST_TAB, mTagsArrayAdapter.getPosition(data
-              .getStringExtra(ToDoDB.KEY_NAME))).commit();
+          sEditor
+              .putInt(
+                  LAST_TAB,
+                  mTagsArrayAdapter.getPosition(data
+                      .getStringExtra(ToDoDB.KEY_NAME))).commit();
         }
         break;
     }
@@ -1342,16 +1345,14 @@ public class TagToDoList extends Activity {
    *          is positive (+1) if we want an increase
    */
   private void changeSizeLimit(int direction) {
-    final SharedPreferences.Editor editor = sSettings.edit();
-    int currentLimit = sSettings.getInt(ConfigScreen.CHECKED_LIMIT, 50);
+    int currentLimit = sPref.getInt(ConfigScreen.CHECKED_LIMIT, 50);
     int newLimit = direction * 10 + currentLimit;
     if (newLimit < 0) {
       newLimit = 0;
     } else if (newLimit > 5000) {
       newLimit = 5000;
     }
-    editor.putInt(ConfigScreen.CHECKED_LIMIT, newLimit);
-    editor.commit();
+    sEditor.putInt(ConfigScreen.CHECKED_LIMIT, newLimit).commit();
 
     final Dialog d = new Dialog(TagToDoList.this);
     LinearLayout h = new LinearLayout(TagToDoList.this);
@@ -1391,8 +1392,7 @@ public class TagToDoList extends Activity {
             newValue = 5000;
           }
           tv.setText(newValue + "");
-          editor.putInt(ConfigScreen.CHECKED_LIMIT, newValue);
-          editor.commit();
+          sEditor.putInt(ConfigScreen.CHECKED_LIMIT, newValue).commit();
           handler.postDelayed(task, 1500);
         } else if (keyCode == KeyEvent.KEYCODE_I) {
           handler.removeCallbacks(task);
@@ -1401,8 +1401,7 @@ public class TagToDoList extends Activity {
             newValue = 0;
           }
           tv.setText(newValue + "");
-          editor.putInt(ConfigScreen.CHECKED_LIMIT, newValue);
-          editor.commit();
+          sEditor.putInt(ConfigScreen.CHECKED_LIMIT, newValue).commit();
           handler.postDelayed(task, 1500);
         }
         return true;
@@ -1430,7 +1429,7 @@ public class TagToDoList extends Activity {
 
     final CheckBox priorityDown = new CheckBox(this);
     final CheckBox priorityUp = new CheckBox(this);
-    switch (sSettings.getInt(PRIORITY_SORT, 0)) {
+    switch (sPref.getInt(PRIORITY_SORT, 0)) {
       case 1:
         priorityDown.setChecked(true);
         break;
@@ -1468,7 +1467,7 @@ public class TagToDoList extends Activity {
     final CheckBox dateDown = new CheckBox(this);
     final CheckBox dateUp = new CheckBox(this);
     row = new LinearLayout(this);
-    switch (sSettings.getInt(DUEDATE_SORT, 0)) {
+    switch (sPref.getInt(DUEDATE_SORT, 0)) {
       case 1:
         dateDown.setChecked(true);
         break;
@@ -1506,7 +1505,7 @@ public class TagToDoList extends Activity {
     final CheckBox alphabetDown = new CheckBox(this);
     final CheckBox alphabetUp = new CheckBox(this);
     row = new LinearLayout(this);
-    switch (sSettings.getInt(ALPHABET_SORT, 0)) {
+    switch (sPref.getInt(ALPHABET_SORT, 0)) {
       case 1:
         alphabetDown.setChecked(true);
         break;
@@ -1546,45 +1545,44 @@ public class TagToDoList extends Activity {
     b.setOnClickListener(new View.OnClickListener() {
       public void onClick(View arg0) {
         d.dismiss();
-        SharedPreferences.Editor editor = sSettings.edit();
 
         if (priorityDown.isChecked()) {
           setPrioritySort(1);
-          editor.putInt(PRIORITY_SORT, 1);
+          sEditor.putInt(PRIORITY_SORT, 1);
         } else if (priorityUp.isChecked()) {
           setPrioritySort(2);
-          editor.putInt(PRIORITY_SORT, 2);
+          sEditor.putInt(PRIORITY_SORT, 2);
         } else {
           setPrioritySort(3);
-          editor.putInt(PRIORITY_SORT, 0);
+          sEditor.putInt(PRIORITY_SORT, 0);
         }
 
         if (alphabetDown.isChecked()) {
           setAlphabeticalSort(1);
-          editor.putInt(ALPHABET_SORT, 1);
+          sEditor.putInt(ALPHABET_SORT, 1);
         } else if (alphabetUp.isChecked()) {
           setAlphabeticalSort(2);
-          editor.putInt(ALPHABET_SORT, 2);
+          sEditor.putInt(ALPHABET_SORT, 2);
         } else {
           setAlphabeticalSort(3);
-          editor.putInt(ALPHABET_SORT, 0);
+          sEditor.putInt(ALPHABET_SORT, 0);
         }
 
         if (dateDown.isChecked()) {
           setDueDateSort(1);
-          editor.putInt(DUEDATE_SORT, 1);
+          sEditor.putInt(DUEDATE_SORT, 1);
         } else if (dateUp.isChecked()) {
           setDueDateSort(2);
-          editor.putInt(DUEDATE_SORT, 2);
+          sEditor.putInt(DUEDATE_SORT, 2);
         } else {
           setDueDateSort(3);
-          editor.putInt(DUEDATE_SORT, 0);
+          sEditor.putInt(DUEDATE_SORT, 0);
         }
 
-        editor.putBoolean(HIDE_CHECKED_SORT,
+        sEditor.putBoolean(HIDE_CHECKED_SORT,
             HIDE_CHECKED = hideChecked.isChecked());
 
-        editor.commit();
+        sEditor.commit();
         selectTag(mTagSpinner.getSelectedItemPosition());
       }
     });

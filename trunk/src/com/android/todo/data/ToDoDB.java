@@ -754,7 +754,7 @@ public final class ToDoDB extends ADB {
       final Cursor checkedC = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
           KEY_STATUS }, KEY_STATUS + " = 1", null, null, null, null);
       final SharedPreferences settings = mCtx.getSharedPreferences(
-          TagToDoList.PREFS_NAME, 50);
+          TagToDoList.PREFS_NAME, 0);
       int limit = settings.getInt("listSizeLimit", 50);
       if (checkedC.getCount() >= limit) {
         int counter = checkedC.getCount();
