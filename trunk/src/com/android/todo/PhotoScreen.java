@@ -2,8 +2,12 @@
 
 package com.android.todo;
 
+import java.io.FileNotFoundException;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -68,16 +72,38 @@ public final class PhotoScreen extends Activity {
 
   /**
    * Creates all the UI elements
+   * 
+   * @throws FileNotFoundException
    */
-  private final void populateFields() {
-    sImageView.setImageURI(sUri);
+  private final void populateFields() throws FileNotFoundException {
+    final BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inSampleSize = 1;
+    Bitmap photoBitmap = BitmapFactory.decodeStream(getContentResolver()
+        .openInputStream(sUri), null, options);
+    int h = photoBitmap.getHeight();
+    int w = photoBitmap.getWidth();
+    if ((w > h) && (w > 256)) {
+      double ratio = 256d / w;
+      w = 256;
+      h = (int) (ratio * h);
+    } else if ((h > w) && (h > 256)) {
+      double ratio = 256d / h;
+      h = 256;
+      w = (int) (ratio * w);
+    }
+    final Bitmap scaled = Bitmap.createScaledBitmap(photoBitmap, w, h, true);
+    photoBitmap.recycle();
+    sImageView.setImageBitmap(scaled);
   }
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == TagToDoList.TASK_PHOTO_ID) {
       if (resultCode == RESULT_OK) {
-        populateFields();
+        try {
+          populateFields();
+        } catch (FileNotFoundException e) {
+        }
       } else {
         Toast
             .makeText(this, getString(R.string.error_photo), Toast.LENGTH_LONG)
@@ -89,6 +115,8 @@ public final class PhotoScreen extends Activity {
   @Override
   protected void onDestroy() {
     sEntry = null;
+    sImageView.destroyDrawingCache();
+    sImageView = null;
     super.onDestroy();
   }
 
@@ -101,6 +129,9 @@ public final class PhotoScreen extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    populateFields();
+    try {
+      populateFields();
+    } catch (FileNotFoundException e) {
+    }
   }
 }

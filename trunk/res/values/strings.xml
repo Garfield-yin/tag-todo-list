@@ -95,7 +95,7 @@
 <string name="audio_close">Close</string>
 <string name="audio_recording_limit">Max length is</string>
 <string name="audio_replay">Replay</string>
-<string name="audio_recording_impossible">Recording can\'t start :-/\nAre you sure there\'s an SD card in the device?\n</string>
+<string name="audio_recording_impossible">Note activity can\'t start :-/\nAre you sure there\'s an SD card in the device?\n</string>
 
 <!-- Notification screen, Notifications, Alarms Due Dates -->
 <string name="notification">Tag-ToDo-List says:</string>

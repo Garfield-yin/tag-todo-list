@@ -1241,7 +1241,7 @@ public final class ToDoDB extends ADB {
     //the next line is to be removed when Android 2.2 is no longer supported:
     mCtx.deleteFile(Utils.getImageName(task,false));
     
-    mCtx.deleteFile(Utils.getImageName(task,true));
+    new File(Utils.getImageName(task,true));
     
     new File(Utils.getAudioName(task)).delete();
     deleteAlarm(task);

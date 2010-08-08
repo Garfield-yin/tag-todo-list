@@ -17,7 +17,10 @@ public final class Chronos {
       R.string.wednesday, R.string.thursday, R.string.friday,
       R.string.saturday, R.string.sunday };
 
-  
+  /**
+   * This class represents time, and includes periodicity. An encoded time means
+   * 60*hours+minutes
+   */
   public static class Time {
     private int mHour;
     private int mMinute;
@@ -59,6 +62,9 @@ public final class Chronos {
     }
   }
 
+  /**
+   * This class represents dates. An encoded date is (year*12+month)*31+day
+   */
   public static class Date {
     private int mDayOfMonth;
     private int mMonth;

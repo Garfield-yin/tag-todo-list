@@ -25,7 +25,7 @@ to which this is an informative addition.
 3. RESOURCES (mainly icons - can be found in the 'res/drawable'
 folder as .png files):
 	- the 'icon.png' image has been designed by www.ganato.com;
-	you can't use it for any app or web page, sorry :S
+	you can't use it for any app or web page :S
 	- the other icons (from the 'drawable' folder) have been
 	purchased under license from www.techlogica.us
 All the icons can only be used for the original app.
@@ -60,5 +60,3 @@ removal by Android on app update) // done in the ADB class
 
 I'll be happy to answer any questions at:
 http://teodorfilimon.com/android/Tag-ToDo-List/contact.html
-
-This file was last updated on April 13, 2010
