@@ -1,9 +1,0 @@
-<searchable xmlns:android="http://schemas.android.com/apk/res/android"
-       android:label="@string/search_label"
-       android:searchSettingsDescription="@string/settings_description"
-       android:includeInGlobalSearch="true"
-       android:searchSuggestAuthority="com.android.todo.sync.provider"
-       android:searchSuggestIntentAction="android.intent.action.VIEW"
-       android:searchSuggestIntentData="item"
-       >
-</searchable>
