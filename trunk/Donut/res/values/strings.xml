@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+<string name="app_name">Tag ToDo</string>
+<string name="full_name">Tag-ToDo-List</string>
+
+<!-- App menu and main view features -->
+<string name="menu_create_tag">Create a new tag</string>
+<string name="menu_delete_tag">Delete this tag</string>
+<string name="menu_edit_tag">Rename this tag</string>
+<string name="menu_new_entry">Add a new task</string>
+<string name="menu_instructions">Instructions</string>
+<string name="menu_clear">Delete all the tasks</string>
+<string name="menu_unindent">Unindent all the tasks</string>
+<string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
+<string name="size_change">Checked tasks limit:</string>
+<string name="backup_import">Import backup from SD</string>
+<string name="backup_fail">The todo list couldn\'t be backed up on the SD card for some reason. Are you sure there\'s an SD card in there?</string>
+<string name="move_fail">You can\'t move a task under itself or a subtask of itself.</string>
+<string name="backup_import_fail">The todo list couldn\'t be imported for some reason. Are you sure there is a backup on the card, or that an SD card is inserted?</string>
+<string name="visually_challenged_mode_disabled">Visually Challenged mode disabled</string><!-- not sure this is used anymore -->
+
+<!-- Spoken (actually spoken by the TTS engine!!) -->
+<string name="visually_challenged_mode_enabled">Visually Challenged mode enabled</string>
+<string name="checked">checked</string>
+
+<!-- Sorting tasks -->
+<string name="sort">Sort</string>
+<string name="descending">descending</string>
+<string name="ascending">ascending</string>
+<string name="priority">Priority: </string>
+<string name="priority_default">default priority:</string>
+<string name="alphabetical">alphabetical:</string>
+<string name="hide_checked">hide checked tasks</string>
+
+<!-- Stats about tasks -->
+<string name="message_stats">&quot; &quot;Stats</string>
+<string name="message_tasks_left_tag">tasks left in this tag&quot;  &quot;</string>
+<string name="message_tasks_left_total">tasks left in total</string>
+
+<!-- Task menu -->
+<string name="entry_group_notes">+ Notes</string>
+<string name="entry_group_move">+ Move</string>
+<string name="entry_group_share">+ Share</string>
+<string name="entry_subtask_add">Add subtask</string>
+<string name="entry_edit">Edit this task</string>
+<string name="entry_delete">Delete this task</string>
+<string name="entry_move">Move to another tag</string>
+<string name="entry_move_under_task">Move under a task</string>
+<string name="entry_written_note">Written note</string>
+<string name="entry_graphical_note">Graphical note</string>
+<string name="entry_audio_note">Audio note</string>
+<string name="entry_photo_note">Photo note (beta)</string>
+<string name="entry_down">Push down</string>
+<string name="entry_exit">close this menu ...</string>
+<string name="entry_menu">task menu</string>
+<string name="error_photo">Some kind of an error appeared.</string>
+
+<!-- Edit screen -->
+<string name="create_tag"> Type a name for the new tag:</string>
+<string name="edit_tag">Type a new name for the tag:</string>
+<string name="edit_entry">Type a new name for this task:</string>
+<string name="edit_written_note">You can now type the note. The text box will increase as you type.</string>
+<string name="edit_task_no_date">date isn\'t set</string>
+<string name="edit_task_no_time">time isn\'t set</string>
+<string name="edit_task_date_set">due date:</string>
+<string name="edit_task_time_set">due time:</string>
+<string name="entry_create">Type your new task:</string>
+<string name="tag_existent">That tag already exists</string>
+<string name="entry_existent">That task exists in</string>
+
+<!-- Confirmation screen -->
+<string name="confirm_tag_deletion">Are you sure you want to delete this tag? All the tasks in this tag will be lost.</string>
+<string name="confirm_entry_clearing">Are you sure you want to delete all the tasks in this tag? They will be permanently lost.</string>
+<string name="confirm_backup_import">Are you sure you want to import a backup from the SD card? Your current todo list will be permanently lost.</string>
+
+<!-- Help screen -->
+<string name="help_text">Tasks are organised into tags, which can be selected in the upper spinner.\n\nTo handle tags (creation, deletion, renaming) you can use the general menu.\n\nTo create tasks you just need to click the \'Add\' button at the bottom. For a task-specific menu, long-click a certain task.\n\nYou can also use keyboard shortcuts. Press K now if you want to check them out.</string>
+<string name="help_site">Visit web page</string>
+<string name="keyboard_title">Keyboard shortcuts</string>
+<string name="keyboard_help_text">---Task handling:\nNext=N, Previous=P\nAdd=A, Delete=D\nEdit or Rename = E or R,\nAudio note=F\nGraphical note=G\nWritten note=W\nMove to another tag=M\nPush down=0\nMenu for selected task=SPACE\nShow all the tasks=SHIFT+T\n\n---Tag handling:\nSame as before (N,P,A,D,R) + ALT\nShow all the tags=T\nClear all the tasks=X\n1,2,...,9 to open a specific tag\n\n---General:\nHelp=H, Stats=S\nConfiguration=C\n\'Visually Challenged\' mode=V\nImport backup from SDcard=B\nChange to-do list size limit=O,I\nSee due tasks only=U\n\'Ok\' or \'Use\' or \'Yes\'=ENTER\n\'Cancel\' or \'No\'=DEL\n</string>
+<string name="url_help">http://www.teodorfilimon.com/android/Tag-ToDo-List/index.html</string>
+
+<!-- Graphical notes screen -->
+<string name="note_clear">Clear</string>
+<string name="note_close">Close &amp; Save</string>
+<string name="note_delete">Delete note</string>
+<string name="note_title">Draw a note for the task:</string>
+<string name="note_camera">Camera</string>
+
+<!-- Audio notes screen -->
+<string name="audio_note_title">Record up to 50s of audio on the SD card</string>
+<string name="audio_record">RECORD</string>
+<string name="audio_stop_recording">STOP RECORDING</string>
+<string name="audio_close">Close</string>
+<string name="audio_recording_limit">Max length is</string>
+<string name="audio_replay">Replay</string>
+<string name="audio_recording_impossible">Note activity can\'t start :-/\nAre you sure there\'s an SD card in the device?\n</string>
+
+<!-- Notification screen, Notifications, Alarms Due Dates -->
+<string name="notification">Tag-ToDo-List says:</string>
+<string name="due_date_notification">Tasks due today or earlier:</string>
+<string name="notification_view">Press here to see the due tasks</string>
+<string name="months">January February March April May June July August September October November December</string>
+<string name="notification_view_info_short">More about this screen</string>
+<string name="notification_view_info_long">This screen shows you tasks that are due today or earlier.\n\nYou can go back to the normal todo list view by pressing \'Go back\'.\n\nAlso, you can access this screen from the normal view by pressing the U key.\n</string>
+<string name="notification_checked_tasks_limit">Just letting you know about a feature that you\'re going to see in action soon. There\'s a checked tasks limit which is set to 100 by default. It means the app automatically removes checked tasks so you don\'t have to delete them yourself (there won\'t be more than 100 checked tasks).\n\nThis message appeared because the next checked task will reach the limit :)</string>
+<string name="alarm">Tag-ToDo-List alarm</string>
+<string name="daily">Daily</string>
+<string name="weekly">Weekly</string>
+
+<!-- Configuration screen -->
+<string name="config_screen_title">Tag-ToDo-List configuration</string>
+<string name="config_tab_todo">Behavior</string>
+<string name="config_tab_ui">Interface</string>
+<string name="config_tab_sounds">Sounds</string>
+<string name="config_tab_web">Web</string>
+<string name="username">Username</string>
+<string name="password">Password</string>
+<string name="login_confirm">Confirm (the app will perform an online login and sync all the tasks with due dates)</string>
+<string name="login_sync_succes">Login and data synchronization successful. Every time a task with a due date will be added, the app will connect to the internet and add it to the Google Calendar.\n</string>
+<string name="login_succes_sync_fail">Although the login was successful, the app wasn\'t able to synchronize the tasks.\n</string>
+<string name="login_fail">For some reason the login failed. Check the username/password and the availability of an internet connection.\n</string>
+<string name="checked_tasks_limit_description">This limit prevents the app from keeping more than so many checked tasks. When the limit is reached, the app automatically deletes the oldest checked tasks.</string>
+<string name="max_priority_description">Some people prefer to fine tune task priority, some prefer a simpler system with fewer levels (e.g. 5).</string>
+<string name="config_1_gcal">(experimental) Synchronize tasks with due dates to Google Calendar</string>
+<string name="config_2_backup">Backup todo list on SD card every time the app closes</string>
+<string name="config_3_priority">Maximum priority for tasks:</string>
+<string name="config_4_shine">Visually distinguish tasks by their priority (consumes a bit more resources)</string>
+<string name="config_5_stats">Allow anonymous collection of usage stats once a month</string>
+<string name="config_6_notes">Show which task has notes in portrait mode as well (consumes a bit more resources)</string>
+<string name="config_7_theme">Invert task theme (dark text on white background) - needs app restart</string>
+<string name="config_8_collapse">Show collapse buttons (for subtasks)</string>
+<string name="config_9_duedate">Show due time for tasks that have it</string>
+<string name="config_10_alarm">Change alarm sound</string>
+<string name="config_10_alarm_pick">Choose your own song</string>
+<string name="config_11_alarm_vibrate">Also vibrate with the alarm</string>
+
+<!-- Default content of the to-do list -->
+<string name="default_content_tag1">Personal</string>
+<string name="default_content_tag2">Work</string>
+<string name="default_content_entry1">Open the menu</string>
+<string name="default_content_entry2">Read the instructions</string>
+<string name="default_content_entry3">Have fun! :)</string>
+<string name="default_content_entry4">Here, for example, you can add work-related tasks</string>
+
+<!-- Actions -->
+<string name="call1">CALL</string><!-- as in CALL SOMEONE -->
+<string name="call2">PHONE</string><!--  as in PHONE SOMEONE -->
+<string name="move1">GO</string><!-- as in GO TO MY FRIEND, or GO TO SOMEONE-->
+<string name="move2">VISIT</string><!-- as in VISIT SOMEONE -->
+<string name="move3">TRAVEL</string><!-- as in TRAVEL TO NEW YORK -->
+<string name="buy1">BUY</string><!-- as in BUY SOMETHING -->
+<string name="buy2">GET</string><!-- as in GET SOMETHING -->
+<string name="move_ignorable">TO</string><!-- as in GO TO SOMEONE-->
+<string name="call_making">call</string>
+<string name="buying">Buy it</string>
+<string name="google_maps">on Google Maps</string>
+<string name="amazon">on Amazon</string>
+<string name="find">find</string>
+
+<!-- Widget -->
+<string name="no_tasks">no more tasks in this tag</string>
+
+<!-- General -->
+<string name="confirm">OK</string>
+<string name="cancel">Cancel</string>
+<string name="more">more...</string>
+<string name="warning">Warning</string>
+<string name="ok">YES</string>
+<string name="no">NO</string>
+<string name="go_back">Go back</string>
+<string name="monday">Monday</string>
+<string name="tuesday">Tuesday</string>
+<string name="wednesday">Wednesday</string>
+<string name="thursday">Thursday</string>
+<string name="friday">Friday</string>
+<string name="saturday">Saturday</string>
+<string name="sunday">Sunday</string>
+<string name="every">every</string>
+<string name="day">day</string>
+<string name="SMS">SMS</string>
+<string name="email">Email</string>
+<string name="todo">TO-DO</string>
+<string name="tasks">Task</string>
+
+<!-- Search -->
+<string name="search_label">Search Tag-ToDo-List</string>
+<string name="settings_description">Tasks</string>
+
+</resources>
