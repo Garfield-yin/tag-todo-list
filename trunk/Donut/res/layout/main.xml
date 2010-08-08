@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<LinearLayout android:id="@+id/upperLayout"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<Spinner android:id="@+id/tagSpinner" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:layout_weight="1" />
+
+		<ImageButton android:id="@+id/configButton"
+			android:layout_marginTop="-10dip" android:layout_marginBottom="-14dip"
+			android:layout_width="64dip" android:layout_height="wrap_content" />
+
+	</LinearLayout>
+
+	<ScrollView android:id="@+id/entryScrollView"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:scrollbars="vertical" android:layout_weight="1">
+
+		<LinearLayout android:id="@+id/entryLayout"
+			android:gravity="clip_horizontal" android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="wrap_content" />
+
+	</ScrollView>
+
+	<LinearLayout android:id="@+id/lowerLayout"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<Button android:id="@+id/addEntryButton" android:textStyle="bold"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_weight="1" />
+
+		<Button android:id="@+id/toggleButton" android:width="50dip"
+			android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+		<Button android:id="@+id/statButton" android:layout_marginTop="4dip"
+			android:textSize="25sp" android:textColor="#888888"
+			android:layout_width="64dip" android:layout_height="wrap_content" />
+
+	</LinearLayout>
+
+</LinearLayout>
