@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="C:/Users/Teo/Desktop/Workspace/Java/SDK/Analytics/libGoogleAnalytics.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Teo/Desktop/Workspace/Java/SDK/Admob/admob-sdk-android.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
