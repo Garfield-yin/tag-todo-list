@@ -6,15 +6,14 @@ import java.io.FileNotFoundException;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.todo.data.ToDoDB;
@@ -27,7 +26,8 @@ import com.android.todo.data.ToDoDB;
 public final class PhotoScreen extends Activity {
   private static String sEntry = null;
   private static Button sCamButton, sDelButton, sCloseButton;
-  private static ImageView sImageView;
+  // private static ImageView sImageView;
+  private static WebView sWebView;
   private static Uri sUri;
   private static ToDoDB sDbHelper;
 
@@ -65,9 +65,12 @@ public final class PhotoScreen extends Activity {
         finish();
       }
     });
-    sImageView = (ImageView) findViewById(R.id.imageView);
-    sImageView.setDrawingCacheEnabled(false);
-    sImageView.setWillNotCacheDrawing(false);
+    // sImageView = (ImageView) findViewById(R.id.imageView);
+    // sImageView.setDrawingCacheEnabled(false);
+    // sImageView.setWillNotCacheDrawing(false);
+    sWebView = (WebView) findViewById(R.id.webView);
+    sWebView.getSettings().setBuiltInZoomControls(true);
+    sWebView.setBackgroundColor(Color.BLACK);
   }
 
   /**
@@ -76,24 +79,20 @@ public final class PhotoScreen extends Activity {
    * @throws FileNotFoundException
    */
   private final void populateFields() throws FileNotFoundException {
-    final BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inSampleSize = 1;
-    Bitmap photoBitmap = BitmapFactory.decodeStream(getContentResolver()
-        .openInputStream(sUri), null, options);
-    int h = photoBitmap.getHeight();
-    int w = photoBitmap.getWidth();
-    if ((w > h) && (w > 256)) {
-      double ratio = 256d / w;
-      w = 256;
-      h = (int) (ratio * h);
-    } else if ((h > w) && (h > 256)) {
-      double ratio = 256d / h;
-      h = 256;
-      w = (int) (ratio * w);
-    }
-    final Bitmap scaled = Bitmap.createScaledBitmap(photoBitmap, w, h, true);
-    photoBitmap.recycle();
-    sImageView.setImageBitmap(scaled);
+    /*
+     * final BitmapFactory.Options options = new BitmapFactory.Options();
+     * options.inSampleSize = 1; Bitmap photoBitmap =
+     * BitmapFactory.decodeStream(getContentResolver() .openInputStream(sUri),
+     * null, options); int h = photoBitmap.getHeight(); int w =
+     * photoBitmap.getWidth(); if ((w > h) && (w > 256)) { double ratio = 256d /
+     * w; w = 256; h = (int) (ratio * h); } else if ((h > w) && (h > 256)) {
+     * double ratio = 256d / h; h = 256; w = (int) (ratio * w); } final Bitmap
+     * scaled = Bitmap.createScaledBitmap(photoBitmap, w, h, true);
+     * photoBitmap.recycle(); sImageView.setImageBitmap(scaled);
+     */
+    sWebView.loadData("<img src='" + sUri.toString() + "'/>",
+        "text/html", "UTF-8");
+    // sWebView.loadUrl(url);
   }
 
   @Override
@@ -115,8 +114,10 @@ public final class PhotoScreen extends Activity {
   @Override
   protected void onDestroy() {
     sEntry = null;
-    sImageView.destroyDrawingCache();
-    sImageView = null;
+    // sImageView.destroyDrawingCache();
+    // sImageView = null;
+    sWebView.destroy();
+    sWebView = null;
     super.onDestroy();
   }
 
