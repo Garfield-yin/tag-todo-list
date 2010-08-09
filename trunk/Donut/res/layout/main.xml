@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res/com.android.todo"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
+
+	<com.admob.android.ads.AdView android:id="@+id/ad"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		app:backgroundColor="#000000" app:primaryTextColor="#FFFFFF"
+		app:secondaryTextColor="#CCCCCC" app:keywords="Android Game" />
 
 	<LinearLayout android:id="@+id/upperLayout"
 		android:orientation="horizontal" android:layout_width="fill_parent"

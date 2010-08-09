@@ -43,7 +43,6 @@ public final class ToDoDB extends ADB {
 
   // keys useful for the subtasks feature
   public static final String KEY_DEPTH = "depth";
-  public static final String KEY_SUPERTASK = "supertask";
   public static final String KEY_SUBTASKS = "subtasks";
   // some flags to see if there are certain types of notes
   public static final String KEY_NOTE_IS_WRITTEN = "iswrittennote";

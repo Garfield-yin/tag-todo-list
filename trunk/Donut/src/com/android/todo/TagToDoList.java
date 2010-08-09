@@ -51,7 +51,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.todo.actions.Action;
+import com.admob.android.ads.AdManager;
+import com.android.todo.closed.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
@@ -135,6 +136,7 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
+    AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, 0);
     sEditor = sPref.edit();
     setTheme(sPref.getInt(ConfigScreen.THEME, android.R.style.Theme));
@@ -410,7 +412,7 @@ public class TagToDoList extends Activity {
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
         cb.setText(taskName);
-        
+
         boolean checked;
         if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
           checked = true;
@@ -471,12 +473,12 @@ public class TagToDoList extends Activity {
 
           try { // placed in different try-catch clauses because these fields
                 // appeared in different versions
-            auxInt=sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
+            auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
           } catch (Exception e) {
             sDbHelper.repair();
-            auxInt=sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
+            auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
           }
-          
+
           if (auxInt > 0) {
             taskNoteLayout.addView(getNoteButton(taskName,
                 android.R.drawable.ic_menu_camera, TASK_PHOTO_ID));
@@ -767,7 +769,8 @@ public class TagToDoList extends Activity {
       Utils.copy(new File("/sdcard/Tag-ToDo_data/database_backup"), new File(
           "/data/data/com.android.todo/databases"));
     } catch (Exception e) {
-      Utils.showDialog(R.string.notification, R.string.backup_import_fail, c);
+      Utils.showDialog(R.string.notification, R.string.backup_import_fail,
+          c.getApplicationContext());
     }
     sDbHelper = ToDoDB.getInstance(c);
   }

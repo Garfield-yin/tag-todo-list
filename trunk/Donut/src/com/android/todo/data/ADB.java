@@ -20,7 +20,7 @@ public abstract class ADB {
    * deletion of alarms. The name of the attribute (DATABASE_VERSION) IS NOT TO
    * BE CHANGED!
    */
-  public static final int DATABASE_VERSION = 106;
+  public static final int DATABASE_VERSION = 107;
 
   protected static Context mCtx;
   public SQLiteDatabase mDb;
@@ -50,6 +50,7 @@ public abstract class ADB {
    * The parent of a task (tag)
    */
   public static final String KEY_PARENT = "parent";
+  public static final String KEY_SUPERTASK = "supertask";
 
   /**
    * Bit 1 (lsb) of this integer shows if a due date is set. Bit 2 of this
@@ -75,13 +76,27 @@ public abstract class ADB {
   public static final String KEY_ROWID = "_id";
 
   /**
+   * Checks whether a certain task exists.
+   * 
+   * @param task
+   * @return
+   */
+  public final boolean isTask(final String task) {
+    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] {}, KEY_NAME
+        + "='" + task + "'", null, null, null, null);
+    final boolean b = entry.getCount() > 0;
+    entry.close();
+    return b;
+  }
+
+  /**
    * Returns an int which contains all the necessary information. It is encoded
    * like this: (year*12+month)*31+day
    * 
    * @param task
    * @return encoded date
    */
-  public int getDueDate(String task) {
+  public final int getDueDate(String task) {
     final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE }, KEY_NAME
         + " = '" + task + "'", null, null, null, null);
@@ -138,7 +153,8 @@ public abstract class ADB {
    */
   public Cursor getUncheckedEntries() {
     return mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS }, KEY_STATUS + " = 0", null, null, null, null);
+        KEY_STATUS }, KEY_STATUS + "=0", null, null, null,
+        null);
   }
 
   /**
