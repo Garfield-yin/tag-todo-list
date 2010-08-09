@@ -410,6 +410,7 @@ public class TagToDoList extends Activity {
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
         cb.setText(taskName);
+        
         boolean checked;
         if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
           checked = true;
@@ -468,7 +469,15 @@ public class TagToDoList extends Activity {
                 TASK_AUDIO_ID));
           }
 
-          if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO) > 0) {
+          try { // placed in different try-catch clauses because these fields
+                // appeared in different versions
+            auxInt=sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
+          } catch (Exception e) {
+            sDbHelper.repair();
+            auxInt=sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
+          }
+          
+          if (auxInt > 0) {
             taskNoteLayout.addView(getNoteButton(taskName,
                 android.R.drawable.ic_menu_camera, TASK_PHOTO_ID));
           }
