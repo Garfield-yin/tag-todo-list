@@ -271,7 +271,7 @@ public final class ToDoDB extends ADB {
             // checking for a graphical note
             boolean found = true;
             try {
-              mCtx.openFileInput(Utils.getImageName(taskName,false));
+              mCtx.openFileInput(Utils.getImageName(taskName, false));
             } catch (Exception e) {
               found = false;
             }
@@ -874,10 +874,10 @@ public final class ToDoDB extends ADB {
   public final void updateTask(final String task, final String newName) {
     // chaging things dependent to the name. The name should be replaced with
     // the ROWID soon...
-    new File(Utils.getImageName(task,false)).renameTo(new File(Utils
-        .getImageName(newName,false)));
-    new File(Utils.getImageName(task,true)).renameTo(new File(Utils
-        .getImageName(newName,true)));
+    new File(Utils.getImageName(task, false)).renameTo(new File(Utils
+        .getImageName(newName, false)));
+    new File(Utils.getImageName(task, true)).renameTo(new File(Utils
+        .getImageName(newName, true)));
     new File(Utils.getAudioName(task)).renameTo(new File(Utils
         .getAudioName(newName)));
     deleteAlarm(task);
@@ -948,50 +948,33 @@ public final class ToDoDB extends ADB {
    * Updates the specified task with the specified due date
    * 
    * @param task
-   * @param year
-   * @param month
    * @param date
    * @return true if successfully updated
    */
-  public final boolean updateTask(final String task, final int year,
-      final int month, final int date) {
+  public final boolean updateTask(final String task, final Date d) {
     final ContentValues args = new ContentValues();
-    args.put(KEY_DUE_YEAR, year);
-    args.put(KEY_DUE_MONTH, month);
-    args.put(KEY_DUE_DATE, date);
+    args.put(KEY_DUE_YEAR, d.getYear());
+    args.put(KEY_DUE_MONTH, d.getMonth());
+    args.put(KEY_DUE_DATE, d.getDay());
     // args.put(KEY_EXTRA_OPTIONS, 1);
     return mDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null) > 0;
+        .update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
   /**
    * Updates the specified task with the specified due time
    * 
    * @param task
-   * @param year
-   * @param month
-   * @param date
+   * @param time
    * @return true if successfully updated
    */
-  public final boolean updateTask(final String task, final int hour,
-      final int minute) {
+  public final boolean updateTask(final String task, final Time t) {
     final ContentValues args = new ContentValues();
-    args.put(KEY_DUE_HOUR, hour);
-    args.put(KEY_DUE_MINUTE, minute);
+    args.put(KEY_DUE_HOUR, t.getHour());
+    args.put(KEY_DUE_MINUTE, t.getMinute());
+    args.put(KEY_DUE_DAY_OF_WEEK, t.getDayOfWeek());
     return mDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null) > 0;
-  }
-
-  /**
-   * Attaches a day of the week to a periodic task
-   * 
-   * @param task
-   * @param dayOfWeek
-   */
-  public final void updateTask(final String task, final int dayOfWeek) {
-    final ContentValues args = new ContentValues();
-    args.put(KEY_DUE_DAY_OF_WEEK, dayOfWeek);
-    mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+        .update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
   /**
@@ -1002,7 +985,7 @@ public final class ToDoDB extends ADB {
    * @param b
    * @return
    */
-  public final boolean setDueDate(final String task, final boolean b) {
+  public final boolean setIsDueDate(final String task, final boolean b) {
     final Cursor c = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
         KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null, null, null,
         null);
@@ -1026,7 +1009,7 @@ public final class ToDoDB extends ADB {
    * @param b
    * @return
    */
-  public final boolean setDueTime(final String task, final boolean b) {
+  public final boolean setIsDueTime(final String task, final boolean b) {
     final Cursor c = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
         KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null, null, null,
         null);
@@ -1236,12 +1219,12 @@ public final class ToDoDB extends ADB {
 
     // now we actually delete it:
     mDb.delete(DB_TASK_TABLE, KEY_NAME + "='" + task + "'", null);
-    
-    //the next line is to be removed when Android 2.2 is no longer supported:
-    mCtx.deleteFile(Utils.getImageName(task,false));
-    
-    new File(Utils.getImageName(task,true));
-    
+
+    // the next line is to be removed when Android 2.2 is no longer supported:
+    mCtx.deleteFile(Utils.getImageName(task, false));
+
+    new File(Utils.getImageName(task, true));
+
     new File(Utils.getAudioName(task)).delete();
     deleteAlarm(task);
   }

@@ -108,6 +108,7 @@
 <string name="alarm">Tag-ToDo-List alarm</string>
 <string name="daily">Daily</string>
 <string name="weekly">Weekly</string>
+<string name="monthly">Monthly</string>
 
 <!-- Configuration screen -->
 <string name="config_screen_title">Tag-ToDo-List configuration</string>
@@ -183,6 +184,7 @@
 <string name="email">Email</string>
 <string name="todo">TO-DO</string>
 <string name="tasks">Task</string>
+<string name="or">or</string>
 
 <!-- Search -->
 <string name="search_label">Search Tag-ToDo-List</string>

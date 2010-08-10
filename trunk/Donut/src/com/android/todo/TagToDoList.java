@@ -56,6 +56,7 @@ import com.android.todo.closed.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
+import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.speech.TTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
@@ -138,8 +139,12 @@ public class TagToDoList extends Activity {
   public void onCreate(Bundle icicle) {
     AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, 0);
-    sEditor = sPref.edit();
-    setTheme(sPref.getInt(ConfigScreen.THEME, android.R.style.Theme));
+    sEditor = sPref.edit();    
+    if (sPref.getInt(ConfigScreen.THEME, android.R.style.Theme) == android.R.style.Theme) {
+      setTheme(android.R.style.Theme_NoTitleBar);
+    } else {
+      setTheme(android.R.style.Theme_Light_NoTitleBar);
+    }
     super.onCreate(icicle);
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
@@ -537,9 +542,16 @@ public class TagToDoList extends Activity {
               sb.append(' ');
               sb.append(getString(Chronos.DAYS[auxInt]));
             } else if (!auxBool) {
-              sb.append(getString(R.string.every));
-              sb.append(' ');
-              sb.append(getString(R.string.day));
+              final Date d = new Date(sDbHelper.getDueDate(taskName));
+              if (d.isMonthly()) {
+                sb.append(getString(R.string.monthly));
+                sb.append(", ");
+                sb.append(d.getDay());
+              } else {
+                sb.append(getString(R.string.every));
+                sb.append(' ');
+                sb.append(getString(R.string.day));
+              }
             }
           }
 

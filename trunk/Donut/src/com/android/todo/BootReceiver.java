@@ -26,8 +26,7 @@ public final class BootReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     try {
       final Context c = context.getApplicationContext();
-      final BootDB dbHelper = new BootDB(c);
-      dbHelper.open();
+      final BootDB dbHelper = new BootDB(c).open();
       BootReceiver.setOldAlarms(c, dbHelper);
       dbHelper.close();
     } catch (Exception e) {
