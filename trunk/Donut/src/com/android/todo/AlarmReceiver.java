@@ -2,6 +2,7 @@
 
 package com.android.todo;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,6 +15,9 @@ import android.net.Uri;
 
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Apollo;
+import com.android.todo.olympus.Chronos;
+import com.android.todo.olympus.Chronos.Date;
+import com.android.todo.olympus.Chronos.Time;
 
 /**
  * This is an activity used to process status bar notification activations
@@ -27,6 +31,21 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final NotificationManager manager = (NotificationManager) c
         .getSystemService(Context.NOTIFICATION_SERVICE);
     final String task = intent.getStringExtra(ToDoDB.KEY_NAME);
+
+    // checking if this alarm needs to be set again (e.g. monthly)
+    final BootDB dbHelper = new BootDB(c.getApplicationContext()).open();
+    final Date d = new Date(dbHelper.getDueDate(task));
+    if (d.isMonthly()) {
+      final Context ctx = c.getApplicationContext();
+      final PendingIntent pi = PendingIntent.getBroadcast(ctx, task.hashCode(),
+          Utils.getAlarmIntent(new Intent(ctx, AlarmReceiver.class), task), 0);
+      final AlarmManager am = (AlarmManager) ctx
+          .getSystemService(Context.ALARM_SERVICE);
+      Chronos.setRepeatingAlarm(am, pi,
+          new Time(dbHelper.getDueTime(task), -1), d);
+    }
+    dbHelper.close();
+
     final Notification notification = new Notification(R.drawable.small_icon,
         task, System.currentTimeMillis());
     final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,

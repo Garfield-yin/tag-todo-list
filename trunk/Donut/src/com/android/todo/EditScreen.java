@@ -12,6 +12,7 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.app.TimePickerDialog.OnTimeSetListener;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -65,19 +66,15 @@ public final class EditScreen extends Activity {
   private ToggleButton mWhenButton;
   private LinearLayout mDateTimeLayout;
 
-  private static String sParameter;
+  private static String sTask;
   private static String sSuperTask;
   private static String mPriorityText;
   private ToDoDB mDbHelper;
   private static String mMonthsString;
   private static String aux = "";
   private static int keyCount = 0;
-  private static int sYear;
-  private static int sMonth;
-  private static int sDate;
-  private static int sHour = -1;
-  private static int sMinute = -1;
-  private static int sDayOfWeek = -1;
+  private static Date sDate;
+  private static Time sTime;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -130,31 +127,31 @@ public final class EditScreen extends Activity {
     mCancelButton = (Button) findViewById(R.id.cancelButton);
 
     if (savedInstanceState != null) {
-      sParameter = savedInstanceState.getString(ToDoDB.KEY_NAME);
+      sTask = savedInstanceState.getString(ToDoDB.KEY_NAME);
       sSuperTask = savedInstanceState.getString(ToDoDB.KEY_SUPERTASK);
     } else {
-      sParameter = null;
+      sTask = null;
       sSuperTask = null;
     }
 
-    if (sParameter == null) {
+    if (sTask == null) {
       Bundle extras = getIntent().getExtras();
       if (extras != null) {
-        sParameter = extras.getString(ToDoDB.KEY_NAME);
+        sTask = extras.getString(ToDoDB.KEY_NAME);
         sSuperTask = extras.getString(ToDoDB.KEY_SUPERTASK);
       } else {
-        sParameter = null;
+        sTask = null;
         sSuperTask = null;
       }
     }
 
     final String action = getIntent().getAction();
-    final boolean creating = action.equals(TagToDoList.ACTIVITY_CREATE_ENTRY
-        + "");
+    final boolean creating = action.equals(Integer
+        .toString(TagToDoList.ACTIVITY_CREATE_ENTRY));
 
-    if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))
-        || creating) {
-      LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
+    if (creating
+        || action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
+      final LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
 
       // now comes priority stuff
       mPriorityText = creating ? this.getString(R.string.priority_default)
@@ -163,7 +160,7 @@ public final class EditScreen extends Activity {
       mPrioritySb.setMax(getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE).getInt(ConfigScreen.PRIORITY_MAX, 100) + 1);
       int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
-          .getPriority(EditScreen.sParameter);
+          .getPriority(EditScreen.sTask);
       mPrioritySb.setPadding(0, 0, 0, 10);
       mPrioritySb.setProgress(priority);
       final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
@@ -175,7 +172,8 @@ public final class EditScreen extends Activity {
             }
 
             public void onStartTrackingTouch(SeekBar arg0) {
-              t.setGravity(Gravity.TOP, 0, mBodyText.getTop()+(int)(32*dm.ydpi/240));
+              t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
+                  + (int) (32 * dm.ydpi / 240));
               mPriorityText = EditScreen.this.getString(R.string.priority);
               t.show();
             }
@@ -191,12 +189,21 @@ public final class EditScreen extends Activity {
       mDateTimeLayout.setOrientation(LinearLayout.HORIZONTAL);
 
       // now comes due dates stuff
+      if (creating) {
+        sTime = new Time(-1, -1, -1);
+        sDate = new Date(0);
+      } else {
+        sTime = new Time(mDbHelper.getDueTime(sTask),
+            mDbHelper.getDueDayOfWeek(sTask));
+        sDate = new Date(mDbHelper.getDueDate(sTask));
+      }
+
       mDateTb = new ToggleButton(this);
-      mDateTb.setTextOff(this.getString(R.string.edit_task_no_date));
-      if (mDbHelper.isDueDateSet(EditScreen.sParameter)) {
-        mDateTb.setTextOn(this.getString(R.string.edit_task_date_set)
-            + " "
-            + Chronos.decodeDate(mDbHelper.getDueDate(EditScreen.sParameter),
+      mDateTb.setTextOff(getString(R.string.edit_task_no_date));
+      if (mDbHelper.isDueDateSet(sTask)) {
+        mDateTb.setTextOn(getString(R.string.edit_task_date_set)
+            + ' '
+            + Chronos.decodeDate(mDbHelper.getDueDate(EditScreen.sTask),
                 getString(R.string.months)));
         mDateTb.setChecked(true);
       } else {
@@ -207,47 +214,33 @@ public final class EditScreen extends Activity {
         public void onClick(View v) {
           if (((ToggleButton) v).isChecked()) {
             // showing the DatePickerDialog
-            OnDateSetListener odsl = new OnDateSetListener() {
-              public void onDateSet(DatePicker view, int year, int monthOfYear,
+            final OnDateSetListener odsl = new OnDateSetListener() {
+              public void onDateSet(DatePicker view, int year, int month,
                   int dayOfMonth) {
                 mDateTb.setTag(Boolean.valueOf(true));
-                if (!(creating)) {
-                  mDbHelper.setDueDate(EditScreen.sParameter, true);
-                  mDbHelper.updateTask(EditScreen.sParameter, year,
-                      monthOfYear, dayOfMonth);
-                  if (mTimeTb.isChecked()) {
-                    mDbHelper.deleteAlarm(EditScreen.sParameter);
-                    setAlarm(EditScreen.sParameter, sHour, sMinute);
-                  }
-                } else {
-                  sYear = year;
-                  sMonth = monthOfYear;
-                  sDate = dayOfMonth;
-                }
-                if (mMonthsString == null) {
-                  mMonthsString = view.getContext().getString(R.string.months);
-                }
+                sDate = new Date(year, month, dayOfMonth);
+                mMonthsString = view.getContext().getString(R.string.months);
                 mDateTb.setText(view.getContext().getString(
                     R.string.edit_task_date_set)
-                    + " "
-                    + mMonthsString.split(" ")[monthOfYear]
-                    + " "
-                    + dayOfMonth + ", " + year);
+                    + ' '
+                    + mMonthsString.split(" ")[month]
+                    + ' '
+                    + dayOfMonth
+                    + ", " + year);
                 mDateTb.setTextOn(mDateTb.getText());
               }
             };
             GregorianCalendar gc;
-            int encodedDate;
-            if (!(creating)
-                && (encodedDate = mDbHelper.getDueDate(EditScreen.sParameter)) > 0) {
-              gc = new GregorianCalendar(encodedDate / 372,
-                  encodedDate / 31 % 12, encodedDate % 31);
+            if (!creating && !sDate.isNull()) {
+              gc = new GregorianCalendar(sDate.getYear(), sDate.getMonth(),
+                  sDate.getDay());
             } else {
               gc = new GregorianCalendar();
             }
-            DatePickerDialog dpd = new DatePickerDialog(EditScreen.this, odsl,
-                gc.get(GregorianCalendar.YEAR),
-                gc.get(GregorianCalendar.MONTH), gc.get(GregorianCalendar.DATE));
+            final DatePickerDialog dpd = new DatePickerDialog(EditScreen.this,
+                odsl, gc.get(GregorianCalendar.YEAR), gc
+                    .get(GregorianCalendar.MONTH), gc
+                    .get(GregorianCalendar.DATE));
             dpd.setCancelable(true);
             dpd.show();
 
@@ -261,13 +254,6 @@ public final class EditScreen extends Activity {
             });
             setWhenButton(false);
           } else {
-            if (!(creating)) {
-              mDbHelper.setDueDate(EditScreen.sParameter, false);
-              if (mTimeTb.isChecked()) {
-                mDbHelper.deleteAlarm(EditScreen.sParameter);
-                setAlarm(EditScreen.sParameter, sHour, sMinute);
-              }
-            }
             if (mTimeTb.isChecked()) {
               setWhenButton(true);
             }
@@ -275,17 +261,17 @@ public final class EditScreen extends Activity {
         }
       });
       mDateTimeLayout.addView(mDateTb);
+
       mTimeTb = new ToggleButton(this);
-      mTimeTb.setTextOff(this.getString(R.string.edit_task_no_time));
+      mTimeTb.setTextOff(getString(R.string.edit_task_no_time));
       mDateTimeLayout.addView(mTimeTb);
-      if (mDbHelper.isDueTimeSet(EditScreen.sParameter)) {
-        mTimeTb.setTextOn(this.getString(R.string.edit_task_time_set) + " "
-            + Chronos.decodeTime(mDbHelper.getDueTime(EditScreen.sParameter)));
+      if (mDbHelper.isDueTimeSet(sTask)) {
+        mTimeTb.setTextOn(getString(R.string.edit_task_time_set) + ' '
+            + Chronos.decodeTime(sTime.getEncodedTime()));
         mTimeTb.setChecked(true);
-        if (!(mDateTb.isChecked())) {
-          sDayOfWeek = mDbHelper.getDueDayOfWeek(EditScreen.sParameter);
+        if (!mDateTb.isChecked()) {
           setWhenButton(true);
-          mWhenButton.setChecked(sDayOfWeek > -1);
+          mWhenButton.setChecked(sTime.isWeekly() || sDate.isMonthly());
         }
       } else {
         mTimeTb.setChecked(false);
@@ -295,23 +281,19 @@ public final class EditScreen extends Activity {
         public void onCheckedChanged(CompoundButton cb, boolean checked) {
           if (checked) {
             final Calendar c = Calendar.getInstance();
-            Dialog d = new TimePickerDialog(cb.getContext(),
-                new TimePickerDialog.OnTimeSetListener() {
+            final Dialog d = new TimePickerDialog(cb.getContext(),
+                new OnTimeSetListener() {
                   public void onTimeSet(TimePicker view, int hour, int minute) {
                     mTimeTb.setTag(Boolean.valueOf(true));
                     mTimeTb.setText(view.getContext().getString(
                         R.string.edit_task_time_set)
-                        + " "
-                        + (hour < 10 ? "0" : "")
+                        + ' '
+                        + (hour < 10 ? '0' : "")
                         + hour
-                        + ":"
-                        + (minute < 10 ? "0" : "") + minute);
-                    if (!(creating)) {
-                      setAlarm(EditScreen.sParameter, hour, minute);
-                    }
+                        + ':'
+                        + (minute < 10 ? '0' : "") + minute);
                     mTimeTb.setTextOn(mTimeTb.getText());
-                    sHour = hour;
-                    sMinute = minute;
+                    sTime = new Time(hour, minute, sTime.getDayOfWeek());
                   }
                 }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), false);
             d.show();
@@ -327,12 +309,7 @@ public final class EditScreen extends Activity {
               setWhenButton(true);
             }
           } else {
-            if (!(creating)) {
-              mDbHelper.setDueTime(EditScreen.sParameter, false);
-              mDbHelper.deleteAlarm(EditScreen.sParameter);
-            }
-            sHour = -1;
-            sMinute = -1;
+            sTime = new Time(-1, -1, sTime.getDayOfWeek());
             setWhenButton(false);
           }
         }
@@ -341,67 +318,43 @@ public final class EditScreen extends Activity {
       ll.addView(mDateTimeLayout);
     }
 
-    mConfirmButton.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View view) {
-        String name = mBodyText.getText().toString().replaceAll("'", "`");
+    mConfirmButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        final String newName = mBodyText.getText().toString()
+            .replaceAll("'", "`");
         if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
-          if (!(mDbHelper.createTag(name))) {
-            showMessage(view.getContext().getString(R.string.tag_existent));
+          if (!(mDbHelper.createTag(newName))) {
+            showMessage(v.getContext().getString(R.string.tag_existent));
             return;
-          }else{
-            EditScreen.this.setResult(RESULT_OK, new Intent().putExtra(ToDoDB.KEY_NAME, name));
+          } else {
+            EditScreen.this.setResult(RESULT_OK,
+                new Intent().putExtra(ToDoDB.KEY_NAME, newName));
           }
-        } else if (action.equals(Integer
-            .toString(TagToDoList.TAG_EDIT_ID))) {
-          mDbHelper.updateTag(EditScreen.sParameter, name);
+        } else if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
+          mDbHelper.updateTag(EditScreen.sTask, newName);
         } else if (action.equals(Integer
             .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
-          String result = mDbHelper.createTask(EditScreen.sParameter, name);
+          final String result = mDbHelper.createTask(EditScreen.sTask, newName);
           if (sSuperTask != null && sSuperTask.length() > 0) {
             try {
-              mDbHelper.setSuperTask(name, sSuperTask);
+              mDbHelper.setSuperTask(newName, sSuperTask);
             } catch (Exception e) {
               // can't have an exception here
             }
           }
           if (result != null) {
-            showMessage(view.getContext().getString(R.string.entry_existent)
-                + " '" + result + "'");
+            showMessage(v.getContext().getString(R.string.entry_existent)
+                + " '" + result + '\'');
             return;
           }
-          // we remember a constant for the date state because we also
-          // need it to see which kind of alarm we are going to set:
-          // daily or single occurence
-          final boolean dateSet = mDateTb.isChecked();
-          if (dateSet) {
-            mDbHelper.updateTask(name, sYear, sMonth, sDate);
-            mDbHelper.setDueDate(name, true);
-          }
-          if (mTimeTb.isChecked()) {
-            setAlarm(name, sHour, sMinute);
-            if (!(dateSet)) {
-              mDbHelper.updateTask(name, sDayOfWeek);
-            }
-          }
-          mDbHelper.setPriority(name, mPrioritySb.getProgress());
-          if (dateSet) {
-            syncToWeb(name);
-          }
-          if (getIntent().getExtras().getBoolean(EXTERNAL_INVOKER, false)) {
-            TagToDoWidget.onUpdate(getApplicationContext(),
-                AppWidgetManager.getInstance(getApplicationContext()));
-          }
+          updateTask(newName);
         } else if (action.equals(Integer
             .toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
-          mDbHelper.updateTask(EditScreen.sParameter, name);
-          mDbHelper.setPriority(EditScreen.sParameter,
-              mPrioritySb.getProgress());
-          if (mDateTb.isChecked()) {
-            syncToWeb(name);
-          }
-        } else if (action.equals(Integer
-            .toString(TagToDoList.TASK_WRITTEN_ID))) {
-          mDbHelper.setWrittenNote(EditScreen.sParameter, name);
+          mDbHelper.deleteAlarm(sTask);
+          mDbHelper.updateTask(sTask, newName);
+          updateTask(newName);
+        } else if (action.equals(Integer.toString(TagToDoList.TASK_WRITTEN_ID))) {
+          mDbHelper.setWrittenNote(sTask, newName);
         }
         finish();
       }
@@ -415,62 +368,79 @@ public final class EditScreen extends Activity {
   }
 
   /**
+   * Applies the actual edits to the task in the database. Also performs web
+   * sync if necessary.
+   * 
+   * @param task
+   */
+  private final void updateTask(final String task) {
+    mDbHelper.updateTask(task, sDate); // setting this anyway, might be monthly
+    final boolean dateSet = mDateTb.isChecked();
+    mDbHelper.setIsDueDate(task, dateSet);
+    if (mTimeTb.isChecked()) {
+      mDbHelper.updateTask(task, sTime);
+      mDbHelper.setIsDueTime(task, true);
+      setAlarm(task);
+    } else {
+      mDbHelper.setIsDueTime(task, false);
+    }
+    mDbHelper.setPriority(task, mPrioritySb.getProgress());
+    if (dateSet) {
+      syncToWeb(task);
+    }
+    if (getIntent().getExtras().getBoolean(EXTERNAL_INVOKER, false)) {
+      TagToDoWidget.onUpdate(getApplicationContext(),
+          AppWidgetManager.getInstance(getApplicationContext()));
+    }
+  }
+
+  /**
    * Makes the When button appear or disappear. That button reveals some
    * settings about periodic alarms.
    * 
    * @visible
    */
-  private void setWhenButton(boolean visible) {
+  private final void setWhenButton(boolean visible) {
     if (visible) {
       mDateTimeLayout.addView(mWhenButton = new ToggleButton(this));
       mWhenButton.setTextOff(getString(R.string.daily));
       mWhenButton.setChecked(false);
-      if (sDayOfWeek > -1) {
-        mWhenButton.setTextOn(getString(Chronos.DAYS[sDayOfWeek]));
+      if (sTime.isWeekly()) {
+        mWhenButton.setTextOn(getString(Chronos.DAYS[sTime.getDayOfWeek()]));
+      } else if (sDate.isMonthly()) {
+        mWhenButton.setTextOn(getString(R.string.monthly) + ", " + sDate.getDay());
       }
       mWhenButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           if (!((ToggleButton) v).isChecked()) {
-            sDayOfWeek = -1;
+            sTime = new Time(sTime.getEncodedTime(), -1);
             return;
           }
           final Dialog d = new Dialog(EditScreen.this);
-          d.setTitle(R.string.weekly);
-          LinearLayout ll = new LinearLayout(EditScreen.this);
+          d.setTitle(EditScreen.this.getString(R.string.weekly) + ' '
+              + EditScreen.this.getString(R.string.or) + ' '
+              + EditScreen.this.getString(R.string.monthly));
+          final LinearLayout ll = new LinearLayout(EditScreen.this);
           ll.setOrientation(LinearLayout.VERTICAL);
-          Button b = new Button(EditScreen.this);
-          b.setMinimumWidth(150);
-          b.setText(R.string.go_back);
-          b.setOnClickListener(new OnClickListener() {
-            public void onClick(View arg0) {
-              mWhenButton.setTextOn(getString(Chronos.DAYS[sDayOfWeek]));
-              mWhenButton.setChecked(true);
-              if (getIntent().getAction().equals(
-                  Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
-                mDbHelper.deleteAlarm(sParameter);
-                mDbHelper.updateTask(sParameter, sDayOfWeek);
-                setAlarm(sParameter, sHour, sMinute);
-              }
-              d.dismiss();
-            }
-          });
-          ll.addView(b);
+
           final TextView tv = new TextView(EditScreen.this);
-          if (sDayOfWeek == -1) {
-            sDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
-            if (sDayOfWeek < 0) {
-              sDayOfWeek += 7;
+          if (!sTime.isWeekly()) {
+            sTime = new Time(sTime.getEncodedTime(), Calendar.getInstance()
+                .get(Calendar.DAY_OF_WEEK) - 2);
+            if (sTime.getDayOfWeek() < 0) {
+              sTime = new Time(sTime.getEncodedTime(), sTime.getDayOfWeek() + 7);
             }
           }
-          tv.setText(Chronos.DAYS[sDayOfWeek]);
+          tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
           tv.setGravity(Gravity.CENTER_HORIZONTAL);
           tv.setTextSize(18);
-          b = new Button(EditScreen.this);
+          Button b = new Button(EditScreen.this);
           b.setText("<");
           b.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-              sDayOfWeek = Utils.iterate(sDayOfWeek, 7, -1);
-              tv.setText(Chronos.DAYS[sDayOfWeek]);
+              sTime = new Time(sTime.getEncodedTime(), Utils.iterate(
+                  sTime.getDayOfWeek(), 7, -1));
+              tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
             }
           });
           ll.addView(b);
@@ -479,11 +449,48 @@ public final class EditScreen extends Activity {
           b.setText(">");
           b.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-              sDayOfWeek = Utils.iterate(sDayOfWeek, 7, 1);
-              tv.setText(Chronos.DAYS[sDayOfWeek]);
+              sTime = new Time(sTime.getEncodedTime(), Utils.iterate(
+                  sTime.getDayOfWeek(), 7, 1));
+              tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
             }
           });
           ll.addView(b);
+
+          b = new Button(EditScreen.this);
+          b.setMinimumWidth(150);
+          b.setText(R.string.weekly);
+          b.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+              mWhenButton.setTextOn(getString(Chronos.DAYS[sTime.getDayOfWeek()]));
+              mWhenButton.setChecked(true);
+              d.dismiss();
+            }
+          });
+          ll.addView(b);
+
+          final TextView tv2 = new TextView(EditScreen.this);
+          tv2.setGravity(Gravity.CENTER_HORIZONTAL);
+          tv2.setText(R.string.or);
+          ll.addView(tv2);
+
+          // monthly button
+          b = new Button(EditScreen.this);
+          b.setMinimumWidth(150);
+          b.setText(getString(R.string.monthly) + " (beta)");
+          b.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+              final int dayOfMonth = Calendar.getInstance().get(
+                  Calendar.DAY_OF_MONTH);
+              mWhenButton.setTextOn(getString(R.string.monthly) + ", "
+                  + dayOfMonth);
+              mWhenButton.setChecked(true);
+              sTime = new Time(sTime.getEncodedTime(), -1);
+              sDate = new Date(0, 0, dayOfMonth);
+              d.dismiss();
+            }
+          });
+          ll.addView(b);
+
           d.setContentView(ll);
           d.show();
         }
@@ -501,19 +508,16 @@ public final class EditScreen extends Activity {
    * @param hour
    * @param minute
    */
-  private final void setAlarm(final String task, final int hour,
-      final int minute) {
-    mDbHelper.updateTask(task, hour, minute);
-    mDbHelper.setDueTime(task, true);
+  private final void setAlarm(final String task) {
+    mDbHelper.updateTask(task, sTime);
+    mDbHelper.setIsDueTime(task, true);
     final PendingIntent pi = PendingIntent.getBroadcast(this, task.hashCode(),
         Utils.getAlarmIntent(new Intent(this, AlarmReceiver.class), task), 0);
     final AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
     if (mDateTb.isChecked()) {// single occurence
-      Chronos.setSingularAlarm(am, pi, new Time(mDbHelper.getDueTime(task),
-          sDayOfWeek), new Date(mDbHelper.getDueDate(task)));
-    } else {// daily or weekly
-      Chronos.setRepeatingAlarm(am, pi, new Time(hour, minute, sDayOfWeek),
-          null);
+      Chronos.setSingularAlarm(am, pi, sTime, sDate);
+    } else {// daily or weekly or monthly
+      Chronos.setRepeatingAlarm(am, pi, sTime, sDate);
     }
   }
 
@@ -522,31 +526,30 @@ public final class EditScreen extends Activity {
    * also sets a default value if something is edited (the present value)
    */
   private void populateFields() {
-    String action = getIntent().getAction();
-    if (sParameter != null) {
+    final String action = getIntent().getAction();
+    if (sTask != null) {
       if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
         mTaskText.setText(R.string.edit_tag);
-        mBodyText.setText(sParameter);
-        mBodyText.setSelection(sParameter.length(), sParameter.length());
+        mBodyText.setText(sTask);
+        mBodyText.setSelection(sTask.length(), sTask.length());
       } else if (action.equals(Integer
           .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
         mTaskText.setText(R.string.entry_create);
       } else if (action.equals(Integer
           .toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
         mTaskText.setText(R.string.edit_entry);
-        mBodyText.setText(sParameter);
-        mBodyText.setSelection(sParameter.length(), sParameter.length());
-      } else if (action.equals(Integer
-          .toString(TagToDoList.TASK_WRITTEN_ID))) {
+        mBodyText.setText(sTask);
+        mBodyText.setSelection(sTask.length(), sTask.length());
+      } else if (action.equals(Integer.toString(TagToDoList.TASK_WRITTEN_ID))) {
         mTaskText.setText(R.string.edit_written_note);
-        mBodyText.setText(mDbHelper.getWrittenNote(sParameter));
+        mBodyText.setText(mDbHelper.getWrittenNote(sTask));
       }
     } else {
       if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
         mTaskText.setText(R.string.create_tag);
       }
     }
-    if (TagToDoList.sTts!=null) {
+    if (TagToDoList.sTts != null) {
       new OneTimeTTS(this, mTaskText.getText().toString());
     }
   }
@@ -556,29 +559,21 @@ public final class EditScreen extends Activity {
     super.onDestroy();
   }
 
-  // What's this about? Where do i read it?
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putString(ToDoDB.KEY_ROWID, sParameter);
+    outState.putString(ToDoDB.KEY_ROWID, sTask);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    saveState();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
     populateFields();
-  }
-
-  /**
-   * Saves the state on pause
-   */
-  private void saveState() {
   }
 
   /**
@@ -616,7 +611,7 @@ public final class EditScreen extends Activity {
    * @param name
    *          The name of the task
    */
-  private void syncToWeb(String name) {
+  private final void syncToWeb(final String name) {
     if (TagToDoList.SYNC_GCAL) {
       SharedPreferences settings = getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE);
@@ -624,7 +619,8 @@ public final class EditScreen extends Activity {
           settings.getString(ConfigScreen.GOOGLE_USERNAME, ""),
           settings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
       try {
-        GoogleCalendar.createEvent(name, sYear, sMonth, sDate, sHour, sMinute);
+        GoogleCalendar.createEvent(name, sDate.getYear(), sDate.getMonth(),
+            sDate.getDay(), sTime.getHour(), sTime.getMinute());
       } catch (Exception e) {
         // TODO Show error message somehow
       }

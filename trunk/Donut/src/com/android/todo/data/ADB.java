@@ -96,7 +96,7 @@ public abstract class ADB {
    * @param task
    * @return encoded date
    */
-  public final int getDueDate(String task) {
+  public final int getDueDate(final String task) {
     final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE }, KEY_NAME
         + " = '" + task + "'", null, null, null, null);
@@ -163,7 +163,7 @@ public abstract class ADB {
    * @param task
    * @return true, if a due date has been set
    */
-  public boolean isDueDateSet(String task) {
+  public final boolean isDueDateSet(final String task) {
     final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
@@ -184,7 +184,7 @@ public abstract class ADB {
    * @param task
    * @return true, if a due time has been set
    */
-  public boolean isDueTimeSet(String task) {
+  public final boolean isDueTimeSet(final String task) {
     final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);

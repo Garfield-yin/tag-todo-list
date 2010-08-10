@@ -18,13 +18,13 @@ public final class Chronos {
       R.string.saturday, R.string.sunday };
 
   /**
-   * This class represents time, and includes periodicity. An encoded time means
-   * 60*hours+minutes
+   * This class represents time, and includes weekly periodicity. An encoded
+   * time means 60*hours+minutes
    */
   public static class Time {
     private int mHour;
     private int mMinute;
-    private Integer mDayOfWeek;
+    private int mDayOfWeek;
     private int mEncodedTime;
 
     public Time(final int encodedTime, final int dayOfWeek) {
@@ -35,6 +35,7 @@ public final class Chronos {
     }
 
     public Time(final int hour, final int minute, final int dayOfWeek) {
+      // not using 'this' constructor for speed
       mHour = hour;
       mMinute = minute;
       mDayOfWeek = dayOfWeek;
@@ -58,12 +59,14 @@ public final class Chronos {
     }
 
     public final boolean isWeekly() {
-      return mDayOfWeek != null && mDayOfWeek > -1;
+      return mDayOfWeek > -1;
     }
   }
 
   /**
-   * This class represents dates. An encoded date is (year*12+month)*31+day
+   * This class represents dates. An encoded date is (year*12+month)*31+day. It
+   * includes monthly periodicity in case the month and year are 0 but the day
+   * isn't.
    */
   public static class Date {
     private int mDayOfMonth;
@@ -76,6 +79,13 @@ public final class Chronos {
       mMonth = encodedDate / 31 % 12;
       mYear = encodedDate / 372;
       mEncodedDate = encodedDate;
+    }
+    
+    public Date(final int year, final int month, final int dayOfMonth) {
+      mDayOfMonth = dayOfMonth;
+      mMonth = month;
+      mYear = year;
+      mEncodedDate = (year*12+month)*31+dayOfMonth;
     }
 
     public final int getDay() {
@@ -92,6 +102,10 @@ public final class Chronos {
 
     public final int getEncodedDate() {
       return mEncodedDate;
+    }
+
+    public final boolean isMonthly() {
+      return mDayOfMonth > 0 && mMonth == 0 && mYear == 0;
     }
 
     public final boolean isNull() {
@@ -179,6 +193,15 @@ public final class Chronos {
     final int encodedTimeDif = t.getEncodedTime() - c.get(Calendar.HOUR_OF_DAY)
         * 60 - c.get(Calendar.MINUTE);
     if (d != null && !d.isNull()) {
+      if (d.isMonthly()) {
+        final Calendar alarmCal = Calendar.getInstance();
+        while (alarmCal.getActualMaximum(Calendar.DAY_OF_MONTH) < d.getDay()) {
+          alarmCal.roll(Calendar.MONTH, true);
+        }
+        alarmCal.set(Calendar.HOUR_OF_DAY, t.getHour());
+        alarmCal.set(Calendar.MINUTE, t.getMinute());
+        return alarmCal.getTimeInMillis();
+      }
       final int encodedDateDif = d.getEncodedDate() - 372
           * c.get(Calendar.YEAR) - 31 * c.get(Calendar.MONTH)
           - c.get(Calendar.DAY_OF_MONTH);
@@ -212,13 +235,23 @@ public final class Chronos {
 
   public final static void setSingularAlarm(final AlarmManager am,
       final PendingIntent pi, final Time t, final Date d) {
-    am.set(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(t, d), pi);
+    final long millis = Chronos.getTimeMillis(t, d);
+    final long m=System.currentTimeMillis();
+    if (millis > -1) {
+      am.set(AlarmManager.RTC_WAKEUP, millis, pi);
+    }
   }
 
   public final static void setRepeatingAlarm(final AlarmManager am,
       final PendingIntent pi, final Time t, final Date d) {
-    am.setRepeating(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(t, d),
-        86400000L * (t.isWeekly() ? 7 : 1), pi);
+    if (!d.isMonthly()) {
+      am.setRepeating(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(t, d),
+          86400000L * (t.isWeekly() ? 7 : 1), pi);
+    } else {// We set a singular one and in the alarm receiver it will set
+            // itself again. Not making a 4 week alarm, but a monthly, same-day
+            // alarm.
+      am.set(AlarmManager.RTC_WAKEUP, Chronos.getTimeMillis(t, d), pi);
+    }
   }
 
 }
