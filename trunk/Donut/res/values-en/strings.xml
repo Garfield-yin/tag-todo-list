@@ -180,6 +180,7 @@
 <string name="sunday">Sunday</string>
 <string name="every">every</string>
 <string name="day">day</string>
+<string name="month">month</string>
 <string name="SMS">SMS</string>
 <string name="email">Email</string>
 <string name="todo">TO-DO</string>

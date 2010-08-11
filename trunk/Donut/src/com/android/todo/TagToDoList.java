@@ -544,8 +544,12 @@ public class TagToDoList extends Activity {
             } else if (!auxBool) {
               final Date d = new Date(sDbHelper.getDueDate(taskName));
               if (d.isMonthly()) {
-                sb.append(getString(R.string.monthly));
+                sb.append(getString(R.string.every));
+                sb.append(' ');
+                sb.append(getString(R.string.month));
                 sb.append(", ");
+                sb.append(getString(R.string.day));
+                sb.append(' ');
                 sb.append(d.getDay());
               } else {
                 sb.append(getString(R.string.every));

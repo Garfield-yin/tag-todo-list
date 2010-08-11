@@ -195,6 +195,9 @@ public final class Chronos {
     if (d != null && !d.isNull()) {
       if (d.isMonthly()) {
         final Calendar alarmCal = Calendar.getInstance();
+        if (encodedTimeDif<1){
+          alarmCal.roll(Calendar.MONTH, true);
+        }
         while (alarmCal.getActualMaximum(Calendar.DAY_OF_MONTH) < d.getDay()) {
           alarmCal.roll(Calendar.MONTH, true);
         }
@@ -236,7 +239,6 @@ public final class Chronos {
   public final static void setSingularAlarm(final AlarmManager am,
       final PendingIntent pi, final Time t, final Date d) {
     final long millis = Chronos.getTimeMillis(t, d);
-    final long m=System.currentTimeMillis();
     if (millis > -1) {
       am.set(AlarmManager.RTC_WAKEUP, millis, pi);
     }

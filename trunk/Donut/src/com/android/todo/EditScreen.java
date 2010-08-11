@@ -509,8 +509,6 @@ public final class EditScreen extends Activity {
    * @param minute
    */
   private final void setAlarm(final String task) {
-    mDbHelper.updateTask(task, sTime);
-    mDbHelper.setIsDueTime(task, true);
     final PendingIntent pi = PendingIntent.getBroadcast(this, task.hashCode(),
         Utils.getAlarmIntent(new Intent(this, AlarmReceiver.class), task), 0);
     final AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
