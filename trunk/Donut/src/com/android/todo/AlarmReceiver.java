@@ -34,6 +34,10 @@ public final class AlarmReceiver extends BroadcastReceiver {
 
     // checking if this alarm needs to be set again (e.g. monthly)
     final BootDB dbHelper = new BootDB(c.getApplicationContext()).open();
+    if (!dbHelper.isTask(task)) {
+      dbHelper.close();
+      return;
+    }
     final Date d = new Date(dbHelper.getDueDate(task));
     if (d.isMonthly()) {
       final Context ctx = c.getApplicationContext();

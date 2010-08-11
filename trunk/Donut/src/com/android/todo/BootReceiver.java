@@ -53,7 +53,7 @@ public final class BootReceiver extends BroadcastReceiver {
         final Time t = new Time(dbHelper.getDueTime(task),
             dbHelper.getDueDayOfWeek(task));
         final Date d = new Date(dbHelper.getDueDate(task));
-        if (dbHelper.isDueDateSet(task) && Chronos.getTimeMillis(t, d) > 0) {
+        if (dbHelper.isDueDateSet(task)) {
           // single occurence
           Chronos.setSingularAlarm(am, pi, t, d);
         } else {// daily or weekly
