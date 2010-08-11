@@ -5,6 +5,7 @@ package com.android.todo;
 import java.io.FileNotFoundException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -33,6 +34,8 @@ public final class PhotoScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setTitle(R.string.entry_photo_note);
     setContentView(R.layout.photo);

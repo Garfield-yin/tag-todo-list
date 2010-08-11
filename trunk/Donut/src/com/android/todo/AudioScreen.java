@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -45,6 +46,8 @@ public final class AudioScreen extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+	  TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE));
 		super.onCreate(savedInstanceState);
 		setTitle(R.string.audio_note_title);
 		setContentView(R.layout.audio);
@@ -77,7 +80,6 @@ public final class AudioScreen extends Activity {
 		final TextView positionTextView = new TextView(this);
 		positionTextView.setGravity(Gravity.CENTER_HORIZONTAL);
 		positionTextView.setPadding(0, 32, 0, 0);
-		positionTextView.setTextColor(Color.WHITE);
 		positionTextView.setTextSize(30);
 		ll.addView(positionTextView);
 

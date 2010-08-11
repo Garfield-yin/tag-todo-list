@@ -5,7 +5,7 @@
 	android:layout_height="fill_parent">
 
 	<TextView android:id="@+id/messageText" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:textColor="#FFFFFF"
+		android:layout_height="wrap_content"
 		android:textSize="18sp" android:paddingLeft="7px" android:paddingTop="16px"
 		android:paddingBottom="16px" />
 

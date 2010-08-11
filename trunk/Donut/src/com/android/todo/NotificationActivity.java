@@ -34,6 +34,8 @@ public final class NotificationActivity extends Activity {
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
+    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setTitle(R.string.due_date_notification);
 

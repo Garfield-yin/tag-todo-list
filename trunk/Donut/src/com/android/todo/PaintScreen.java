@@ -40,8 +40,9 @@ public final class PaintScreen extends GraphicsActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
-    setTitle(R.string.note_title);
     setContentView(R.layout.note);
 
     // checking if the necessary folders exist on the sdcard

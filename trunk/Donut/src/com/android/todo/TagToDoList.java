@@ -135,16 +135,28 @@ public class TagToDoList extends Activity {
   private int mActiveEntry; // useful only in keyboard mode
   private int mMaxPriority; // useful only with shiny priority :)
 
+  public final static void setTheme(final Context c, final SharedPreferences sp){
+    if (sp.getInt(ConfigScreen.THEME, android.R.style.Theme) == android.R.style.Theme) {
+      if (sp.getBoolean(ConfigScreen.FULLSCREEN, true)) {
+        c.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+      } else {
+        c.setTheme(android.R.style.Theme_Black_NoTitleBar);
+      }
+    } else {
+      if (sPref.getBoolean(ConfigScreen.FULLSCREEN, true)) {
+        c.setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
+      } else {
+        c.setTheme(android.R.style.Theme_Light_NoTitleBar);
+      }
+    }
+  }
+  
   @Override
   public void onCreate(Bundle icicle) {
     AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, 0);
-    sEditor = sPref.edit();    
-    if (sPref.getInt(ConfigScreen.THEME, android.R.style.Theme) == android.R.style.Theme) {
-      setTheme(android.R.style.Theme_NoTitleBar);
-    } else {
-      setTheme(android.R.style.Theme_Light_NoTitleBar);
-    }
+    sEditor = sPref.edit();
+    TagToDoList.setTheme(this, sPref);
     super.onCreate(icicle);
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
