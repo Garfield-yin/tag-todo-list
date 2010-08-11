@@ -880,23 +880,6 @@ public final class ToDoDB extends ADB {
         .getImageName(newName, true)));
     new File(Utils.getAudioName(task)).renameTo(new File(Utils
         .getAudioName(newName)));
-    deleteAlarm(task);
-    if (isDueTimeSet(task)) {
-      final PendingIntent pi = PendingIntent.getBroadcast(mCtx,
-          newName.hashCode(),
-          Utils.getAlarmIntent(new Intent(mCtx, AlarmReceiver.class), newName),
-          0);
-      final AlarmManager am = (AlarmManager) mCtx
-          .getSystemService(Context.ALARM_SERVICE);
-      final Time t = new Time(getDueTime(task), getDueDayOfWeek(task));
-      final Date d = new Date(getDueDate(task));
-      if (isDueDateSet(task) && Chronos.getTimeMillis(t, d) > 0) {
-        // single occurence
-        Chronos.setSingularAlarm(am, pi, t, d);
-      } else {// daily or weekly
-        Chronos.setRepeatingAlarm(am, pi, t, d);
-      }
-    }
 
     final ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
@@ -957,8 +940,7 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DUE_MONTH, d.getMonth());
     args.put(KEY_DUE_DATE, d.getDay());
     // args.put(KEY_EXTRA_OPTIONS, 1);
-    return mDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
+    return mDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
   /**
@@ -973,8 +955,7 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DUE_HOUR, t.getHour());
     args.put(KEY_DUE_MINUTE, t.getMinute());
     args.put(KEY_DUE_DAY_OF_WEEK, t.getDayOfWeek());
-    return mDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
+    return mDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
   /**

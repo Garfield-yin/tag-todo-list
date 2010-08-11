@@ -37,7 +37,8 @@ http://code.google.com/p/tag-todo-list/
 or by sending a message from the Tag ToDo List web site:
 http://teodorfilimon.com/android/Tag-ToDo-List/index.html
 Also, some features may be experimental or dubbed 'beta' and
-they are visually marked as such in the app
+they are visually marked as such in the app. The app will also
+contain visual ads in certain screens.
 
 5. RELEASE LOG: 
 http://tagtodolist.blogspot.com/

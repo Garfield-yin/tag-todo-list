@@ -191,4 +191,7 @@
 <string name="search_label">Search Tag-ToDo-List</string>
 <string name="settings_description">Tasks</string>
 
+<!-- Ad keywords -->
+<string name="ad_keywords">Music Cinema Movies Amazon Android Travel Gifts</string>
+
 </resources>

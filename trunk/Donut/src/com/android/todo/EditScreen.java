@@ -331,10 +331,10 @@ public final class EditScreen extends Activity {
                 new Intent().putExtra(ToDoDB.KEY_NAME, newName));
           }
         } else if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
-          mDbHelper.updateTag(EditScreen.sTask, newName);
+          mDbHelper.updateTag(sTask, newName);
         } else if (action.equals(Integer
             .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
-          final String result = mDbHelper.createTask(EditScreen.sTask, newName);
+          final String result = mDbHelper.createTask(sTask, newName);
           if (sSuperTask != null && sSuperTask.length() > 0) {
             try {
               mDbHelper.setSuperTask(newName, sSuperTask);

@@ -63,7 +63,6 @@ public final class ConfigScreen extends Activity {
     setTheme(TagToDoList.sPref.getInt(ConfigScreen.THEME, android.R.style.Theme));
 
     super.onCreate(savedInstanceState);
-    setTitle(R.string.config_screen_title);
     setContentView(R.layout.config);
 
     sHelpButton = (Button) findViewById(R.id.websiteButton);
