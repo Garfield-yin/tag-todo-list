@@ -52,6 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.admob.android.ads.AdManager;
+import com.admob.android.ads.AdView;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -135,7 +136,13 @@ public class TagToDoList extends Activity {
   private int mActiveEntry; // useful only in keyboard mode
   private int mMaxPriority; // useful only with shiny priority :)
 
-  public final static void setTheme(final Context c, final SharedPreferences sp){
+  /**
+   * Sets the theme of the given context, based on the give preferences.
+   * 
+   * @param c
+   * @param sp
+   */
+  public final static void setTheme(final Context c, final SharedPreferences sp) {
     if (sp.getInt(ConfigScreen.THEME, android.R.style.Theme) == android.R.style.Theme) {
       if (sp.getBoolean(ConfigScreen.FULLSCREEN, true)) {
         c.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen);
@@ -150,7 +157,7 @@ public class TagToDoList extends Activity {
       }
     }
   }
-  
+
   @Override
   public void onCreate(Bundle icicle) {
     AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
@@ -161,7 +168,16 @@ public class TagToDoList extends Activity {
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
     setContentView(R.layout.main);
+
     mTagSpinner = (Spinner) findViewById(R.id.tagSpinner);
+
+    final AdView ad = new AdView(this);
+    ad.setBackgroundColor(Color.BLACK);
+    ad.setPrimaryTextColor(Color.WHITE);
+    ad.setSecondaryTextColor(Color.DKGRAY);
+    ad.setKeywords(getString(R.string.ad_keywords));
+    ((LinearLayout) mTagSpinner.getParent().getParent()).addView(ad, 0);
+    
     mTagSpinner
         .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
           public void onItemSelected(AdapterView<?> parent, View v,
