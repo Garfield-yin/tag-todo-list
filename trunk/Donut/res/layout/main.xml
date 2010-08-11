@@ -9,7 +9,7 @@
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		app:backgroundColor="#000000" app:primaryTextColor="#FFFFFF"
 		app:secondaryTextColor="#CCCCCC"
-		app:keywords="Music Cinema Movies Amazon Android Travel Gifts" />
+		app:keywords="@string/ad_keywords" />
 
 	<LinearLayout android:id="@+id/upperLayout"
 		android:orientation="horizontal" android:layout_width="fill_parent"

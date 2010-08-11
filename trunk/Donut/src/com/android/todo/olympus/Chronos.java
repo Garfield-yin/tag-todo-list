@@ -239,7 +239,7 @@ public final class Chronos {
   public final static void setSingularAlarm(final AlarmManager am,
       final PendingIntent pi, final Time t, final Date d) {
     final long millis = Chronos.getTimeMillis(t, d);
-    if (millis > -1) {
+    if (millis > 0) {
       am.set(AlarmManager.RTC_WAKEUP, millis, pi);
     }
   }

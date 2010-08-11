@@ -162,4 +162,7 @@
 <string name="every">chaque</string>
 <string name="day">jour</string>
 
+<!-- Ad keywords -->
+<string name="ad_keywords">Musique Cinéma Films Amazon Android Cadeaux Voyage Eiffel</string>
+
 </resources>
