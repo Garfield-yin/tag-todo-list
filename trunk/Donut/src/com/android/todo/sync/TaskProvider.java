@@ -23,14 +23,16 @@ public class TaskProvider extends ContentProvider {
   private static final int URI_TASKS_DUE_TODAY = 5;
 
   private static UriMatcher sUriMatcher;
-  
-  static {
+
+  @Override
+  public boolean onCreate() {
     sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     sUriMatcher.addURI(AUTHORITY, "tags", URI_TAGS);
     sUriMatcher.addURI(AUTHORITY, "tasks", URI_TASKS);
     sUriMatcher.addURI(AUTHORITY, "tags/*", URI_SPECIFIC_TAG);
     sUriMatcher.addURI(AUTHORITY, "tasks/due", URI_TASKS_DUE);
     sUriMatcher.addURI(AUTHORITY, "tasks/due/present", URI_TASKS_DUE_TODAY);
+    return false;
   }
 
   @Override
@@ -76,12 +78,6 @@ public class TaskProvider extends ContentProvider {
   @Override
   public String getType(Uri uri) {
     return null;
-  }
-
-  @Override
-  public boolean onCreate() {
-    // TODO Auto-generated method stub
-    return false;
   }
 
   @Override

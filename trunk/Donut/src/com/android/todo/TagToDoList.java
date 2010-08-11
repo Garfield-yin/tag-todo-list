@@ -52,7 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.admob.android.ads.AdManager;
-import com.android.todo.closed.Action;
+import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
@@ -804,7 +804,7 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackPageView("version/"
             + Integer.toString(VERSION.SDK_INT));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
-            Analytics.SPACE_STATE, mTagSpinner.getChildCount());
+            Analytics.SPACE_STATE, mTagSpinner.getCount());
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
