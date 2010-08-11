@@ -85,7 +85,6 @@
 <string name="note_clear">Clear</string>
 <string name="note_close">Close &amp; Save</string>
 <string name="note_delete">Delete note</string>
-<string name="note_title">Draw a note for the task:</string>
 <string name="note_camera">Camera</string>
 
 <!-- Audio notes screen -->
@@ -136,6 +135,7 @@
 <string name="config_10_alarm">Change alarm sound</string>
 <string name="config_10_alarm_pick">Choose your own song</string>
 <string name="config_11_alarm_vibrate">Also vibrate with the alarm</string>
+<string name="config_12_fullscreen">Eliminate system bar at the top and make the app truly fullscreen - needs app restart</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

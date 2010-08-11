@@ -78,6 +78,8 @@ public final class EditScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
     setContentView(R.layout.edit);
@@ -611,11 +613,11 @@ public final class EditScreen extends Activity {
    */
   private final void syncToWeb(final String name) {
     if (TagToDoList.SYNC_GCAL) {
-      SharedPreferences settings = getSharedPreferences(TagToDoList.PREFS_NAME,
+      final SharedPreferences pref=getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE);
       GoogleCalendar.setLogin(
-          settings.getString(ConfigScreen.GOOGLE_USERNAME, ""),
-          settings.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+          pref.getString(ConfigScreen.GOOGLE_USERNAME, ""),
+          pref.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
       try {
         GoogleCalendar.createEvent(name, sDate.getYear(), sDate.getMonth(),
             sDate.getDay(), sTime.getHour(), sTime.getMinute());

@@ -3,6 +3,7 @@
 package com.android.todo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,8 @@ public final class ConfirmationScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+        Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setContentView(R.layout.message);
     mMessage = (TextView) findViewById(R.id.messageText);

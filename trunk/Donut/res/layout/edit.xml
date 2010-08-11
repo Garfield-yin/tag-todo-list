@@ -7,8 +7,8 @@
 
 	<TextView android:id="@+id/task" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-		android:textColor="#FFFFFF" android:textSize="18sp"
-		android:paddingTop="16px" android:paddingBottom="16px" />
+		android:textSize="18sp" android:paddingTop="16px"
+		android:paddingBottom="16px" />
 
 	<EditText android:id="@+id/body" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:inputType="textCapSentences|textMultiLine"

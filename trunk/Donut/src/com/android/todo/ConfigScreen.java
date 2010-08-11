@@ -53,6 +53,7 @@ public final class ConfigScreen extends Activity {
   public static final String THEME = "theme";
   public static final String SHOW_COLLAPSE = "showCollapse";
   public static final String SHOW_DUE_TIME = "showDueTime";
+  public static final String FULLSCREEN = "fullscreen";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -60,8 +61,8 @@ public final class ConfigScreen extends Activity {
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    setTheme(TagToDoList.sPref.getInt(ConfigScreen.THEME, android.R.style.Theme));
-
+    TagToDoList.setTheme(this, TagToDoList.sPref);
+    
     super.onCreate(savedInstanceState);
     setContentView(R.layout.config);
 
@@ -69,43 +70,44 @@ public final class ConfigScreen extends Activity {
     sHelpButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
         Intent myIntent = new Intent(Intent.ACTION_VIEW);
-        myIntent
-            .setData(Uri.parse(v.getContext().getString(R.string.url_help)));
+        myIntent.setData(Uri.parse(v.getContext().getString(R.string.url_help)));
         startActivity(myIntent);
       }
     });
 
     final TabHost th = (TabHost) this.findViewById(R.id.configTabHost);
     th.setup();
-    th.addTab(th.newTabSpec("").setIndicator(
-        getString(R.string.config_tab_todo)).setContent(R.id.configScrollView));
-    th.addTab(th.newTabSpec("1")
-        .setIndicator(getString(R.string.config_tab_ui)).setContent(
-            R.id.configScrollView));
-    th.addTab(th.newTabSpec("22").setIndicator(
-        getString(R.string.config_tab_sounds))
+    th.addTab(th.newTabSpec("")
+        .setIndicator(getString(R.string.config_tab_todo))
         .setContent(R.id.configScrollView));
-    th.addTab(th.newTabSpec("333").setIndicator(
-        getString(R.string.config_tab_web)).setContent(R.id.configScrollView));
-    ImageView iv = (ImageView) th.getTabWidget().getChildAt(0).findViewById(
-        android.R.id.icon);
+    th.addTab(th.newTabSpec("1")
+        .setIndicator(getString(R.string.config_tab_ui))
+        .setContent(R.id.configScrollView));
+    th.addTab(th.newTabSpec("22")
+        .setIndicator(getString(R.string.config_tab_sounds))
+        .setContent(R.id.configScrollView));
+    th.addTab(th.newTabSpec("333")
+        .setIndicator(getString(R.string.config_tab_web))
+        .setContent(R.id.configScrollView));
+    ImageView iv = (ImageView) th.getTabWidget().getChildAt(0)
+        .findViewById(android.R.id.icon);
     iv.setPadding(0, 0, 0, 10);
     iv.setImageDrawable(getResources().getDrawable(
         android.R.drawable.ic_menu_agenda));
-    iv = (ImageView) th.getTabWidget().getChildAt(1).findViewById(
-        android.R.id.icon);
+    iv = (ImageView) th.getTabWidget().getChildAt(1)
+        .findViewById(android.R.id.icon);
     iv.setPadding(0, 0, 0, 10);
     iv.setImageDrawable(getResources().getDrawable(
         android.R.drawable.ic_menu_view));
-    iv = (ImageView) th.getTabWidget().getChildAt(2).findViewById(
-        android.R.id.icon);
+    iv = (ImageView) th.getTabWidget().getChildAt(2)
+        .findViewById(android.R.id.icon);
     iv.setPadding(0, 0, 0, 10);
     iv.setMinimumHeight(48);
     iv.setMinimumWidth(48);
     iv.setImageDrawable(getResources().getDrawable(
         android.R.drawable.ic_lock_silent_mode_off));
-    iv = (ImageView) th.getTabWidget().getChildAt(3).findViewById(
-        android.R.id.icon);
+    iv = (ImageView) th.getTabWidget().getChildAt(3)
+        .findViewById(android.R.id.icon);
     iv.setPadding(0, 0, 0, 10);
     iv.setImageDrawable(getResources().getDrawable(
         android.R.drawable.ic_menu_send));
@@ -127,13 +129,12 @@ public final class ConfigScreen extends Activity {
     sDonateButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         final Intent i = new Intent(Intent.ACTION_VIEW);
-        i
-            .setData(Uri
-                .parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=GB&item_name=Teo%27s%20free%20projects&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG_global%2egif%3aNonHosted"));
+        i.setData(Uri
+            .parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=GB&item_name=Teo%27s%20free%20projects&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG_global%2egif%3aNonHosted"));
         startActivity(i);
         if (Analytics.sTracker != null) {
-          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS, "CONFIG_SCREEN_DONATION_BUTTON",
-              Analytics.SPACE_INTERFACE, 0);
+          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
+              "CONFIG_SCREEN_DONATION_BUTTON", Analytics.SPACE_INTERFACE, 0);
         }
       }
     });
@@ -148,8 +149,10 @@ public final class ConfigScreen extends Activity {
     sConfirmButton = (Button) findViewById(R.id.confirmLoginButton);
     sConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        TagToDoList.sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText().toString());
-        TagToDoList.sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText().toString());
+        TagToDoList.sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText()
+            .toString());
+        TagToDoList.sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText()
+            .toString());
         TagToDoList.sEditor.commit();
 
         GoogleCalendar.setLogin(sUserEdit.getText().toString(), sPassEdit
@@ -177,10 +180,10 @@ public final class ConfigScreen extends Activity {
             dueEntries.moveToFirst();
             do {
               try {
-                allTasksSynced &= GoogleCalendar.createEvent(dueEntries
-                    .getString(title), dueEntries.getInt(year), dueEntries
-                    .getInt(month), dueEntries.getInt(day), dueEntries
-                    .getInt(hour), dueEntries.getInt(minute));
+                allTasksSynced &= GoogleCalendar.createEvent(
+                    dueEntries.getString(title), dueEntries.getInt(year),
+                    dueEntries.getInt(month), dueEntries.getInt(day),
+                    dueEntries.getInt(hour), dueEntries.getInt(minute));
               } catch (Exception e) {
                 allTasksSynced = false;
               }
@@ -318,35 +321,34 @@ public final class ConfigScreen extends Activity {
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(SHOW_COLLAPSE, false));
         cb.setText(R.string.config_8_collapse);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(SHOW_COLLAPSE, isChecked).commit();
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(SHOW_COLLAPSE, isChecked).commit();
+          }
+        });
         ll.addView(cb);
 
         // show which tasks have notes in portrait mode as well
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(NOTE_PREVIEW, false));
         cb.setText(R.string.config_6_notes);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(NOTE_PREVIEW, isChecked);
-                TagToDoList.sEditor.commit();
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(NOTE_PREVIEW, isChecked);
+            TagToDoList.sEditor.commit();
+          }
+        });
         ll.addView(cb);
-        
+
         // show which tasks have due dates
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(SHOW_DUE_TIME, false));
         cb.setText(R.string.config_9_duedate);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
             TagToDoList.sEditor.putBoolean(SHOW_DUE_TIME, isChecked).commit();
           }
         });
@@ -356,31 +358,41 @@ public final class ConfigScreen extends Activity {
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(VISUAL_PRIORITY, false));
         cb.setText(R.string.config_4_shine);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(VISUAL_PRIORITY, isChecked);
-                TagToDoList.sEditor.commit();
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(VISUAL_PRIORITY, isChecked);
+            TagToDoList.sEditor.commit();
+          }
+        });
         ll.addView(cb);
 
         // choose theme
         cb = new CheckBox(this);
-        cb
-            .setChecked(TagToDoList.sPref.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
+        cb.setChecked(TagToDoList.sPref.getInt(THEME, android.R.style.Theme) != android.R.style.Theme);
         cb.setText(R.string.config_7_theme);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putInt(
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor
+                .putInt(
                     THEME,
                     isChecked ? android.R.style.Theme_Light
                         : android.R.style.Theme).commit();
-              }
-            });
+          }
+        });
+        ll.addView(cb);
+
+        // fullscreen
+        cb = new CheckBox(this);
+        cb.setChecked(TagToDoList.sPref.getBoolean(FULLSCREEN, true));
+        cb.setText(R.string.config_12_fullscreen);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(FULLSCREEN, isChecked).commit();
+          }
+        });
         ll.addView(cb);
 
         break;
@@ -389,21 +401,20 @@ public final class ConfigScreen extends Activity {
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(BLIND_MODE, false));
         cb.setText(R.string.visually_challenged_mode_enabled);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                if (!isChecked) {
-                  if (TagToDoList.sTts != null) {
-                    TagToDoList.sTts.shutdown();
-                    TagToDoList.sTts = null;
-                  }
-                } else {
-                  TagToDoList.sTts = new TTS(getApplicationContext(), null);
-                }
-                TagToDoList.sEditor.putBoolean(BLIND_MODE, isChecked).commit();
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            if (!isChecked) {
+              if (TagToDoList.sTts != null) {
+                TagToDoList.sTts.shutdown();
+                TagToDoList.sTts = null;
               }
-            });
+            } else {
+              TagToDoList.sTts = new TTS(getApplicationContext(), null);
+            }
+            TagToDoList.sEditor.putBoolean(BLIND_MODE, isChecked).commit();
+          }
+        });
         ll.addView(cb);
 
         // change default alarm sound?
@@ -423,8 +434,8 @@ public final class ConfigScreen extends Activity {
 
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
-            Intent c = Intent.createChooser(i, v.getContext().getString(
-                R.string.config_10_alarm_pick));
+            Intent c = Intent.createChooser(i,
+                v.getContext().getString(R.string.config_10_alarm_pick));
             startActivityForResult(c, 1);
           }
         });
@@ -432,14 +443,13 @@ public final class ConfigScreen extends Activity {
         cb.setChecked(b);
         sSongPicker.setVisibility(b ? View.VISIBLE : View.GONE);
         cb.setText(R.string.config_10_alarm);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(CUSTOM_ALARM, isChecked).commit();
-                sSongPicker.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(CUSTOM_ALARM, isChecked).commit();
+            sSongPicker.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+          }
+        });
         ll.addView(cb);
         ll.addView(sSongPicker);
 
@@ -447,13 +457,12 @@ public final class ConfigScreen extends Activity {
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(ALARM_VIBRATION, true));
         cb.setText(R.string.config_11_alarm_vibrate);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(ALARM_VIBRATION, isChecked).commit();
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(ALARM_VIBRATION, isChecked).commit();
+          }
+        });
         ll.addView(cb);
         break;
       case 3:
@@ -461,37 +470,35 @@ public final class ConfigScreen extends Activity {
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(USAGE_STATS, false));
         cb.setText(R.string.config_5_stats);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(USAGE_STATS, isChecked);
-                TagToDoList.sEditor.commit();
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(USAGE_STATS, isChecked);
+            TagToDoList.sEditor.commit();
+          }
+        });
         ll.addView(cb);
 
         // sync TO Google Calendar
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(GOOGLE_CALENDAR, false));
         cb.setText(R.string.config_1_gcal);
-        cb
-            .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-              public void onCheckedChanged(CompoundButton buttonView,
-                  boolean isChecked) {
-                TagToDoList.sEditor.putBoolean(GOOGLE_CALENDAR, isChecked);
-                if (!(isChecked)) {
-                  TagToDoList.sEditor.putString(GOOGLE_USERNAME, "");
-                  TagToDoList.sEditor.putString(GOOGLE_PASSWORD, "");
-                }
-                TagToDoList.sEditor.commit();
-                sUserEdit.setText(TagToDoList.sPref.getString(GOOGLE_USERNAME,
-                    getString(R.string.username)));
-                sPassEdit.setText(TagToDoList.sPref.getString(GOOGLE_PASSWORD,
-                    getString(R.string.password)));
-                showLogin(isChecked);
-              }
-            });
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(GOOGLE_CALENDAR, isChecked);
+            if (!(isChecked)) {
+              TagToDoList.sEditor.putString(GOOGLE_USERNAME, "");
+              TagToDoList.sEditor.putString(GOOGLE_PASSWORD, "");
+            }
+            TagToDoList.sEditor.commit();
+            sUserEdit.setText(TagToDoList.sPref.getString(GOOGLE_USERNAME,
+                getString(R.string.username)));
+            sPassEdit.setText(TagToDoList.sPref.getString(GOOGLE_PASSWORD,
+                getString(R.string.password)));
+            showLogin(isChecked);
+          }
+        });
         ll.addView(cb);
 
         sUserEdit = (EditText) findViewById(R.id.usernameEdit);
@@ -507,8 +514,8 @@ public final class ConfigScreen extends Activity {
         });
         sUserEdit.setOnClickListener(new View.OnClickListener() {
           public void onClick(View v) {
-            if (sUserEdit.getText().toString().equals(
-                getString(R.string.username))) {
+            if (sUserEdit.getText().toString()
+                .equals(getString(R.string.username))) {
               sUserEdit.setText("");
             }
           }
@@ -532,8 +539,8 @@ public final class ConfigScreen extends Activity {
         });
         sPassEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
           public void onFocusChange(View v, boolean hasFocus) {
-            if (sPassEdit.getText().toString().equals(
-                getString(R.string.password))) {
+            if (sPassEdit.getText().toString()
+                .equals(getString(R.string.password))) {
               sPassEdit.setText("");
             }
           }
