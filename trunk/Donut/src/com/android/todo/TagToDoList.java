@@ -171,13 +171,15 @@ public class TagToDoList extends Activity {
 
     mTagSpinner = (Spinner) findViewById(R.id.tagSpinner);
 
-    final AdView ad = new AdView(this);
-    ad.setBackgroundColor(Color.BLACK);
-    ad.setPrimaryTextColor(Color.WHITE);
-    ad.setSecondaryTextColor(Color.DKGRAY);
-    ad.setKeywords(getString(R.string.ad_keywords));
-    ((LinearLayout) mTagSpinner.getParent().getParent()).addView(ad, 0);
-    
+    if (!sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+      final AdView ad = new AdView(this);
+      ad.setBackgroundColor(Color.BLACK);
+      ad.setPrimaryTextColor(Color.WHITE);
+      ad.setSecondaryTextColor(Color.DKGRAY);
+      ad.setKeywords(getString(R.string.ad_keywords));
+      ((LinearLayout) mTagSpinner.getParent().getParent()).addView(ad, 0);
+    }
+
     mTagSpinner
         .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
           public void onItemSelected(AdapterView<?> parent, View v,
@@ -837,6 +839,9 @@ public class TagToDoList extends Activity {
             + Integer.toString(VERSION.SDK_INT));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
             Analytics.SPACE_STATE, mTagSpinner.getCount());
+        Analytics.sTracker.trackPageView("config/ad/"
+            + Boolean.toString(sPref
+                .getBoolean(ConfigScreen.AD_DISABLED, false)));
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }

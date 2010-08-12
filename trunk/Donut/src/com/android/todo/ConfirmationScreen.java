@@ -3,7 +3,6 @@
 package com.android.todo;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,8 +28,7 @@ public final class ConfirmationScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
-        Context.MODE_PRIVATE));
+    TagToDoList.setTheme(this, TagToDoList.sPref);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.message);
     mMessage = (TextView) findViewById(R.id.messageText);
@@ -80,8 +78,7 @@ public final class ConfirmationScreen extends Activity {
     if (mTagName != null) {
       if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
         mMessage.setText(R.string.confirm_tag_deletion);
-      } else if (mAction.equals(Integer
-          .toString(TagToDoList.TAG_CLEAR_ID))) {
+      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
         mMessage.setText(R.string.confirm_entry_clearing);
       }
       mFirstButton.setText(R.string.ok);
@@ -121,17 +118,19 @@ public final class ConfirmationScreen extends Activity {
     if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.standardButtonLayout);
       if (ll.getChildCount() < 3) {
-        final ImageButton ib = new ImageButton(this);
-        ib.setImageResource(R.drawable.paypal);
-        ib.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-            final Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri
-                .parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=GB&item_name=Teo%27s%20free%20projects&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG_global%2egif%3aNonHosted"));
-            startActivity(i);
-          }
-        });
-        ll.addView(ib, 0);
+        if (TagToDoList.sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+          final ImageButton ib = new ImageButton(this);
+          ib.setImageResource(R.drawable.paypal);
+          ib.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+              final Intent i = new Intent(Intent.ACTION_VIEW);
+              i.setData(Uri
+                  .parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TTVTAWLMS6AWG&lc=GB&item_name=Teo%27s%20free%20projects&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG_global%2egif%3aNonHosted"));
+              startActivity(i);
+            }
+          });
+          ll.addView(ib, 0);
+        }
       }
     }
     populateFields();
