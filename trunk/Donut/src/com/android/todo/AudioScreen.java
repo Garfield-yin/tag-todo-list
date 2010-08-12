@@ -59,7 +59,7 @@ public final class AudioScreen extends Activity {
 				f.mkdirs();
 			} catch (Exception e) {
 				Utils.showDialog(R.string.notification,
-						R.string.audio_recording_impossible, this);
+						R.string.recording_impossible, this);
 			}
 		}
 

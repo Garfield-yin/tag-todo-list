@@ -51,7 +51,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admob.android.ads.AdManager;
 import com.admob.android.ads.AdView;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
@@ -160,7 +159,6 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
-    AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, 0);
     sEditor = sPref.edit();
     TagToDoList.setTheme(this, sPref);
@@ -177,6 +175,7 @@ public class TagToDoList extends Activity {
       ad.setPrimaryTextColor(Color.WHITE);
       ad.setSecondaryTextColor(Color.DKGRAY);
       ad.setKeywords(getString(R.string.ad_keywords));
+      ad.setRequestInterval(0);
       ((LinearLayout) mTagSpinner.getParent().getParent()).addView(ad, 0);
     }
 
@@ -1089,11 +1088,21 @@ public class TagToDoList extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case TASK_PHOTO_ID:
-        if (sDbHelper.getIntFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO) == 0) {
+        int isPhoto;
+        try {
+          isPhoto = sDbHelper.getIntFlag(mContextEntry,
+              ToDoDB.KEY_NOTE_IS_PHOTO);
+        } catch (Exception e) {
+          sDbHelper.repair();
+          isPhoto = sDbHelper.getIntFlag(mContextEntry,
+              ToDoDB.KEY_NOTE_IS_PHOTO);
+        }
+        if (isPhoto == 0) {
           final ContentValues values = new ContentValues();
           values.put(MediaStore.Images.Media.TITLE, mContextEntry);
           values.put(MediaStore.Images.Media.DESCRIPTION,
               getString(R.string.entry_photo_note));
+          try{
           final Uri imageUri = getContentResolver().insert(
               MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
           sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
@@ -1103,6 +1112,9 @@ public class TagToDoList extends Activity {
           i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
           i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
           startActivityForResult(i, TASK_PHOTO_ID);
+          }catch(Exception e){
+            Utils.showDialog(R.string.notification, R.string.recording_impossible, this);
+          }
         } else {
           i = new Intent(this, PhotoScreen.class);
           i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
