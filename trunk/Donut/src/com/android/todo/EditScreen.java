@@ -33,7 +33,10 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -78,8 +81,8 @@ public final class EditScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
-        Context.MODE_PRIVATE));
+    TagToDoList.setTheme(this,
+        getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
     setContentView(R.layout.edit);
@@ -166,25 +169,24 @@ public final class EditScreen extends Activity {
       mPrioritySb.setPadding(0, 0, 0, 10);
       mPrioritySb.setProgress(priority);
       final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
-      mPrioritySb
-          .setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      mPrioritySb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
-            public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-              t.setText(mPriorityText + arg1);
-            }
+        public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+          t.setText(mPriorityText + arg1);
+        }
 
-            public void onStartTrackingTouch(SeekBar arg0) {
-              t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
-                  + (int) (32 * dm.ydpi / 240));
-              mPriorityText = EditScreen.this.getString(R.string.priority);
-              t.show();
-            }
+        public void onStartTrackingTouch(SeekBar arg0) {
+          t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
+              + (int) (32 * dm.ydpi / 240));
+          mPriorityText = EditScreen.this.getString(R.string.priority);
+          t.show();
+        }
 
-            public void onStopTrackingTouch(SeekBar arg0) {
-              t.show();
-            }
+        public void onStopTrackingTouch(SeekBar arg0) {
+          t.show();
+        }
 
-          });
+      });
       ll.addView(mPrioritySb);
 
       mDateTimeLayout = new LinearLayout(this);
@@ -410,84 +412,136 @@ public final class EditScreen extends Activity {
       if (sTime.isWeekly()) {
         mWhenButton.setTextOn(getString(Chronos.DAYS[sTime.getDayOfWeek()]));
       } else if (sDate.isMonthly()) {
-        mWhenButton.setTextOn(getString(R.string.monthly) + ", " + sDate.getDay());
+        mWhenButton.setTextOn(getString(R.string.monthly) + ", "
+            + sDate.getDay());
       }
       mWhenButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           if (!((ToggleButton) v).isChecked()) {
             sTime = new Time(sTime.getEncodedTime(), -1);
+            sDate = new Date(0);
             return;
           }
+          final Calendar cal = Calendar.getInstance();
           final Dialog d = new Dialog(EditScreen.this);
-          d.setTitle(EditScreen.this.getString(R.string.weekly) + ' '
-              + EditScreen.this.getString(R.string.or) + ' '
-              + EditScreen.this.getString(R.string.monthly));
+          d.setTitle(getString(R.string.weekly) + ' ' + getString(R.string.or)
+              + ' ' + getString(R.string.monthly));
           final LinearLayout ll = new LinearLayout(EditScreen.this);
           ll.setOrientation(LinearLayout.VERTICAL);
-
           final TextView tv = new TextView(EditScreen.this);
-          if (!sTime.isWeekly()) {
-            sTime = new Time(sTime.getEncodedTime(), Calendar.getInstance()
-                .get(Calendar.DAY_OF_WEEK) - 2);
-            if (sTime.getDayOfWeek() < 0) {
-              sTime = new Time(sTime.getEncodedTime(), sTime.getDayOfWeek() + 7);
-            }
-          }
-          tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
           tv.setGravity(Gravity.CENTER_HORIZONTAL);
           tv.setTextSize(18);
-          Button b = new Button(EditScreen.this);
-          b.setText("<");
-          b.setOnClickListener(new OnClickListener() {
+
+          final OnClickListener weeklyMinus = new OnClickListener() {
             public void onClick(View v) {
               sTime = new Time(sTime.getEncodedTime(), Utils.iterate(
                   sTime.getDayOfWeek(), 7, -1));
               tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
             }
-          });
-          ll.addView(b);
-          ll.addView(tv);
-          b = new Button(EditScreen.this);
-          b.setText(">");
-          b.setOnClickListener(new OnClickListener() {
+          };
+
+          final OnClickListener weeklyPlus = new OnClickListener() {
             public void onClick(View v) {
               sTime = new Time(sTime.getEncodedTime(), Utils.iterate(
                   sTime.getDayOfWeek(), 7, 1));
               tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
             }
-          });
-          ll.addView(b);
+          };
 
-          b = new Button(EditScreen.this);
-          b.setMinimumWidth(150);
-          b.setText(R.string.weekly);
-          b.setOnClickListener(new OnClickListener() {
-            public void onClick(View arg0) {
-              mWhenButton.setTextOn(getString(Chronos.DAYS[sTime.getDayOfWeek()]));
-              mWhenButton.setChecked(true);
-              d.dismiss();
+          final OnClickListener monthlyMinus = new OnClickListener() {
+            public void onClick(View v) {
+              sDate = new Date(0, 0, Utils.iterate(sDate.getDay(),
+                  cal.getActualMaximum(Calendar.DAY_OF_MONTH) + 1, -1));
+              if (sDate.getDay() == 0) {
+                sDate = new Date(0, 0, cal
+                    .getActualMaximum(Calendar.DAY_OF_MONTH));
+              }
+              tv.setText(Integer.toString(sDate.getDay()));
+            }
+          };
+
+          final OnClickListener monthlyPlus = new OnClickListener() {
+            public void onClick(View v) {
+              sDate = new Date(0, 0, Utils.iterate(sDate.getDay(),
+                  cal.getActualMaximum(Calendar.DAY_OF_MONTH) + 1, 1));
+              if (sDate.getDay() == 0) {
+                sDate = new Date(0, 0, 1);
+              }
+              tv.setText(Integer.toString(sDate.getDay()));
+            }
+          };
+
+          final Button minus = new Button(EditScreen.this);
+          minus.setText("<");
+          final Button plus = new Button(EditScreen.this);
+          plus.setText(">");
+
+          final RadioGroup rg = new RadioGroup(EditScreen.this);
+          final RadioButton weeklyRadio = new RadioButton(EditScreen.this);
+          weeklyRadio.setText(R.string.weekly);
+          weeklyRadio.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+              if (!isChecked) {
+                return;
+              }
+              if (!sTime.isWeekly()) {
+                sTime = new Time(sTime.getEncodedTime(), Calendar.getInstance()
+                    .get(Calendar.DAY_OF_WEEK) - 2);
+                if (sTime.getDayOfWeek() < 0) {
+                  sTime = new Time(sTime.getEncodedTime(),
+                      sTime.getDayOfWeek() + 7);
+                }
+              }
+              tv.setText(Chronos.DAYS[sTime.getDayOfWeek()]);
+              minus.setOnClickListener(weeklyMinus);
+              plus.setOnClickListener(weeklyPlus);
             }
           });
-          ll.addView(b);
+          final RadioButton monthlyRadio = new RadioButton(EditScreen.this);
+          monthlyRadio.setText(R.string.monthly);
+          monthlyRadio
+              .setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+                  if (!isChecked) {
+                    return;
+                  }
+                  if (sDate.isNull()) {
+                    sDate = new Date(0, 0, cal.get(Calendar.DAY_OF_MONTH));
+                  }
+                  tv.setText(Integer.toString(sDate.getDay()));
+                  minus.setOnClickListener(monthlyMinus);
+                  plus.setOnClickListener(monthlyPlus);
+                }
+              });
+          rg.addView(weeklyRadio);
+          rg.addView(monthlyRadio);
+          weeklyRadio.setChecked(sTime.isWeekly());
+          monthlyRadio.setChecked(sDate.isMonthly());
+          if (! (weeklyRadio.isChecked() || monthlyRadio.isChecked())){
+            weeklyRadio.setChecked(true);
+          }
+          ll.addView(rg);
 
-          final TextView tv2 = new TextView(EditScreen.this);
-          tv2.setGravity(Gravity.CENTER_HORIZONTAL);
-          tv2.setText(R.string.or);
-          ll.addView(tv2);
+          ll.addView(minus);
+          ll.addView(tv);
+          ll.addView(plus);
 
-          // monthly button
-          b = new Button(EditScreen.this);
+          final Button b = new Button(EditScreen.this);
           b.setMinimumWidth(150);
-          b.setText(getString(R.string.monthly) + " (beta)");
+          b.setText(R.string.go_back);
           b.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
-              final int dayOfMonth = Calendar.getInstance().get(
-                  Calendar.DAY_OF_MONTH);
-              mWhenButton.setTextOn(getString(R.string.monthly) + ", "
-                  + dayOfMonth);
+              if (weeklyRadio.isChecked()) {
+                mWhenButton.setTextOn(getString(Chronos.DAYS[sTime
+                    .getDayOfWeek()]));
+                sDate = new Date(0);
+              } else {
+                mWhenButton.setTextOn(getString(R.string.monthly) + ", "
+                    + sDate.getDay());
+                sTime = new Time(sTime.getEncodedTime(), -1);
+                // sDate = new Date(0, 0, dayOfMonth);
+              }
               mWhenButton.setChecked(true);
-              sTime = new Time(sTime.getEncodedTime(), -1);
-              sDate = new Date(0, 0, dayOfMonth);
               d.dismiss();
             }
           });
@@ -613,10 +667,9 @@ public final class EditScreen extends Activity {
    */
   private final void syncToWeb(final String name) {
     if (TagToDoList.SYNC_GCAL) {
-      final SharedPreferences pref=getSharedPreferences(TagToDoList.PREFS_NAME,
-          Context.MODE_PRIVATE);
-      GoogleCalendar.setLogin(
-          pref.getString(ConfigScreen.GOOGLE_USERNAME, ""),
+      final SharedPreferences pref = getSharedPreferences(
+          TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
+      GoogleCalendar.setLogin(pref.getString(ConfigScreen.GOOGLE_USERNAME, ""),
           pref.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
       try {
         GoogleCalendar.createEvent(name, sDate.getYear(), sDate.getMonth(),

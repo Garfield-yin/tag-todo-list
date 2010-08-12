@@ -80,12 +80,12 @@ public final class Chronos {
       mYear = encodedDate / 372;
       mEncodedDate = encodedDate;
     }
-    
+
     public Date(final int year, final int month, final int dayOfMonth) {
       mDayOfMonth = dayOfMonth;
       mMonth = month;
       mYear = year;
-      mEncodedDate = (year*12+month)*31+dayOfMonth;
+      mEncodedDate = (year * 12 + month) * 31 + dayOfMonth;
     }
 
     public final int getDay() {
@@ -195,7 +195,7 @@ public final class Chronos {
     if (d != null && !d.isNull()) {
       if (d.isMonthly()) {
         final Calendar alarmCal = Calendar.getInstance();
-        if (encodedTimeDif<1){
+        if (encodedTimeDif < 1 || d.getDay() < c.get(Calendar.DAY_OF_MONTH)) {
           alarmCal.roll(Calendar.MONTH, true);
         }
         while (alarmCal.getActualMaximum(Calendar.DAY_OF_MONTH) < d.getDay()) {

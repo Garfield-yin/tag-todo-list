@@ -50,7 +50,7 @@
 <string name="entry_written_note">Written note</string>
 <string name="entry_graphical_note">Graphical note</string>
 <string name="entry_audio_note">Audio note</string>
-<string name="entry_photo_note">Photo note (beta)</string>
+<string name="entry_photo_note">Photo note</string>
 <string name="entry_down">Push down</string>
 <string name="entry_exit">close this menu ...</string>
 <string name="entry_menu">task menu</string>
@@ -94,7 +94,7 @@
 <string name="audio_close">Close</string>
 <string name="audio_recording_limit">Max length is</string>
 <string name="audio_replay">Replay</string>
-<string name="audio_recording_impossible">Note activity can\'t start :-/\nAre you sure there\'s an SD card in the device?\n</string>
+<string name="recording_impossible">Note activity can\'t start :-/\nAre you sure there\'s an SD card in the device?\n</string>
 
 <!-- Notification screen, Notifications, Alarms Due Dates -->
 <string name="notification">Tag-ToDo-List says:</string>
@@ -136,7 +136,7 @@
 <string name="config_10_alarm_pick">Choose your own song</string>
 <string name="config_11_alarm_vibrate">Also vibrate with the alarm</string>
 <string name="config_12_fullscreen">Remove top system bar &amp; make the app truly fullscreen - needs app restart</string>
-<string name="congig_13_ad_disable">Disable ad - needs app restart</string>
+<string name="config_13_ad_disable">Disable ad - needs app restart</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

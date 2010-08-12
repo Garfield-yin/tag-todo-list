@@ -94,7 +94,7 @@ public final class PhotoScreen extends Activity {
      * photoBitmap.recycle(); sImageView.setImageBitmap(scaled);
      */
     sWebView.loadData(
-        "<meta name='viewport' content='initial-scale=1.0' /><img src='"
+        "<meta name='viewport' content='width=device-width' /><img src='"
             + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 
