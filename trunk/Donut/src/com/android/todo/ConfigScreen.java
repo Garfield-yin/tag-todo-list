@@ -21,11 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
-import android.widget.TextView;
 
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -55,6 +52,7 @@ public final class ConfigScreen extends Activity {
   public static final String SHOW_DUE_TIME = "showDueTime";
   public static final String FULLSCREEN = "fullscreen";
   public static final String AD_DISABLED = "adDisabled";
+  public static final String TEXT_SIZE = "textSize";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -227,88 +225,12 @@ public final class ConfigScreen extends Activity {
     switch (index) {
       case 0:
         // setting the checked tasks limit
-        TextView tv = new TextView(this);
-        tv.setTextSize(16);
-        tv.setText(R.string.size_change);
-        LinearLayout localLayout = new LinearLayout(this); // reusing
-        localLayout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout textLayout = new LinearLayout(this); // also
-        // reusing
-        textLayout.setOrientation(LinearLayout.HORIZONTAL);
-        textLayout.addView(tv);
-        final TextView limitTv = new TextView(this);
-        limitTv.setMinimumWidth(50);
-        localLayout.addView(textLayout);
-        final SeekBar sLimit = new SeekBar(this);
-        sLimit.setMax(1000);
-        final int l = TagToDoList.sPref.getInt(CHECKED_LIMIT, 100);
-        sLimit.setProgress(l <= sLimit.getMax() ? l : sLimit.getMax());
-        sLimit.setPadding(5, 0, 5, 0);
-        limitTv.setTextSize(17);
-        limitTv.setText(Integer.toString(sLimit.getProgress()));
-        textLayout.addView(limitTv);
-        sLimit.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-          public void onProgressChanged(SeekBar seekBar, int progress,
-              boolean fromUser) {
-            limitTv.setText(Integer.toString(progress));
-          }
-
-          public void onStartTrackingTouch(SeekBar seekBar) {
-          }
-
-          public void onStopTrackingTouch(SeekBar seekBar) {
-            TagToDoList.sEditor.putInt(CHECKED_LIMIT, seekBar.getProgress());
-            TagToDoList.sEditor.commit();
-          }
-        });
-        localLayout.addView(sLimit);
-        TextView localDescription = new TextView(this);
-        localDescription.setText(R.string.checked_tasks_limit_description);
-        localLayout.addView(localDescription);
-        localLayout.setPadding(10, 5, 10, 0);
-        ll.addView(localLayout);
+        Utils.addSeekBar(ll, TagToDoList.sPref, CHECKED_LIMIT, 100, 1000,
+            R.string.size_change, R.string.checked_tasks_limit_description);
 
         // setting minimum and maximum priority for tasks
-        tv = new TextView(this);
-        tv.setPadding(0, 10, 0, 0);
-        tv.setTextSize(16);
-        tv.setText(R.string.config_3_priority);
-        localLayout = new LinearLayout(this);
-        localLayout.setOrientation(LinearLayout.VERTICAL);
-        textLayout = new LinearLayout(this);
-        textLayout.setOrientation(LinearLayout.HORIZONTAL);
-        textLayout.addView(tv);
-        final TextView maxTv = new TextView(this);
-        maxTv.setMinimumWidth(50);
-        localLayout.addView(textLayout);
-        final SeekBar sMax = new SeekBar(this);
-        sMax.setPadding(5, 0, 5, 0);
-        sMax.setMax(101);
-        sMax.setProgress(TagToDoList.sPref.getInt(PRIORITY_MAX, 100));
-        maxTv.setTextSize(17);
-        maxTv.setText(Integer.toString(sMax.getProgress()));
-        textLayout.addView(maxTv);
-        sMax.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-          public void onProgressChanged(SeekBar seekBar, int progress,
-              boolean fromUser) {
-            maxTv.setText(Integer.toString(progress));
-          }
-
-          public void onStartTrackingTouch(SeekBar seekBar) {
-          }
-
-          public void onStopTrackingTouch(SeekBar seekBar) {
-            int p = seekBar.getProgress();
-            TagToDoList.sEditor.putInt(PRIORITY_MAX, p > 0 ? p : 1);
-            TagToDoList.sEditor.commit();
-          }
-        });
-        localLayout.addView(sMax);
-        localDescription = new TextView(this);
-        localDescription.setText(R.string.max_priority_description);
-        localLayout.addView(localDescription);
-        localLayout.setPadding(10, 5, 10, 10);
-        ll.addView(localLayout);
+        Utils.addSeekBar(ll, TagToDoList.sPref, PRIORITY_MAX, 100, 101,
+            R.string.config_3_priority, R.string.max_priority_description);
 
         // backup on the SD card every time app closes
         cb = new CheckBox(this);
@@ -324,6 +246,10 @@ public final class ConfigScreen extends Activity {
 
         break;
       case 1:
+        // setting the checked tasks limit
+        Utils.addSeekBar(ll, TagToDoList.sPref, TEXT_SIZE, 16, 30,
+            R.string.config_14_text_size, R.string.text_size_description);
+
         // show collapse buttons (for subtasks)
         cb = new CheckBox(this);
         cb.setChecked(TagToDoList.sPref.getBoolean(SHOW_COLLAPSE, false));

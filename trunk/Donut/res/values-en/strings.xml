@@ -13,7 +13,7 @@
 <string name="menu_clear">Delete all the tasks</string>
 <string name="menu_unindent">Unindent all the tasks</string>
 <string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
-<string name="size_change">Checked tasks limit:</string>
+<string name="size_change">Checked tasks limit</string>
 <string name="backup_import">Import backup from SD</string>
 <string name="backup_fail">The todo list couldn\'t be backed up on the SD card for some reason. Are you sure there\'s an SD card in there?</string>
 <string name="move_fail">You can\'t move a task under itself or a subtask of itself.</string>
@@ -123,12 +123,13 @@
 <string name="login_fail">For some reason the login failed. Check the username/password and the availability of an internet connection.\n</string>
 <string name="checked_tasks_limit_description">This limit prevents the app from keeping more than so many checked tasks. When the limit is reached, the app automatically deletes the oldest checked tasks.</string>
 <string name="max_priority_description">Some people prefer to fine tune task priority, some prefer a simpler system with fewer levels (e.g. 5).</string>
+<string name="text_size_description">The task font size will be this big.</string>
 <string name="config_1_gcal">(experimental) Synchronize tasks with due dates to Google Calendar</string>
 <string name="config_2_backup">Backup todo list on SD card every time the app closes</string>
-<string name="config_3_priority">Maximum priority for tasks:</string>
-<string name="config_4_shine">Visually distinguish tasks by their priority (consumes a bit more resources)</string>
+<string name="config_3_priority">Maximum priority for tasks</string>
+<string name="config_4_shine">Visually distinguish tasks by their priority</string>
 <string name="config_5_stats">Allow anonymous collection of usage stats once a month</string>
-<string name="config_6_notes">Show which task has notes in portrait mode as well (consumes a bit more resources)</string>
+<string name="config_6_notes">Show which task has notes in portrait mode as well</string>
 <string name="config_7_theme">Invert task theme (dark text on white background) - needs app restart</string>
 <string name="config_8_collapse">Show collapse buttons (for subtasks)</string>
 <string name="config_9_duedate">Show due time for tasks that have it</string>
@@ -137,6 +138,7 @@
 <string name="config_11_alarm_vibrate">Also vibrate with the alarm</string>
 <string name="config_12_fullscreen">Remove top system bar &amp; make the app truly fullscreen - needs app restart</string>
 <string name="config_13_ad_disable">Disable ad - needs app restart</string>
+<string name="config_14_text_size">Task size</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

@@ -388,9 +388,10 @@ public class TagToDoList extends Activity {
     };
 
     final ToDoDB dbHelper = sDbHelper;
+    final int textSize=sPref.getInt(ConfigScreen.TEXT_SIZE, 16);
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
-        ccl, selectedTag, 0, null)));
+        ccl, textSize, selectedTag, 0, null)));
   }
 
   /**
@@ -418,8 +419,8 @@ public class TagToDoList extends Activity {
    */
   public final int processDepth(final ToDoDB dbHelper,
       final LayoutInflater inflater, final LinearLayout el,
-      final OnCheckedChangeListener ccl, final int selectedTag,
-      final int depth, final String superTask) {
+      final OnCheckedChangeListener ccl, final int textSize,
+      final int selectedTag, final int depth, final String superTask) {
     final Cursor c = sDbHelper.getTasks(selectedTag != -1 ? mTagsArrayAdapter
         .getItem(selectedTag).toString() : null, depth, superTask);
 
@@ -442,10 +443,12 @@ public class TagToDoList extends Activity {
       c.moveToLast();
       do {
         final LinearLayout ll = new LinearLayout(this);
+        ll.setPadding(0, 10, 0, 10);
         inflater.inflate(R.layout.task, ll);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
         cb.setText(taskName);
+        cb.setTextSize(textSize);
 
         boolean checked;
         if (c.getInt(value) == 1) { // 1 = checked, 0 = unchecked
@@ -597,7 +600,7 @@ public class TagToDoList extends Activity {
 
         if (c.getInt(subtasks) > 0 && !collapsed) {
           numberOfUnchecked += processDepth(dbHelper, inflater, el, ccl,
-              selectedTag, depth + 1, c.getString(name));
+              textSize, selectedTag, depth + 1, c.getString(name));
         }
       } while (c.moveToPrevious());
     }
@@ -1102,18 +1105,19 @@ public class TagToDoList extends Activity {
           values.put(MediaStore.Images.Media.TITLE, mContextEntry);
           values.put(MediaStore.Images.Media.DESCRIPTION,
               getString(R.string.entry_photo_note));
-          try{
-          final Uri imageUri = getContentResolver().insert(
-              MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-          sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
-          sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_PHOTO_NOTE_URI,
-              imageUri.toString());
-          i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-          i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-          i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-          startActivityForResult(i, TASK_PHOTO_ID);
-          }catch(Exception e){
-            Utils.showDialog(R.string.notification, R.string.recording_impossible, this);
+          try {
+            final Uri imageUri = getContentResolver().insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_NOTE_IS_PHOTO, 1);
+            sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_PHOTO_NOTE_URI,
+                imageUri.toString());
+            i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+            startActivityForResult(i, TASK_PHOTO_ID);
+          } catch (Exception e) {
+            Utils.showDialog(R.string.notification,
+                R.string.recording_impossible, this);
           }
         } else {
           i = new Intent(this, PhotoScreen.class);
