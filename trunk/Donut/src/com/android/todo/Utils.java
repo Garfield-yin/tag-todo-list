@@ -8,8 +8,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.android.todo.data.ToDoDB;
-
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,18 +15,68 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+
+import com.android.todo.data.ToDoDB;
 
 /**
  * A class that contains some helper functions
  */
 public final class Utils {
+
+  public final static void addSeekBar(final LinearLayout ll,
+      final SharedPreferences sp, final String key, final int defaultValue,
+      final int maxValue, final int titleStringId, final int descriptionStringId) {
+    final Context c = ll.getContext();
+    final TextView tv = new TextView(c);
+    tv.setTextSize(16);
+    tv.setText(c.getString(titleStringId).concat(": "));
+    final LinearLayout localLayout = new LinearLayout(c); // reusing
+    localLayout.setOrientation(LinearLayout.VERTICAL);
+    final LinearLayout textLayout = new LinearLayout(c); // also
+    // reusing
+    textLayout.setOrientation(LinearLayout.HORIZONTAL);
+    textLayout.addView(tv);
+    final TextView limitTv = new TextView(c);
+    limitTv.setMinimumWidth(50);
+    localLayout.addView(textLayout);
+    final SeekBar sLimit = new SeekBar(c);
+    sLimit.setMax(maxValue);
+    final int l = sp.getInt(key, defaultValue);
+    sLimit.setProgress(l <= sLimit.getMax() ? l : sLimit.getMax());
+    sLimit.setPadding(0, 0, 5, 0);
+    limitTv.setTextSize(17);
+    limitTv.setText(Integer.toString(sLimit.getProgress()));
+    textLayout.addView(limitTv);
+    sLimit.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+      public void onProgressChanged(SeekBar seekBar, int progress,
+          boolean fromUser) {
+        limitTv.setText(Integer.toString(progress));
+      }
+
+      public void onStartTrackingTouch(SeekBar seekBar) {
+      }
+
+      public void onStopTrackingTouch(SeekBar seekBar) {
+        sp.edit().putInt(key, seekBar.getProgress()).commit();
+      }
+    });
+    localLayout.addView(sLimit);
+    final TextView localDescription = new TextView(c);
+    localDescription.setText(descriptionStringId);
+    localLayout.addView(localDescription);
+    localLayout.setPadding(10, 5, 15, 5);
+    ll.addView(localLayout);
+  }
 
   /**
    * This function iterates the received value unless the iterated value is
