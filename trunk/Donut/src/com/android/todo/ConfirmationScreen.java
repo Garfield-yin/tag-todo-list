@@ -2,6 +2,9 @@
 
 package com.android.todo;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.todo.data.ToDoDB;
+import com.android.todo.sync.CSV;
 
 /**
  * This is a multi-purpose class used to request confirmations for tag
@@ -28,7 +32,7 @@ public final class ConfirmationScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    TagToDoList.setTheme(this, TagToDoList.sPref);
+    ToDo.setTheme(this, ToDo.sPref);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.message);
     mMessage = (TextView) findViewById(R.id.messageText);
@@ -43,22 +47,70 @@ public final class ConfirmationScreen extends Activity {
       mTagName = extras != null ? extras.getString(ToDoDB.KEY_NAME) : null;
     }
 
-    mFirstButton.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View view) {
-        if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
+    mFirstButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        if (mAction.equals(Integer.toString(ToDo.TAG_DELETE_ID))) {
           mDbHelper.deleteTag(mTagName);
           setResult(RESULT_OK);
           finish();
-        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
-          startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(view
+        } else if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
+          startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(v
               .getContext().getString(R.string.url_help))));
-        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
+        } else if (mAction.equals(Integer.toString(ToDo.TAG_CLEAR_ID))) {
           mDbHelper.deleteEntries(mTagName);
           setResult(RESULT_OK);
           finish();
-        } else { // ACTIVITY_BACKUP_IMPORT
-          TagToDoList.importBackupSD(getApplicationContext());
+        } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_BACKUP_ID))) {
+          ToDo.importBackupSD(getApplicationContext());
           finish();
+        } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_CSV_ID))) {
+          final File[] files = Utils.listFilesAsArray(new File("/sdcard"),
+              new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                  return name.endsWith(".csv");
+                }
+              }, true);
+          if (files.length < 1) {
+            Utils.showDialog(R.string.notification,
+                R.string.import_CSV_impossible, v.getContext());
+          } else if (files.length == 1) {
+            mMessage.setText(v.getContext().getString(
+                R.string.import_CSV_one_file_found)
+                + ":\n"
+                + files[0].getName()
+                + '\n'
+                + v.getContext().getString(R.string.import_CSV_file_confirm));
+            mFirstButton.setOnClickListener(new OnClickListener() {
+              public void onClick(View arg0) {
+                Utils.showDialog(R.string.notification,
+                    CSV.importCSV(files[0]), arg0.getContext());
+              }
+            });
+          } else {
+            mMessage.setText(files[0].getName() + '\n'
+                + v.getContext().getString(R.string.import_CSV_file_confirm));
+            final Button b = new Button(v.getContext());
+            b.setTag(new Integer(0));
+            b.setText(R.string.import_CSV_keep_looking);
+            b.setOnClickListener(new OnClickListener() {
+              public void onClick(View arg0) {
+                try {
+                  arg0.setTag((Integer) arg0.getTag() + 1);
+                  mMessage.setText(files[(Integer) arg0.getTag()].getName()
+                      + '\n'
+                      + arg0.getContext().getString(
+                          R.string.import_CSV_file_confirm));
+                } catch (Exception e) {
+                  b.setTag(new Integer(0));
+                  mMessage.setText(files[0].getName()
+                      + '\n'
+                      + arg0.getContext().getString(
+                          R.string.import_CSV_file_confirm));
+                }
+              }
+            });
+            ((LinearLayout) mMessage.getParent()).addView(b);
+          }
         }
       }
     });
@@ -76,23 +128,26 @@ public final class ConfirmationScreen extends Activity {
    */
   private void populateFields() {
     if (mTagName != null) {
-      if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
+      if (mAction.equals(Integer.toString(ToDo.TAG_DELETE_ID))) {
         mMessage.setText(R.string.confirm_tag_deletion);
-      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
+      } else if (mAction.equals(Integer.toString(ToDo.TAG_CLEAR_ID))) {
         mMessage.setText(R.string.confirm_entry_clearing);
       }
-      mFirstButton.setText(R.string.ok);
-      mSecondButton.setText(R.string.no);
+      mFirstButton.setText(android.R.string.yes);
+      mSecondButton.setText(android.R.string.no);
     } else {
-      if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
+      if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
         mMessage.setText(R.string.help_text);
         mFirstButton.setText(R.string.help_site);
         mSecondButton.setText(R.string.go_back);
-      } else if (mAction.equals(Integer
-          .toString(TagToDoList.TAG_IMPORTBACKUP_ID))) {
+      } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_BACKUP_ID))) {
         mMessage.setText(R.string.confirm_backup_import);
-        mFirstButton.setText(R.string.ok);
-        mSecondButton.setText(R.string.no);
+        mFirstButton.setText(android.R.string.yes);
+        mSecondButton.setText(android.R.string.no);
+      } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_CSV_ID))) {
+        mMessage.setText(R.string.import_CSV_confirm);
+        mFirstButton.setText(android.R.string.yes);
+        mSecondButton.setText(android.R.string.no);
       }
     }
   }
@@ -115,10 +170,10 @@ public final class ConfirmationScreen extends Activity {
     super.onResume();
     mAction = getIntent().getAction();
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
-    if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
+    if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.standardButtonLayout);
       if (ll.getChildCount() < 3) {
-        if (TagToDoList.sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+        if (ToDo.sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
           final ImageButton ib = new ImageButton(this);
           ib.setImageResource(R.drawable.paypal);
           ib.setOnClickListener(new OnClickListener() {

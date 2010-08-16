@@ -5,8 +5,11 @@ package com.android.todo;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Vector;
 
 import android.app.Dialog;
 import android.app.Notification;
@@ -33,6 +36,20 @@ import com.android.todo.data.ToDoDB;
  */
 public final class Utils {
 
+  /**
+   * Adds a seekbar with UI stuff attached to it, also tied to app preferences.
+   * 
+   * @param ll
+   *          Parent which will host the new stuff
+   * @param sp
+   *          SharedPreferences
+   * @param key
+   *          Preferences key
+   * @param defaultValue
+   * @param maxValue
+   * @param titleStringId
+   * @param descriptionStringId
+   */
   public final static void addSeekBar(final LinearLayout ll,
       final SharedPreferences sp, final String key, final int defaultValue,
       final int maxValue, final int titleStringId, final int descriptionStringId) {
@@ -251,6 +268,50 @@ public final class Utils {
       in.close();
       out.close();
     }
+  }
+
+  /**
+   * Used to filter for CSV files (or any other type of files for that matter)
+   * 
+   * @param directory
+   * @param filter
+   * @param recurse
+   * @return
+   */
+  public final static File[] listFilesAsArray(File directory,
+      FilenameFilter filter, boolean recurse) {
+    Collection<File> files = listFiles(directory, filter, recurse);
+    File[] arr = new File[files.size()];
+    return files.toArray(arr);
+  }
+
+  private final static Collection<File> listFiles(File directory,
+      FilenameFilter filter, boolean recurse) {
+    // List of files / directories
+    Vector<File> files = new Vector<File>();
+
+    // Get files / directories in the directory
+    File[] entries = directory.listFiles();
+
+    // Go over entries
+    for (File entry : entries) {
+      ;
+
+      // If there is no filter or the filter accepts the
+      // file / directory, add it to the list
+      if (filter == null || filter.accept(directory, entry.getName())) {
+        files.add(entry);
+      }
+
+      // If the file is a directory and the recurse flag
+      // is set, recurse into the directory
+      if (recurse && entry.isDirectory()) {
+        files.addAll(listFiles(entry, filter, recurse));
+      }
+    }
+
+    // Return collection of files
+    return files;
   }
 
 }
