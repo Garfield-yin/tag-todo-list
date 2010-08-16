@@ -66,7 +66,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
  * This is the main activity. It shows the main UI elements, including the ToDo
  * list entries.
  */
-public class TagToDoList extends Activity {
+public class ToDo extends Activity {
   // Activities: (keeping these as activities so as not to confuse with some of
   // the ones below)
   public static final int ACTIVITY_CREATE_ENTRY = 5;
@@ -93,7 +93,8 @@ public class TagToDoList extends Activity {
   public static final int TAG_HELP_ID = 18;
   public static final int TAG_CLEAR_ID = 19;
   public static final int TAG_UNINDENT_ID = 20;
-  public static final int TAG_IMPORTBACKUP_ID = 21;
+  public static final int TAG_IMPORT_BACKUP_ID = 21;
+  public static final int TAG_IMPORT_CSV_ID = 22;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -161,7 +162,7 @@ public class TagToDoList extends Activity {
   public void onCreate(Bundle icicle) {
     sPref = getSharedPreferences(PREFS_NAME, 0);
     sEditor = sPref.edit();
-    TagToDoList.setTheme(this, sPref);
+    ToDo.setTheme(this, sPref);
     super.onCreate(icicle);
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
@@ -229,16 +230,16 @@ public class TagToDoList extends Activity {
     mStatButton.setBackgroundColor(Color.TRANSPARENT);
     mStatButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
-        final Dialog d = new Dialog(TagToDoList.this);
+        final Dialog d = new Dialog(ToDo.this);
 
-        TableLayout tl = new TableLayout(TagToDoList.this);
-        TableRow tr1 = new TableRow(TagToDoList.this);
-        TableRow tr2 = new TableRow(TagToDoList.this);
-        TableRow tr3 = new TableRow(TagToDoList.this);
-        TextView tvCount1 = new TextView(TagToDoList.this);
-        TextView tvExplanation1 = new TextView(TagToDoList.this);
-        TextView tvCount2 = new TextView(TagToDoList.this);
-        TextView tvExplanation2 = new TextView(TagToDoList.this);
+        TableLayout tl = new TableLayout(ToDo.this);
+        TableRow tr1 = new TableRow(ToDo.this);
+        TableRow tr2 = new TableRow(ToDo.this);
+        TableRow tr3 = new TableRow(ToDo.this);
+        TextView tvCount1 = new TextView(ToDo.this);
+        TextView tvExplanation1 = new TextView(ToDo.this);
+        TextView tvCount2 = new TextView(ToDo.this);
+        TextView tvExplanation2 = new TextView(ToDo.this);
 
         /* First row */
         tvCount1.setTextColor(Color.WHITE);
@@ -280,7 +281,7 @@ public class TagToDoList extends Activity {
         tl.addView(tr2);
         /* Second row */
 
-        final Button b = new Button(TagToDoList.this);
+        final Button b = new Button(ToDo.this);
         b.setText(R.string.go_back);
         b.setOnClickListener(new View.OnClickListener() {
           public void onClick(View view) {
@@ -388,7 +389,7 @@ public class TagToDoList extends Activity {
     };
 
     final ToDoDB dbHelper = sDbHelper;
-    final int textSize=sPref.getInt(ConfigScreen.TEXT_SIZE, 16);
+    final int textSize = sPref.getInt(ConfigScreen.TEXT_SIZE, 16);
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
         ccl, textSize, selectedTag, 0, null)));
@@ -443,7 +444,6 @@ public class TagToDoList extends Activity {
       c.moveToLast();
       do {
         final LinearLayout ll = new LinearLayout(this);
-        ll.setPadding(0, 10, 0, 10);
         inflater.inflate(R.layout.task, ll);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
@@ -650,6 +650,7 @@ public class TagToDoList extends Activity {
    * @return
    */
   private final boolean applyMenuChoice(MenuItem item) {
+    Intent i;
     switch (item.getItemId()) {
       case TAG_CREATE_ID:
         createTag();
@@ -684,9 +685,14 @@ public class TagToDoList extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
         c.close();
         return true;
-      case TAG_IMPORTBACKUP_ID:
-        final Intent i = new Intent(this, ConfirmationScreen.class);
-        i.setAction(Integer.toString(TAG_IMPORTBACKUP_ID));
+      case TAG_IMPORT_CSV_ID:
+        i = new Intent(this, ConfirmationScreen.class);
+        i.setAction(Integer.toString(TAG_IMPORT_CSV_ID));
+        startActivity(i);
+        break;
+      case TAG_IMPORT_BACKUP_ID:
+        i = new Intent(this, ConfirmationScreen.class);
+        i.setAction(Integer.toString(TAG_IMPORT_BACKUP_ID));
         startActivity(i);
         break;
     }
@@ -707,7 +713,7 @@ public class TagToDoList extends Activity {
    */
   private void removeTag() {
     if (mTagSpinner.getCount() == 1) {
-      Utils.showDialog(-1, R.string.impossible_tag_deletion, TagToDoList.this);
+      Utils.showDialog(-1, R.string.impossible_tag_deletion, ToDo.this);
       return;
     }
     Intent i = new Intent(this, ConfirmationScreen.class);
@@ -772,7 +778,8 @@ public class TagToDoList extends Activity {
     super.onCreateOptionsMenu(menu);
     final SubMenu sb = menu.addSubMenu(R.string.more);
     sb.add(0, TAG_CLEAR_ID, 0, R.string.menu_clear);
-    sb.add(0, TAG_IMPORTBACKUP_ID, 0, R.string.backup_import);
+    sb.add(0, TAG_IMPORT_CSV_ID, 0, R.string.import_CSV);
+    sb.add(0, TAG_IMPORT_BACKUP_ID, 0, R.string.backup_import);
     sb.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);
     sb.add(0, TAG_UNINDENT_ID, 0, R.string.menu_unindent);
     MenuItem item = menu.add(0, TAG_HELP_ID, 0, R.string.menu_instructions);
@@ -837,21 +844,19 @@ public class TagToDoList extends Activity {
     if (Analytics.sTracker != null) {
       final int month = Calendar.getInstance().get(Calendar.MONTH);
       if (month != sPref.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
-        Analytics.sTracker.trackPageView("version/"
-            + Integer.toString(VERSION.SDK_INT));
+        Analytics.sTracker.trackPageView("version/".concat(Integer
+            .toString(VERSION.SDK_INT)));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
             Analytics.SPACE_STATE, mTagSpinner.getCount());
-        Analytics.sTracker.trackPageView("config/ad/"
-            + Boolean.toString(sPref
-                .getBoolean(ConfigScreen.AD_DISABLED, false)));
+        Analytics.sTracker.trackPageView("config/ad/".concat(Boolean
+            .toString(sPref.getBoolean(ConfigScreen.AD_DISABLED, false))));
+        Analytics.sTracker.trackPageView("config/visually-challenged/"
+            .concat(Boolean.toString(sTts != null)));
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
       Analytics.sTracker.stop();
     }
-    // should we really close this, ToDoDB being a singleton? Figure this
-    // out! ???
-    // sDbHelper.close();
 
     TagToDoWidget.onUpdate(getApplicationContext(),
         AppWidgetManager.getInstance(getApplicationContext()));
@@ -1389,7 +1394,7 @@ public class TagToDoList extends Activity {
           sb.append(dueEntries.getString(name));
           sb.append("\n");
         } while (dueEntries.moveToNext());
-        Utils.showDueTasksNotification(sb.toString(), TagToDoList.this);
+        Utils.showDueTasksNotification(sb.toString(), ToDo.this);
       }
       dueEntries.close();
       return true;

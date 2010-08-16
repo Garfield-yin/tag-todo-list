@@ -14,7 +14,7 @@ import android.widget.RemoteViews;
 
 import com.android.todo.EditScreen;
 import com.android.todo.R;
-import com.android.todo.TagToDoList;
+import com.android.todo.ToDo;
 import com.android.todo.Utils;
 import com.android.todo.data.ToDoDB;
 
@@ -59,8 +59,8 @@ public final class WidgetChange extends BroadcastReceiver {
     }
 
     // initializing UI
-    sSettings = c.getSharedPreferences(TagToDoList.PREFS_NAME, 0);
-    sTagCursor.moveToPosition(sTag = sSettings.getInt(TagToDoList.LAST_TAB, 0));
+    sSettings = c.getSharedPreferences(ToDo.PREFS_NAME, 0);
+    sTagCursor.moveToPosition(sTag = sSettings.getInt(ToDo.LAST_TAB, 0));
     final String tag = sTagCursor.getString(sTagCursor
         .getColumnIndex(ToDoDB.KEY_NAME));
     rv.setTextViewText(R.id.tagItem, tag);
@@ -86,7 +86,7 @@ public final class WidgetChange extends BroadcastReceiver {
         if (sTaskCursor.getCount() > 0) {
           c.startActivity(new Intent(c, EditScreen.class).putExtra(
               EditScreen.EXTERNAL_INVOKER, true).setAction(
-              TagToDoList.ACTIVITY_EDIT_ENTRY + "").putExtra(
+              ToDo.ACTIVITY_EDIT_ENTRY + "").putExtra(
               ToDoDB.KEY_NAME,
               sTaskCursor
                   .getString(sTaskCursor.getColumnIndex(ToDoDB.KEY_NAME)))
@@ -104,7 +104,7 @@ public final class WidgetChange extends BroadcastReceiver {
       case R.id.nextTagButton:
         sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
             .getCount(), 1));
-        sSettings.edit().putInt(TagToDoList.LAST_TAB, sTag).commit();
+        sSettings.edit().putInt(ToDo.LAST_TAB, sTag).commit();
         final String tag = sTagCursor.getString(sTagCursor
             .getColumnIndex(ToDoDB.KEY_NAME));
         rv.setTextViewText(R.id.tagItem, tag);
@@ -124,7 +124,7 @@ public final class WidgetChange extends BroadcastReceiver {
       case R.id.addTaskButton:
         c.startActivity(new Intent(c, EditScreen.class).putExtra(
             EditScreen.EXTERNAL_INVOKER, true).setAction(
-            TagToDoList.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
+            ToDo.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
             sTagCursor.getString(sTagCursor.getColumnIndex(ToDoDB.KEY_NAME)))
             .putExtra(ToDoDB.KEY_SUPERTASK, "").addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK));

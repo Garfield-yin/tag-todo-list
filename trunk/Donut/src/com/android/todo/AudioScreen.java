@@ -46,7 +46,7 @@ public final class AudioScreen extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-	  TagToDoList.setTheme(this, getSharedPreferences(TagToDoList.PREFS_NAME,
+	  ToDo.setTheme(this, getSharedPreferences(ToDo.PREFS_NAME,
         Context.MODE_PRIVATE));
 		super.onCreate(savedInstanceState);
 		setTitle(R.string.audio_note_title);

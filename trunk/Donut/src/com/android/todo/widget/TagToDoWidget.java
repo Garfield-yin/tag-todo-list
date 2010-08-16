@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.android.todo.R;
-import com.android.todo.TagToDoList;
+import com.android.todo.ToDo;
 import com.android.todo.data.ToDoDB;
 
 /**
@@ -28,7 +28,7 @@ public final class TagToDoWidget extends AppWidgetProvider {
   public final static void onUpdate(Context c, AppWidgetManager appWidgetManager) {
     RemoteViews rv = new RemoteViews(c.getPackageName(), R.layout.widget);
     rv.setOnClickPendingIntent(R.id.widgetLogo, PendingIntent.getActivity(c, 0,
-        new Intent(c, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK));
+        new Intent(c, ToDo.class), Intent.FLAG_ACTIVITY_NEW_TASK));
     rv.setOnClickPendingIntent(R.id.nextTagButton, PendingIntent.getBroadcast(
         c, 1, new Intent(c, WidgetChange.class).putExtra(ToDoDB.KEY_NAME,
             R.id.nextTagButton), 0));

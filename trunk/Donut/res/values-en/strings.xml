@@ -11,6 +11,14 @@
 <string name="menu_new_entry">Add a new task</string>
 <string name="menu_instructions">Instructions</string>
 <string name="menu_clear">Delete all the tasks</string>
+<string name="import_CSV">Import CSV file</string>
+<string name="import_CSV_confirm">Are you sure you want to import tasks from a CSV file? Your current tasks won\'t be deleted and the app will try to merge the tasks and tags in an intuitive way.\n\nHowever, the CSV structure should start with: task name, task completion and tag/category. If you\'re not sure your file matches this, you can try to import anyway, the app will tell you.</string>
+<string name="import_CSV_impossible">A CSV file hasn\'t been found, or the SD card isn\'t in the phone.</string>
+<string name="import_CSV_bad_structure">This file doesn\'t have a compatible structure :S</string>
+<string name="import_CSV_one_file_found">Only one file has been found</string>
+<string name="import_CSV_file_confirm">Is this the file?</string>
+<string name="import_CSV_keep_looking">Keep looking...</string>
+<string name="import_CSV_success">Import succesful</string>
 <string name="menu_unindent">Unindent all the tasks</string>
 <string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
 <string name="size_change">Checked tasks limit</string>
@@ -171,8 +179,6 @@
 <string name="cancel">Cancel</string>
 <string name="more">more...</string>
 <string name="warning">Warning</string>
-<string name="ok">YES</string>
-<string name="no">NO</string>
 <string name="go_back">Go back</string>
 <string name="monday">Monday</string>
 <string name="tuesday">Tuesday</string>

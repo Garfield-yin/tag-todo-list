@@ -124,8 +124,6 @@
 <string name="confirm">确定</string>
 <string name="cancel">取消</string>
 <string name="warning">警告</string>
-<string name="ok">是</string>
-<string name="no">否</string>
 <string name="go_back">返回</string>
 
 </resources>

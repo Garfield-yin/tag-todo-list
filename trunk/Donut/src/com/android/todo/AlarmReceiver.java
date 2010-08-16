@@ -53,7 +53,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final Notification notification = new Notification(R.drawable.small_icon,
         task, System.currentTimeMillis());
     final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
-        new Intent(c, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
+        new Intent(c, ToDo.class), Intent.FLAG_ACTIVITY_NEW_TASK);
     notification.setLatestEventInfo(c, c.getString(R.string.alarm), task,
         contentIntent);
     notification.flags = Notification.FLAG_AUTO_CANCEL;
@@ -66,7 +66,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final int ringerMode = ((AudioManager) c
         .getSystemService(Context.AUDIO_SERVICE)).getRingerMode();
     final SharedPreferences settings = c.getSharedPreferences(
-        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
+        ToDo.PREFS_NAME, Context.MODE_PRIVATE);
     if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
       final boolean b = settings.getBoolean(ConfigScreen.CUSTOM_ALARM, false);
       if (b) {
