@@ -250,6 +250,17 @@ public final class ConfigScreen extends Activity {
         Utils.addSeekBar(ll, ToDo.sPref, TEXT_SIZE, 16, 30,
             R.string.config_14_text_size, R.string.text_size_description);
 
+        // ad
+        cb = new CheckBox(this);
+        cb.setChecked(ToDo.sPref.getBoolean(AD_DISABLED, false));
+        cb.setText(R.string.config_13_ad_disable);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+            ToDo.sEditor.putBoolean(AD_DISABLED, isChecked).commit();
+          }
+        });
+        ll.addView(cb);
+        
         // show collapse buttons (for subtasks)
         cb = new CheckBox(this);
         cb.setChecked(ToDo.sPref.getBoolean(SHOW_COLLAPSE, false));
@@ -292,17 +303,6 @@ public final class ConfigScreen extends Activity {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
             ToDo.sEditor.putBoolean(VISUAL_PRIORITY, isChecked);
             ToDo.sEditor.commit();
-          }
-        });
-        ll.addView(cb);
-
-        // ad
-        cb = new CheckBox(this);
-        cb.setChecked(ToDo.sPref.getBoolean(AD_DISABLED, false));
-        cb.setText(R.string.config_13_ad_disable);
-        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-            ToDo.sEditor.putBoolean(AD_DISABLED, isChecked).commit();
           }
         });
         ll.addView(cb);

@@ -323,8 +323,7 @@ public final class EditScreen extends Activity {
 
     mConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        final String newName = mBodyText.getText().toString()
-            .replaceAll("'", "`");
+        final String newName = ToDoDB.sanitize(mBodyText.getText().toString());
         if (action.equals(Integer.toString(ToDo.TAG_CREATE_ID))) {
           if (!(mDbHelper.createTag(newName))) {
             showMessage(v.getContext().getString(R.string.tag_existent));
