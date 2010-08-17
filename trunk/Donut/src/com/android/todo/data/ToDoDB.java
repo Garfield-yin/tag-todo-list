@@ -59,6 +59,7 @@ public final class ToDoDB extends ADB {
   private static String ALPHABET_ORDER_TOKEN = "";
   private static String DUEDATE_ORDER_TOKEN = "";
   private static boolean FLAG_UPDATED = false;
+  private static boolean FLAG_REPAIRED = false;
 
   private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -362,9 +363,10 @@ public final class ToDoDB extends ADB {
   public ToDoDB open() throws SQLException {
     mDbHelper = new DatabaseHelper(mCtx);
     mDb = mDbHelper.getWritableDatabase();
-    if (FLAG_UPDATED) {
+    if (FLAG_UPDATED && !FLAG_REPAIRED) {
       BootReceiver.setOldAlarms(mCtx, this);
     }
+    FLAG_REPAIRED = false;
     return this;
   }
 
@@ -435,7 +437,7 @@ public final class ToDoDB extends ADB {
         KEY_PARENT }, KEY_NAME + " = '" + task + "'", null, null, null, null);
     if (c.getCount() > 0) {
       c.moveToFirst();
-      String s = c.getString(c.getColumnIndexOrThrow(KEY_PARENT));
+      final String s = c.getString(c.getColumnIndexOrThrow(KEY_PARENT));
       c.close();
       return s;
     }
@@ -1216,6 +1218,17 @@ public final class ToDoDB extends ADB {
    */
   public final void repair() {
     mDbHelper.upgrade(mDb);
+    FLAG_REPAIRED = true;
+  }
+
+  /**
+   * Sanitizes for SQL and what not.
+   * 
+   * @param s
+   * @return
+   */
+  public final static String sanitize(final String s) {
+    return s.replaceAll("'", "`");
   }
 
 }

@@ -28,7 +28,7 @@ public final class ConfirmationScreen extends Activity {
   private TextView mMessage;
   private Button mFirstButton, mSecondButton;
   private String mTagName, mAction;
-  private ToDoDB mDbHelper;
+  private static ToDoDB sDbHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +50,14 @@ public final class ConfirmationScreen extends Activity {
     mFirstButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         if (mAction.equals(Integer.toString(ToDo.TAG_DELETE_ID))) {
-          mDbHelper.deleteTag(mTagName);
+          sDbHelper.deleteTag(mTagName);
           setResult(RESULT_OK);
           finish();
         } else if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
           startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(v
               .getContext().getString(R.string.url_help))));
         } else if (mAction.equals(Integer.toString(ToDo.TAG_CLEAR_ID))) {
-          mDbHelper.deleteEntries(mTagName);
+          sDbHelper.deleteEntries(mTagName);
           setResult(RESULT_OK);
           finish();
         } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_BACKUP_ID))) {
@@ -82,8 +82,9 @@ public final class ConfirmationScreen extends Activity {
                 + v.getContext().getString(R.string.import_CSV_file_confirm));
             mFirstButton.setOnClickListener(new OnClickListener() {
               public void onClick(View arg0) {
-                Utils.showDialog(R.string.notification,
-                    CSV.importCSV(files[0]), arg0.getContext());
+                mMessage.setText(CSV.importCSV(files[0], sDbHelper));
+                mFirstButton.setVisibility(View.GONE);
+                mSecondButton.setText(R.string.go_back);
               }
             });
           } else {
@@ -107,6 +108,15 @@ public final class ConfirmationScreen extends Activity {
                       + arg0.getContext().getString(
                           R.string.import_CSV_file_confirm));
                 }
+              }
+            });
+            mFirstButton.setOnClickListener(new OnClickListener() {
+              public void onClick(View arg0) {
+                mMessage.setText(CSV.importCSV(files[(Integer) b.getTag()],
+                    sDbHelper));
+                mFirstButton.setVisibility(View.GONE);
+                mSecondButton.setText(R.string.go_back);
+                b.setVisibility(View.GONE);
               }
             });
             ((LinearLayout) mMessage.getParent()).addView(b);
@@ -169,7 +179,7 @@ public final class ConfirmationScreen extends Activity {
   protected void onResume() {
     super.onResume();
     mAction = getIntent().getAction();
-    mDbHelper = ToDoDB.getInstance(getApplicationContext());
+    sDbHelper = ToDoDB.getInstance(getApplicationContext());
     if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.standardButtonLayout);
       if (ll.getChildCount() < 3) {

@@ -197,6 +197,9 @@ public final class WidgetChange extends BroadcastReceiver {
           }
           sTask = 0;
         }
+        if (sTaskCursor.getPosition()<0){
+          sTaskCursor.moveToFirst();
+        }
         rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
             .getColumnIndex(ToDoDB.KEY_NAME)));
         AppWidgetManager.getInstance(c).updateAppWidget(
