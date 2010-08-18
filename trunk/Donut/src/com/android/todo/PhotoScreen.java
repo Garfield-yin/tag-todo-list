@@ -27,7 +27,6 @@ import com.android.todo.data.ToDoDB;
 public final class PhotoScreen extends Activity {
   private static String sEntry = null;
   private static Button sCamButton, sDelButton, sCloseButton;
-  // private static ImageView sImageView;
   private static WebView sWebView;
   private static Uri sUri;
   private static ToDoDB sDbHelper;
@@ -68,9 +67,6 @@ public final class PhotoScreen extends Activity {
         finish();
       }
     });
-    // sImageView = (ImageView) findViewById(R.id.imageView);
-    // sImageView.setDrawingCacheEnabled(false);
-    // sImageView.setWillNotCacheDrawing(false);
     sWebView = (WebView) findViewById(R.id.webView);
     sWebView.getSettings().setBuiltInZoomControls(true);
     sWebView.setBackgroundColor(Color.BLACK);
@@ -94,7 +90,7 @@ public final class PhotoScreen extends Activity {
      * photoBitmap.recycle(); sImageView.setImageBitmap(scaled);
      */
     sWebView.loadData(
-        "<meta name='viewport' content='width=device-width' /><img src='"
+        "<meta name='viewport' content='width=640' /><img src='"
             + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 

@@ -145,8 +145,9 @@
 <string name="config_10_alarm_pick">Choose your own song</string>
 <string name="config_11_alarm_vibrate">Also vibrate with the alarm</string>
 <string name="config_12_fullscreen">Remove top system bar &amp; make the app truly fullscreen - needs app restart</string>
-<string name="config_13_ad_disable">Disable ad - needs app restart</string>
+<string name="config_13_ad_disable">Disable edit screen ad - needs app restart</string>
 <string name="config_14_text_size">Task size</string>
+<string name="config_15_priority_disable">I\'m not using priority. Remove the priority bar in the edit screen.</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>
