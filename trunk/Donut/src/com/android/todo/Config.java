@@ -334,7 +334,7 @@ public final class Config extends Activity {
 
         // fullscreen
         cb = new CheckBox(this);
-        cb.setChecked(ToDo.sPref.getBoolean(FULLSCREEN, true));
+        cb.setChecked(ToDo.sPref.getBoolean(FULLSCREEN, false));
         cb.setText(R.string.config_12_fullscreen);
         cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {

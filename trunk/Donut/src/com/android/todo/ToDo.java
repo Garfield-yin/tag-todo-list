@@ -143,13 +143,13 @@ public class ToDo extends Activity {
    */
   public final static void setTheme(final Context c, final SharedPreferences sp) {
     if (sp.getInt(Config.THEME, android.R.style.Theme) == android.R.style.Theme) {
-      if (sp.getBoolean(Config.FULLSCREEN, true)) {
+      if (sp.getBoolean(Config.FULLSCREEN, false)) {
         c.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen);
       } else {
         c.setTheme(android.R.style.Theme_Black_NoTitleBar);
       }
     } else {
-      if (sPref.getBoolean(Config.FULLSCREEN, true)) {
+      if (sPref.getBoolean(Config.FULLSCREEN, false)) {
         c.setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
       } else {
         c.setTheme(android.R.style.Theme_Light_NoTitleBar);
