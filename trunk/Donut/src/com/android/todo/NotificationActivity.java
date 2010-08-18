@@ -34,8 +34,8 @@ public final class NotificationActivity extends Activity {
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this, getSharedPreferences(ToDo.PREFS_NAME,
-        Context.MODE_PRIVATE));
+    ToDo.setTheme(this,
+        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setTitle(R.string.due_date_notification);
 
@@ -132,10 +132,8 @@ public final class NotificationActivity extends Activity {
     menu.add(0, ToDo.TASK_REMOVE_ID, 0, R.string.entry_delete);
     SubMenu submenu = menu.addSubMenu(R.string.entry_group_notes);
     submenu.add(0, ToDo.TASK_AUDIO_ID, 0, R.string.entry_audio_note);
-    submenu.add(0, ToDo.TASK_GRAPHICAL_ID, 0,
-        R.string.entry_graphical_note);
-    submenu
-        .add(0, ToDo.TASK_WRITTEN_ID, 0, R.string.entry_written_note);
+    submenu.add(0, ToDo.TASK_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
+    submenu.add(0, ToDo.TASK_WRITTEN_ID, 0, R.string.entry_written_note);
     submenu = menu.addSubMenu(R.string.entry_group_move);
     submenu.add(0, ToDo.TASK_MOVE_ID, 0, R.string.entry_move);
     menu.setHeaderTitle(R.string.entry_menu);
@@ -151,33 +149,33 @@ public final class NotificationActivity extends Activity {
    */
   private boolean changeTask(int selectedItem) {
     switch (selectedItem) {
-    case ToDo.TASK_EDIT_ID:
-      Intent i1 = new Intent(this, EditScreen.class);
-      i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      i1.setAction(Integer.toString(ToDo.ACTIVITY_EDIT_ENTRY));
-      startActivity(i1);
-      break;
-    case ToDo.TASK_REMOVE_ID:
-      mDbHelper.deleteTask(mContextEntry);
-      populateEntries();
-      break;
-    case ToDo.TASK_GRAPHICAL_ID:
-      Intent i2 = new Intent(this, PaintScreen.class);
-      i2.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      startActivity(i2);
-      break;
-    case ToDo.TASK_AUDIO_ID:
-      Intent i3 = new Intent(this, AudioScreen.class);
-      i3.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      i3.putExtra(ToDoDB.KEY_STATUS, true);
-      startActivity(i3);
-      break;
-    case ToDo.TASK_WRITTEN_ID:
-      Intent i4 = new Intent(this, EditScreen.class);
-      i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
-      i4.setAction(Integer.toString(ToDo.TASK_WRITTEN_ID));
-      startActivity(i4);
-      break;
+      case ToDo.TASK_EDIT_ID:
+        Intent i1 = new Intent(this, Edit.class);
+        i1.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i1.setAction(Integer.toString(ToDo.ACTIVITY_EDIT_ENTRY));
+        startActivity(i1);
+        break;
+      case ToDo.TASK_REMOVE_ID:
+        mDbHelper.deleteTask(mContextEntry);
+        populateEntries();
+        break;
+      case ToDo.TASK_GRAPHICAL_ID:
+        Intent i2 = new Intent(this, Graphics.class);
+        i2.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        startActivity(i2);
+        break;
+      case ToDo.TASK_AUDIO_ID:
+        Intent i3 = new Intent(this, Audio.class);
+        i3.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i3.putExtra(ToDoDB.KEY_STATUS, true);
+        startActivity(i3);
+        break;
+      case ToDo.TASK_WRITTEN_ID:
+        Intent i4 = new Intent(this, Edit.class);
+        i4.putExtra(ToDoDB.KEY_NAME, mContextEntry);
+        i4.setAction(Integer.toString(ToDo.TASK_WRITTEN_ID));
+        startActivity(i4);
+        break;
     }
     mContextEntry = null;
     return true;
@@ -188,66 +186,67 @@ public final class NotificationActivity extends Activity {
    */
   public boolean onKeyDown(int keyCode, KeyEvent msg) {
     switch (keyCode) {
-    case KeyEvent.KEYCODE_BACK:
-      finish();
-      break;
-    case (KeyEvent.KEYCODE_N):
-      selectAnotherEntry(1);
-      break;
-    case (KeyEvent.KEYCODE_P):
-      selectAnotherEntry(-1);
-      break;
-    case (KeyEvent.KEYCODE_ENTER):
-      if (mActiveEntry > -1) {
-        ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry))).performClick();
-      }
-      break;
-    case (KeyEvent.KEYCODE_SPACE):
-      if (mActiveEntry > -1) {
-        ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry))).performLongClick();
-      }
-      break;
-    case (KeyEvent.KEYCODE_D):
-      if (mActiveEntry > -1) {
-        mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
-            .getText().toString();
-        changeTask(ToDo.TASK_REMOVE_ID);
-        mActiveEntry = Utils.iterate(mActiveEntry,
-            mEntryLayout.getChildCount(), -1);
-      }
-      break;
-    case (KeyEvent.KEYCODE_E):
-    case (KeyEvent.KEYCODE_R):
-      if (mActiveEntry > -1) {
-        mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
-            .getText().toString();
-        changeTask(ToDo.TASK_EDIT_ID);
-      }
-      break;
-    case (KeyEvent.KEYCODE_G):
-      if (mActiveEntry > -1) {
-        mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
-            .getText().toString();
-        changeTask(ToDo.TASK_GRAPHICAL_ID);
-      }
-      break;
-    case (KeyEvent.KEYCODE_F):
-      if (mActiveEntry > -1) {
-        mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
-            .getText().toString();
-        changeTask(ToDo.TASK_AUDIO_ID);
-      }
-      break;
-    case (KeyEvent.KEYCODE_DEL):
-      finish();
-      break;
-    case (KeyEvent.KEYCODE_W):
-      if (mActiveEntry > -1) {
-        mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
-            .getText().toString();
-        changeTask(ToDo.TASK_WRITTEN_ID);
-      }
-      break;
+      case KeyEvent.KEYCODE_BACK:
+        finish();
+        break;
+      case (KeyEvent.KEYCODE_N):
+        selectAnotherEntry(1);
+        break;
+      case (KeyEvent.KEYCODE_P):
+        selectAnotherEntry(-1);
+        break;
+      case (KeyEvent.KEYCODE_ENTER):
+        if (mActiveEntry > -1) {
+          ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry))).performClick();
+        }
+        break;
+      case (KeyEvent.KEYCODE_SPACE):
+        if (mActiveEntry > -1) {
+          ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+              .performLongClick();
+        }
+        break;
+      case (KeyEvent.KEYCODE_D):
+        if (mActiveEntry > -1) {
+          mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+              .getText().toString();
+          changeTask(ToDo.TASK_REMOVE_ID);
+          mActiveEntry = Utils.iterate(mActiveEntry,
+              mEntryLayout.getChildCount(), -1);
+        }
+        break;
+      case (KeyEvent.KEYCODE_E):
+      case (KeyEvent.KEYCODE_R):
+        if (mActiveEntry > -1) {
+          mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+              .getText().toString();
+          changeTask(ToDo.TASK_EDIT_ID);
+        }
+        break;
+      case (KeyEvent.KEYCODE_G):
+        if (mActiveEntry > -1) {
+          mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+              .getText().toString();
+          changeTask(ToDo.TASK_GRAPHICAL_ID);
+        }
+        break;
+      case (KeyEvent.KEYCODE_F):
+        if (mActiveEntry > -1) {
+          mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+              .getText().toString();
+          changeTask(ToDo.TASK_AUDIO_ID);
+        }
+        break;
+      case (KeyEvent.KEYCODE_DEL):
+        finish();
+        break;
+      case (KeyEvent.KEYCODE_W):
+        if (mActiveEntry > -1) {
+          mContextEntry = ((CheckBox) (mEntryLayout.getChildAt(mActiveEntry)))
+              .getText().toString();
+          changeTask(ToDo.TASK_WRITTEN_ID);
+        }
+        break;
     }
 
     return false;

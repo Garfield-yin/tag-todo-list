@@ -12,7 +12,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.widget.RemoteViews;
 
-import com.android.todo.EditScreen;
+import com.android.todo.Edit;
 import com.android.todo.R;
 import com.android.todo.ToDo;
 import com.android.todo.Utils;
@@ -84,8 +84,8 @@ public final class WidgetChange extends BroadcastReceiver {
     switch (intent.getExtras().getInt(ToDoDB.KEY_NAME)) {
       case R.id.widgetItem:
         if (sTaskCursor.getCount() > 0) {
-          c.startActivity(new Intent(c, EditScreen.class).putExtra(
-              EditScreen.EXTERNAL_INVOKER, true).setAction(
+          c.startActivity(new Intent(c, Edit.class).putExtra(
+              Edit.EXTERNAL_INVOKER, true).setAction(
               ToDo.ACTIVITY_EDIT_ENTRY + "").putExtra(
               ToDoDB.KEY_NAME,
               sTaskCursor
@@ -122,8 +122,8 @@ public final class WidgetChange extends BroadcastReceiver {
         WidgetChange.cicle(c);
         return;
       case R.id.addTaskButton:
-        c.startActivity(new Intent(c, EditScreen.class).putExtra(
-            EditScreen.EXTERNAL_INVOKER, true).setAction(
+        c.startActivity(new Intent(c, Edit.class).putExtra(
+            Edit.EXTERNAL_INVOKER, true).setAction(
             ToDo.ACTIVITY_CREATE_ENTRY + "").putExtra(ToDoDB.KEY_NAME,
             sTagCursor.getString(sTagCursor.getColumnIndex(ToDoDB.KEY_NAME)))
             .putExtra(ToDoDB.KEY_SUPERTASK, "").addFlags(

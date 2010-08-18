@@ -32,7 +32,7 @@ import com.android.todo.sync.GoogleCalendar;
 /**
  * This activity represents a configuration screen
  */
-public final class ConfigScreen extends Activity {
+public final class Config extends Activity {
   public static final String SELECTED_TAB = "selectedTab";
   public static final String CUSTOM_ALARM = "customAlarm";
   public static final String ALARM_URI = "alarmUri";
@@ -170,15 +170,15 @@ public final class ConfigScreen extends Activity {
           dueEntries.close();
           if (allTasksSynced) {
             Utils.showDialog(R.string.notification, R.string.login_sync_succes,
-                ConfigScreen.this);
+                Config.this);
             showLogin(false);
           } else {
             Utils.showDialog(R.string.notification,
-                R.string.login_succes_sync_fail, ConfigScreen.this);
+                R.string.login_succes_sync_fail, Config.this);
           }
         } else {
           Utils.showDialog(R.string.notification, R.string.login_fail,
-              ConfigScreen.this);
+              Config.this);
         }
       }
     });

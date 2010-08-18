@@ -1,6 +1,6 @@
 //class made by Teo ( www.teodorfilimon.com ). More about the app in readme.txt
 
-package com.android.todo;
+package com.android.todo.receivers;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -13,6 +13,10 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
 
+import com.android.todo.Config;
+import com.android.todo.R;
+import com.android.todo.ToDo;
+import com.android.todo.Utils;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Apollo;
 import com.android.todo.olympus.Chronos;
@@ -68,9 +72,9 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final SharedPreferences settings = c.getSharedPreferences(
         ToDo.PREFS_NAME, Context.MODE_PRIVATE);
     if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-      final boolean b = settings.getBoolean(ConfigScreen.CUSTOM_ALARM, false);
+      final boolean b = settings.getBoolean(Config.CUSTOM_ALARM, false);
       if (b) {
-        final String uriString = settings.getString(ConfigScreen.ALARM_URI,
+        final String uriString = settings.getString(Config.ALARM_URI,
             null);
         if (uriString != null) {
           Apollo.play(c, Uri.parse(uriString));
@@ -83,7 +87,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
     }
 
     if (ringerMode != AudioManager.RINGER_MODE_SILENT
-        && settings.getBoolean(ConfigScreen.ALARM_VIBRATION, true)) {
+        && settings.getBoolean(Config.ALARM_VIBRATION, true)) {
       notification.vibrate = (long[]) intent.getExtras().get(VIBRATION);
     }
 

@@ -24,7 +24,7 @@ import com.android.todo.sync.CSV;
  * This is a multi-purpose class used to request confirmations for tag
  * deletions, to show help screens, etc.
  */
-public final class ConfirmationScreen extends Activity {
+public final class Confirmation extends Activity {
   private TextView mMessage;
   private Button mFirstButton, mSecondButton;
   private String mTagName, mAction;
@@ -183,7 +183,7 @@ public final class ConfirmationScreen extends Activity {
     if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.standardButtonLayout);
       if (ll.getChildCount() < 3) {
-        if (ToDo.sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+        if (ToDo.sPref.getBoolean(Config.AD_DISABLED, false)) {
           final ImageButton ib = new ImageButton(this);
           ib.setImageResource(R.drawable.paypal);
           ib.setOnClickListener(new OnClickListener() {
@@ -224,7 +224,7 @@ public final class ConfirmationScreen extends Activity {
         break;
       case KeyEvent.KEYCODE_K:
         Utils.showDialog(R.string.keyboard_title, R.string.keyboard_help_text,
-            ConfirmationScreen.this);
+            Confirmation.this);
         break;
     }
     return false;

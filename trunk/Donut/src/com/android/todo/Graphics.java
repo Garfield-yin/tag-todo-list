@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,9 +30,9 @@ import com.android.todo.data.ToDoDB;
  * This is an activity which allows us to draw a graphical note for a specific
  * ToDo list entry
  */
-public final class PaintScreen extends GraphicsActivity {
-  public final static String PATH="/sdcard/Tag-ToDo_data/graphics/";
-  
+public final class Graphics extends Activity {
+  public final static String PATH = "/sdcard/Tag-ToDo_data/graphics/";
+
   private Paint mPaint;
   private MyView mView;
   private LinearLayout mLL;
@@ -39,9 +40,14 @@ public final class PaintScreen extends GraphicsActivity {
   private static Button sClearButton, sExitButton, sDeleteButton;
 
   @Override
+  public void setContentView(View view) {
+    super.setContentView(view);
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this, getSharedPreferences(ToDo.PREFS_NAME,
-        Context.MODE_PRIVATE));
+    ToDo.setTheme(this,
+        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setContentView(R.layout.note);
 

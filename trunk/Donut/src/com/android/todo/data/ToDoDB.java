@@ -16,14 +16,14 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.android.todo.AlarmReceiver;
-import com.android.todo.BootReceiver;
 import com.android.todo.R;
 import com.android.todo.ToDo;
 import com.android.todo.Utils;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.olympus.Chronos.Time;
+import com.android.todo.receivers.AlarmReceiver;
+import com.android.todo.receivers.BootReceiver;
 
 /**
  * This class handles all the interactions with the database. The database

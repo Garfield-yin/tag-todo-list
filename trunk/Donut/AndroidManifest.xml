@@ -10,15 +10,15 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".EditScreen"
+		<activity android:name=".Edit"
 			android:windowSoftInputMode="stateVisible|adjustPan">
 		</activity>
-		<activity android:name=".ConfirmationScreen"></activity>
-		<activity android:name=".PhotoScreen"></activity>
-		<activity android:name=".PaintScreen"></activity>
-		<activity android:name=".AudioScreen"></activity>
+		<activity android:name=".Confirmation"></activity>
+		<activity android:name=".Photo"></activity>
+		<activity android:name=".Graphics"></activity>
+		<activity android:name=".Audio"></activity>
 		<activity android:name=".NotificationActivity"></activity>
-		<activity android:name=".ConfigScreen"></activity>
+		<activity android:name=".Config"></activity>
 		<uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
 
 		<receiver android:label="@string/full_name" android:name=".widget.TagToDoWidget">
@@ -29,8 +29,10 @@
 				android:resource="@xml/widget" />
 		</receiver>
 
-		<receiver android:name=".AlarmReceiver" android:enabled="true"></receiver>
-		<receiver android:name=".BootReceiver" android:enabled="true">
+		<receiver android:name=".receivers.AlarmReceiver"
+			android:enabled="true"></receiver>
+		<receiver android:name=".receivers.BootReceiver"
+			android:enabled="true">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>

@@ -48,6 +48,7 @@ import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.olympus.Chronos.Time;
+import com.android.todo.receivers.AlarmReceiver;
 import com.android.todo.speech.OneTimeTTS;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
@@ -58,7 +59,7 @@ import com.android.todo.widget.TagToDoWidget;
  * existing tag - input the text in a new to-do list entry - edit the text in an
  * existing to-do list entry
  */
-public final class EditScreen extends Activity {
+public final class Edit extends Activity {
   public final static String EXTERNAL_INVOKER = "widgetInitiated";
 
   private TextView mTaskText;
@@ -161,15 +162,15 @@ public final class EditScreen extends Activity {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
 
       // now comes priority stuff
-      if (!sPref.getBoolean(ConfigScreen.PRIORITY_DISABLE, false)) {
+      if (!sPref.getBoolean(Config.PRIORITY_DISABLE, false)) {
         mPriorityText = creating ? this.getString(R.string.priority_default)
             : this.getString(R.string.priority);
         mPrioritySb = new SeekBar(this);
         mPrioritySb.setVerticalScrollBarEnabled(true);
         mPrioritySb.setMax(getSharedPreferences(ToDo.PREFS_NAME,
-            Context.MODE_PRIVATE).getInt(ConfigScreen.PRIORITY_MAX, 100) + 1);
+            Context.MODE_PRIVATE).getInt(Config.PRIORITY_MAX, 100) + 1);
         int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
-            .getPriority(EditScreen.sTask);
+            .getPriority(Edit.sTask);
         mPrioritySb.setPadding(0, 0, 0, 10);
         mPrioritySb.setProgress(priority);
         final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
@@ -182,7 +183,7 @@ public final class EditScreen extends Activity {
           public void onStartTrackingTouch(SeekBar arg0) {
             t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
                 + (int) (32 * dm.ydpi / 240));
-            mPriorityText = EditScreen.this.getString(R.string.priority);
+            mPriorityText = Edit.this.getString(R.string.priority);
             t.show();
           }
 
@@ -212,7 +213,7 @@ public final class EditScreen extends Activity {
       if (mDbHelper.isDueDateSet(sTask)) {
         mDateTb.setTextOn(getString(R.string.edit_task_date_set)
             + ' '
-            + Chronos.decodeDate(mDbHelper.getDueDate(EditScreen.sTask),
+            + Chronos.decodeDate(mDbHelper.getDueDate(Edit.sTask),
                 getString(R.string.months)));
         mDateTb.setChecked(true);
       } else {
@@ -246,10 +247,9 @@ public final class EditScreen extends Activity {
             } else {
               gc = new GregorianCalendar();
             }
-            final DatePickerDialog dpd = new DatePickerDialog(EditScreen.this,
-                odsl, gc.get(GregorianCalendar.YEAR), gc
-                    .get(GregorianCalendar.MONTH), gc
-                    .get(GregorianCalendar.DATE));
+            final DatePickerDialog dpd = new DatePickerDialog(Edit.this, odsl,
+                gc.get(GregorianCalendar.YEAR),
+                gc.get(GregorianCalendar.MONTH), gc.get(GregorianCalendar.DATE));
             dpd.setCancelable(true);
             dpd.show();
 
@@ -326,7 +326,7 @@ public final class EditScreen extends Activity {
 
       ll.addView(mDateTimeLayout);
 
-      if (!sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+      if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
         final AdView ad = new AdView(this);
         ad.setBackgroundColor(Color.BLACK);
         ad.setPrimaryTextColor(Color.WHITE);
@@ -345,7 +345,7 @@ public final class EditScreen extends Activity {
             showMessage(v.getContext().getString(R.string.tag_existent));
             return;
           } else {
-            EditScreen.this.setResult(RESULT_OK,
+            Edit.this.setResult(RESULT_OK,
                 new Intent().putExtra(ToDoDB.KEY_NAME, newName));
           }
         } else if (action.equals(Integer.toString(ToDo.TAG_EDIT_ID))) {
@@ -435,12 +435,12 @@ public final class EditScreen extends Activity {
             return;
           }
           final Calendar cal = Calendar.getInstance();
-          final Dialog d = new Dialog(EditScreen.this);
+          final Dialog d = new Dialog(Edit.this);
           d.setTitle(getString(R.string.weekly) + ' ' + getString(R.string.or)
               + ' ' + getString(R.string.monthly));
-          final LinearLayout ll = new LinearLayout(EditScreen.this);
+          final LinearLayout ll = new LinearLayout(Edit.this);
           ll.setOrientation(LinearLayout.VERTICAL);
-          final TextView tv = new TextView(EditScreen.this);
+          final TextView tv = new TextView(Edit.this);
           tv.setGravity(Gravity.CENTER_HORIZONTAL);
           tv.setTextSize(18);
 
@@ -483,13 +483,13 @@ public final class EditScreen extends Activity {
             }
           };
 
-          final Button minus = new Button(EditScreen.this);
+          final Button minus = new Button(Edit.this);
           minus.setText("<");
-          final Button plus = new Button(EditScreen.this);
+          final Button plus = new Button(Edit.this);
           plus.setText(">");
 
-          final RadioGroup rg = new RadioGroup(EditScreen.this);
-          final RadioButton weeklyRadio = new RadioButton(EditScreen.this);
+          final RadioGroup rg = new RadioGroup(Edit.this);
+          final RadioButton weeklyRadio = new RadioButton(Edit.this);
           weeklyRadio.setText(R.string.weekly);
           weeklyRadio.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton v, boolean isChecked) {
@@ -509,7 +509,7 @@ public final class EditScreen extends Activity {
               plus.setOnClickListener(weeklyPlus);
             }
           });
-          final RadioButton monthlyRadio = new RadioButton(EditScreen.this);
+          final RadioButton monthlyRadio = new RadioButton(Edit.this);
           monthlyRadio.setText(R.string.monthly);
           monthlyRadio
               .setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -538,7 +538,7 @@ public final class EditScreen extends Activity {
           ll.addView(tv);
           ll.addView(plus);
 
-          final Button b = new Button(EditScreen.this);
+          final Button b = new Button(Edit.this);
           b.setMinimumWidth(150);
           b.setText(R.string.go_back);
           b.setOnClickListener(new OnClickListener() {
@@ -646,8 +646,8 @@ public final class EditScreen extends Activity {
    * @param message
    */
   private void showMessage(String message) {
-    final Dialog d = new Dialog(EditScreen.this);
-    final Button b = new Button(EditScreen.this);
+    final Dialog d = new Dialog(Edit.this);
+    final Button b = new Button(Edit.this);
     b.setText(R.string.go_back);
     b.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
@@ -679,8 +679,8 @@ public final class EditScreen extends Activity {
     if (ToDo.SYNC_GCAL) {
       final SharedPreferences pref = getSharedPreferences(ToDo.PREFS_NAME,
           Context.MODE_PRIVATE);
-      GoogleCalendar.setLogin(pref.getString(ConfigScreen.GOOGLE_USERNAME, ""),
-          pref.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+      GoogleCalendar.setLogin(pref.getString(Config.GOOGLE_USERNAME, ""),
+          pref.getString(Config.GOOGLE_PASSWORD, ""));
       try {
         GoogleCalendar.createEvent(name, sDate.getYear(), sDate.getMonth(),
             sDate.getDay(), sTime.getHour(), sTime.getMinute());
