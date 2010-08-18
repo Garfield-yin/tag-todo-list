@@ -1,6 +1,6 @@
 //class made by Teo ( www.teodorfilimon.com ). More about the app in readme.txt
 
-package com.android.todo;
+package com.android.todo.receivers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -12,6 +12,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.android.todo.Utils;
 import com.android.todo.data.ADB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;

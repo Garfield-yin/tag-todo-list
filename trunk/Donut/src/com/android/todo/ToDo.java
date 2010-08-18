@@ -51,7 +51,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admob.android.ads.AdManager;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -143,14 +142,14 @@ public class ToDo extends Activity {
    * @param sp
    */
   public final static void setTheme(final Context c, final SharedPreferences sp) {
-    if (sp.getInt(ConfigScreen.THEME, android.R.style.Theme) == android.R.style.Theme) {
-      if (sp.getBoolean(ConfigScreen.FULLSCREEN, true)) {
+    if (sp.getInt(Config.THEME, android.R.style.Theme) == android.R.style.Theme) {
+      if (sp.getBoolean(Config.FULLSCREEN, true)) {
         c.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen);
       } else {
         c.setTheme(android.R.style.Theme_Black_NoTitleBar);
       }
     } else {
-      if (sPref.getBoolean(ConfigScreen.FULLSCREEN, true)) {
+      if (sPref.getBoolean(Config.FULLSCREEN, true)) {
         c.setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
       } else {
         c.setTheme(android.R.style.Theme_Light_NoTitleBar);
@@ -160,7 +159,6 @@ public class ToDo extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
-    AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, 0);
     sEditor = sPref.edit();
     ToDo.setTheme(this, sPref);
@@ -170,17 +168,6 @@ public class ToDo extends Activity {
     setContentView(R.layout.main);
 
     mTagSpinner = (Spinner) findViewById(R.id.tagSpinner);
-
-    /*if (!sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
-      final AdView ad = new AdView(this);
-      ad.setBackgroundColor(Color.BLACK);
-      ad.setPrimaryTextColor(Color.WHITE);
-      ad.setSecondaryTextColor(Color.DKGRAY);
-      ad.setKeywords(getString(R.string.ad_keywords));
-      ad.setRequestInterval(0);
-      ((LinearLayout) mTagSpinner.getParent().getParent()).addView(ad, 0);
-    }*/
-
     mTagSpinner
         .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
           public void onItemSelected(AdapterView<?> parent, View v,
@@ -335,7 +322,7 @@ public class ToDo extends Activity {
     configButton.setImageResource(android.R.drawable.ic_menu_preferences);
     configButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        startActivity(new Intent(v.getContext(), ConfigScreen.class));
+        startActivity(new Intent(v.getContext(), Config.class));
       }
     });
 
@@ -390,7 +377,7 @@ public class ToDo extends Activity {
     };
 
     final ToDoDB dbHelper = sDbHelper;
-    final int textSize = sPref.getInt(ConfigScreen.TEXT_SIZE, 16);
+    final int textSize = sPref.getInt(Config.TEXT_SIZE, 16);
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
         ccl, textSize, selectedTag, 0, null)));
@@ -687,12 +674,12 @@ public class ToDo extends Activity {
         c.close();
         return true;
       case TAG_IMPORT_CSV_ID:
-        i = new Intent(this, ConfirmationScreen.class);
+        i = new Intent(this, Confirmation.class);
         i.setAction(Integer.toString(TAG_IMPORT_CSV_ID));
         startActivity(i);
         break;
       case TAG_IMPORT_BACKUP_ID:
-        i = new Intent(this, ConfirmationScreen.class);
+        i = new Intent(this, Confirmation.class);
         i.setAction(Integer.toString(TAG_IMPORT_BACKUP_ID));
         startActivity(i);
         break;
@@ -705,8 +692,9 @@ public class ToDo extends Activity {
    * reaches that activity, the tag is created with the given name
    */
   private final void createTag() {
-    startActivityForResult(new Intent(this, EditScreen.class).setAction(Integer
-        .toString(TAG_CREATE_ID)), TAG_CREATE_ID);
+    startActivityForResult(
+        new Intent(this, Edit.class).setAction(Integer.toString(TAG_CREATE_ID)),
+        TAG_CREATE_ID);
   }
 
   /**
@@ -717,7 +705,7 @@ public class ToDo extends Activity {
       Utils.showDialog(-1, R.string.impossible_tag_deletion, ToDo.this);
       return;
     }
-    Intent i = new Intent(this, ConfirmationScreen.class);
+    Intent i = new Intent(this, Confirmation.class);
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
@@ -729,7 +717,7 @@ public class ToDo extends Activity {
    * Deletes all the tasks in the active tag
    */
   private final void removeAllTasks() {
-    Intent i = new Intent(this, ConfirmationScreen.class);
+    Intent i = new Intent(this, Confirmation.class);
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
@@ -741,7 +729,7 @@ public class ToDo extends Activity {
    * Triggers an activity which asks for the active tag's new name
    */
   private void editTag() {
-    Intent i = new Intent(this, EditScreen.class);
+    Intent i = new Intent(this, Edit.class);
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
@@ -753,7 +741,7 @@ public class ToDo extends Activity {
    * Triggers an activity which shows a help screen
    */
   private void showHelpScreen() {
-    startActivity(new Intent(this, ConfirmationScreen.class).setAction(Integer
+    startActivity(new Intent(this, Confirmation.class).setAction(Integer
         .toString(TAG_HELP_ID)));
   }
 
@@ -762,7 +750,7 @@ public class ToDo extends Activity {
    * response reaches that activity, the tag is created with the given name
    */
   private void createEntry() {
-    Intent i = new Intent(this, EditScreen.class);
+    Intent i = new Intent(this, Edit.class);
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
@@ -833,7 +821,7 @@ public class ToDo extends Activity {
 
   @Override
   protected void onDestroy() {
-    if (sPref.getBoolean(ConfigScreen.BACKUP_SDCARD, false)) {
+    if (sPref.getBoolean(Config.BACKUP_SDCARD, false)) {
       ToDoDB.createBackup();
     }
 
@@ -850,7 +838,7 @@ public class ToDo extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
             Analytics.SPACE_STATE, mTagSpinner.getCount());
         Analytics.sTracker.trackPageView("config/ad/".concat(Boolean
-            .toString(sPref.getBoolean(ConfigScreen.AD_DISABLED, false))));
+            .toString(sPref.getBoolean(Config.AD_DISABLED, false))));
         Analytics.sTracker.trackPageView("config/visually-challenged/"
             .concat(Boolean.toString(sTts != null)));
         Analytics.sTracker.dispatch();
@@ -891,14 +879,14 @@ public class ToDo extends Activity {
     setDueDateSort(sPref.getInt(DUEDATE_SORT, 0));
 
     // Is the notes preview feature enabled?
-    SHOW_NOTES = sPref.getBoolean(ConfigScreen.NOTE_PREVIEW, false)
+    SHOW_NOTES = sPref.getBoolean(Config.NOTE_PREVIEW, false)
         || getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
     // Should the collapse buttons be shown?
-    SHOW_COLLAPSE = sPref.getBoolean(ConfigScreen.SHOW_COLLAPSE, false);
+    SHOW_COLLAPSE = sPref.getBoolean(Config.SHOW_COLLAPSE, false);
 
     // Should due time be shown for the tasks that have it?
-    if (SHOW_DUE_TIME = sPref.getBoolean(ConfigScreen.SHOW_DUE_TIME, false)) {
+    if (SHOW_DUE_TIME = sPref.getBoolean(Config.SHOW_DUE_TIME, false)) {
       sDescriptionClickListener = new OnClickListener() {
         public void onClick(View v) {
           mContextEntry = ((CheckBox) ((LinearLayout) ((LinearLayout) v
@@ -918,15 +906,14 @@ public class ToDo extends Activity {
     HIDE_CHECKED = sPref.getBoolean(HIDE_CHECKED_SORT, false);
 
     // Is a Google Calendar sync enabled?
-    if (SYNC_GCAL = sPref.getBoolean(ConfigScreen.GOOGLE_CALENDAR, false)) {
-      GoogleCalendar.setLogin(
-          sPref.getString(ConfigScreen.GOOGLE_USERNAME, ""),
-          sPref.getString(ConfigScreen.GOOGLE_PASSWORD, ""));
+    if (SYNC_GCAL = sPref.getBoolean(Config.GOOGLE_CALENDAR, false)) {
+      GoogleCalendar.setLogin(sPref.getString(Config.GOOGLE_USERNAME, ""),
+          sPref.getString(Config.GOOGLE_PASSWORD, ""));
     }
 
     // do we visually distinguish tasks by priority?
-    if (SHINY_PRIORITY = sPref.getBoolean(ConfigScreen.VISUAL_PRIORITY, false)) {
-      mMaxPriority = sPref.getInt(ConfigScreen.PRIORITY_MAX, 100);
+    if (SHINY_PRIORITY = sPref.getBoolean(Config.VISUAL_PRIORITY, false)) {
+      mMaxPriority = sPref.getInt(Config.PRIORITY_MAX, 100);
     }
 
     // Restore the last selected tag
@@ -936,7 +923,7 @@ public class ToDo extends Activity {
     }
     mTagSpinner.setSelection(lastSelectedTag, true);
 
-    if (sPref.getBoolean(ConfigScreen.BLIND_MODE, false)) {
+    if (sPref.getBoolean(Config.BLIND_MODE, false)) {
       if (sTts == null) {
         sTts = new TTS(getApplicationContext(), null);
       }
@@ -949,7 +936,7 @@ public class ToDo extends Activity {
 
     // instantiate usage stats tracker (if it's the case)
     if (Analytics.sTracker == null
-        && sPref.getBoolean(ConfigScreen.USAGE_STATS, false)) {
+        && sPref.getBoolean(Config.USAGE_STATS, false)) {
       Analytics.sTracker = GoogleAnalyticsTracker.getInstance();
       Analytics.sTracker.start(Analytics.UA_CODE, this);
       Analytics.sTracker.trackPageView(Analytics.VIEW_MAIN);
@@ -1042,13 +1029,13 @@ public class ToDo extends Activity {
     Intent i;
     switch (selectedItem) {
       case TASK_EDIT_ID:
-        i = new Intent(this, EditScreen.class);
+        i = new Intent(this, Edit.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         i.setAction(Integer.toString(ACTIVITY_EDIT_ENTRY));
         startActivity(i);
         break;
       case TASK_SUBTASK_ID:
-        i = new Intent(this, EditScreen.class);
+        i = new Intent(this, Edit.class);
         i.putExtra(ToDoDB.KEY_NAME,
             mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
                 .toString());
@@ -1061,12 +1048,12 @@ public class ToDo extends Activity {
         selectTag(mTagSpinner.getSelectedItemPosition());
         break;
       case TASK_GRAPHICAL_ID:
-        i = new Intent(this, PaintScreen.class);
+        i = new Intent(this, Graphics.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         startActivity(i);
         break;
       case TASK_AUDIO_ID:
-        i = new Intent(this, AudioScreen.class);
+        i = new Intent(this, Audio.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         i.putExtra(ToDoDB.KEY_STATUS, true);
         startActivity(i);
@@ -1126,13 +1113,13 @@ public class ToDo extends Activity {
                 R.string.recording_impossible, this);
           }
         } else {
-          i = new Intent(this, PhotoScreen.class);
+          i = new Intent(this, Photo.class);
           i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
           startActivity(i);
         }
         break;
       case TASK_WRITTEN_ID:
-        i = new Intent(this, EditScreen.class);
+        i = new Intent(this, Edit.class);
         i.putExtra(ToDoDB.KEY_NAME, mContextEntry);
         i.setAction(Integer.toString(TASK_WRITTEN_ID));
         startActivity(i);
@@ -1314,7 +1301,7 @@ public class ToDo extends Activity {
         }
         return false;
       case (KeyEvent.KEYCODE_C):
-        startActivity(new Intent(this, ConfigScreen.class));
+        startActivity(new Intent(this, Config.class));
         return false;
       case KeyEvent.KEYCODE_BACK:
         finish();

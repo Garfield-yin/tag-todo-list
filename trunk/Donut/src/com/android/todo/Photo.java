@@ -24,7 +24,7 @@ import com.android.todo.data.ToDoDB;
  * to do the following: - record an audio note - replay the previously recorded
  * audio note
  */
-public final class PhotoScreen extends Activity {
+public final class Photo extends Activity {
   private static String sEntry = null;
   private static Button sCamButton, sDelButton, sCloseButton;
   private static WebView sWebView;
@@ -33,8 +33,8 @@ public final class PhotoScreen extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this, getSharedPreferences(ToDo.PREFS_NAME,
-        Context.MODE_PRIVATE));
+    ToDo.setTheme(this,
+        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setTitle(R.string.entry_photo_note);
     setContentView(R.layout.photo);
@@ -89,9 +89,8 @@ public final class PhotoScreen extends Activity {
      * scaled = Bitmap.createScaledBitmap(photoBitmap, w, h, true);
      * photoBitmap.recycle(); sImageView.setImageBitmap(scaled);
      */
-    sWebView.loadData(
-        "<meta name='viewport' content='width=640' /><img src='"
-            + sUri.toString() + "'/>", "text/html", "UTF-8");
+    sWebView.loadData("<meta name='viewport' content='width=640' /><img src='"
+        + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 
   @Override

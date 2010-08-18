@@ -30,6 +30,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.android.todo.data.ToDoDB;
+import com.android.todo.receivers.AlarmReceiver;
 
 /**
  * A class that contains some helper functions
@@ -130,7 +131,7 @@ public final class Utils {
     if (!newWay) {
       return "note_" + task.hashCode() + ".png";
     }
-    return PaintScreen.PATH + task.hashCode() + ".png";
+    return Graphics.PATH + task.hashCode() + ".png";
   }
 
   /**
@@ -142,7 +143,7 @@ public final class Utils {
    * @return the audio file name
    */
   public final static String getAudioName(final String task) {
-    return AudioScreen.PATH + task.hashCode() + ".3gpp";
+    return Audio.PATH + task.hashCode() + ".3gpp";
   }
 
   /**
