@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
@@ -89,8 +90,10 @@ public final class Photo extends Activity {
      * scaled = Bitmap.createScaledBitmap(photoBitmap, w, h, true);
      * photoBitmap.recycle(); sImageView.setImageBitmap(scaled);
      */
-    sWebView.loadData("<meta name='viewport' content='width=640' /><img src='"
-        + sUri.toString() + "'/>", "text/html", "UTF-8");
+    final DisplayMetrics dm = new DisplayMetrics();
+    getWindowManager().getDefaultDisplay().getMetrics(dm);
+    sWebView.loadData("<meta name='viewport' content='width=" + dm.widthPixels
+        + "' /><img src='" + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 
   @Override
