@@ -51,7 +51,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admob.android.ads.AdView;
+import com.admob.android.ads.AdManager;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -160,6 +160,7 @@ public class ToDo extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
+    AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, 0);
     sEditor = sPref.edit();
     ToDo.setTheme(this, sPref);
@@ -170,7 +171,7 @@ public class ToDo extends Activity {
 
     mTagSpinner = (Spinner) findViewById(R.id.tagSpinner);
 
-    if (!sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+    /*if (!sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
       final AdView ad = new AdView(this);
       ad.setBackgroundColor(Color.BLACK);
       ad.setPrimaryTextColor(Color.WHITE);
@@ -178,7 +179,7 @@ public class ToDo extends Activity {
       ad.setKeywords(getString(R.string.ad_keywords));
       ad.setRequestInterval(0);
       ((LinearLayout) mTagSpinner.getParent().getParent()).addView(ad, 0);
-    }
+    }*/
 
     mTagSpinner
         .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

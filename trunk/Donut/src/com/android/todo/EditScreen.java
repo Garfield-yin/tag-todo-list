@@ -20,6 +20,7 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -42,6 +43,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.admob.android.ads.AdView;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
@@ -78,11 +80,12 @@ public final class EditScreen extends Activity {
   private static int keyCount = 0;
   private static Date sDate;
   private static Time sTime;
+  private static SharedPreferences sPref;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this,
-        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
+    sPref = getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE);
+    ToDo.setTheme(this, sPref);
     super.onCreate(savedInstanceState);
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
     setContentView(R.layout.edit);
@@ -158,35 +161,38 @@ public final class EditScreen extends Activity {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
 
       // now comes priority stuff
-      mPriorityText = creating ? this.getString(R.string.priority_default)
-          : this.getString(R.string.priority);
-      mPrioritySb = new SeekBar(this);
-      mPrioritySb.setMax(getSharedPreferences(ToDo.PREFS_NAME,
-          Context.MODE_PRIVATE).getInt(ConfigScreen.PRIORITY_MAX, 100) + 1);
-      int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
-          .getPriority(EditScreen.sTask);
-      mPrioritySb.setPadding(0, 0, 0, 10);
-      mPrioritySb.setProgress(priority);
-      final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
-      mPrioritySb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+      if (!sPref.getBoolean(ConfigScreen.PRIORITY_DISABLE, false)) {
+        mPriorityText = creating ? this.getString(R.string.priority_default)
+            : this.getString(R.string.priority);
+        mPrioritySb = new SeekBar(this);
+        mPrioritySb.setVerticalScrollBarEnabled(true);
+        mPrioritySb.setMax(getSharedPreferences(ToDo.PREFS_NAME,
+            Context.MODE_PRIVATE).getInt(ConfigScreen.PRIORITY_MAX, 100) + 1);
+        int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
+            .getPriority(EditScreen.sTask);
+        mPrioritySb.setPadding(0, 0, 0, 10);
+        mPrioritySb.setProgress(priority);
+        final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
+        mPrioritySb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
-        public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-          t.setText(mPriorityText + arg1);
-        }
+          public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+            t.setText(mPriorityText + arg1);
+          }
 
-        public void onStartTrackingTouch(SeekBar arg0) {
-          t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
-              + (int) (32 * dm.ydpi / 240));
-          mPriorityText = EditScreen.this.getString(R.string.priority);
-          t.show();
-        }
+          public void onStartTrackingTouch(SeekBar arg0) {
+            t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
+                + (int) (32 * dm.ydpi / 240));
+            mPriorityText = EditScreen.this.getString(R.string.priority);
+            t.show();
+          }
 
-        public void onStopTrackingTouch(SeekBar arg0) {
-          t.show();
-        }
+          public void onStopTrackingTouch(SeekBar arg0) {
+            t.show();
+          }
 
-      });
-      ll.addView(mPrioritySb);
+        });
+        ll.addView(mPrioritySb);
+      }
 
       mDateTimeLayout = new LinearLayout(this);
       mDateTimeLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -319,6 +325,16 @@ public final class EditScreen extends Activity {
       });
 
       ll.addView(mDateTimeLayout);
+
+      if (!sPref.getBoolean(ConfigScreen.AD_DISABLED, false)) {
+        final AdView ad = new AdView(this);
+        ad.setBackgroundColor(Color.BLACK);
+        ad.setPrimaryTextColor(Color.WHITE);
+        ad.setSecondaryTextColor(Color.DKGRAY);
+        ad.setKeywords(getString(R.string.ad_keywords));
+        ad.setRequestInterval(0);
+        ll.addView(ad);
+      }
     }
 
     mConfirmButton.setOnClickListener(new OnClickListener() {

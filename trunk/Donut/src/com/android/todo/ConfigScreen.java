@@ -53,6 +53,7 @@ public final class ConfigScreen extends Activity {
   public static final String FULLSCREEN = "fullscreen";
   public static final String AD_DISABLED = "adDisabled";
   public static final String TEXT_SIZE = "textSize";
+  public static final String PRIORITY_DISABLE = "priorityDisabled";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -128,10 +129,8 @@ public final class ConfigScreen extends Activity {
 
     sConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        ToDo.sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText()
-            .toString());
-        ToDo.sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText()
-            .toString());
+        ToDo.sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText().toString());
+        ToDo.sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText().toString());
         ToDo.sEditor.commit();
 
         GoogleCalendar.setLogin(sUserEdit.getText().toString(), sPassEdit
@@ -234,6 +233,17 @@ public final class ConfigScreen extends Activity {
 
         // backup on the SD card every time app closes
         cb = new CheckBox(this);
+        cb.setChecked(ToDo.sPref.getBoolean(PRIORITY_DISABLE, false));
+        cb.setText(R.string.config_15_priority_disable);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+            ToDo.sEditor.putBoolean(PRIORITY_DISABLE, isChecked).commit();
+          }
+        });
+        ll.addView(cb);
+
+        // backup on the SD card every time app closes
+        cb = new CheckBox(this);
         cb.setChecked(ToDo.sPref.getBoolean(BACKUP_SDCARD, false));
         cb.setText(R.string.config_2_backup);
         cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -250,17 +260,6 @@ public final class ConfigScreen extends Activity {
         Utils.addSeekBar(ll, ToDo.sPref, TEXT_SIZE, 16, 30,
             R.string.config_14_text_size, R.string.text_size_description);
 
-        // ad
-        cb = new CheckBox(this);
-        cb.setChecked(ToDo.sPref.getBoolean(AD_DISABLED, false));
-        cb.setText(R.string.config_13_ad_disable);
-        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-            ToDo.sEditor.putBoolean(AD_DISABLED, isChecked).commit();
-          }
-        });
-        ll.addView(cb);
-        
         // show collapse buttons (for subtasks)
         cb = new CheckBox(this);
         cb.setChecked(ToDo.sPref.getBoolean(SHOW_COLLAPSE, false));
@@ -303,6 +302,17 @@ public final class ConfigScreen extends Activity {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
             ToDo.sEditor.putBoolean(VISUAL_PRIORITY, isChecked);
             ToDo.sEditor.commit();
+          }
+        });
+        ll.addView(cb);
+
+        // ad
+        cb = new CheckBox(this);
+        cb.setChecked(ToDo.sPref.getBoolean(AD_DISABLED, false));
+        cb.setText(R.string.config_13_ad_disable);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+            ToDo.sEditor.putBoolean(AD_DISABLED, isChecked).commit();
           }
         });
         ll.addView(cb);
