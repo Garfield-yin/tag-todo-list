@@ -79,20 +79,9 @@ public final class Photo extends Activity {
    * @throws FileNotFoundException
    */
   private final void populateFields() throws FileNotFoundException {
-    /*
-     * final BitmapFactory.Options options = new BitmapFactory.Options();
-     * options.inSampleSize = 1; Bitmap photoBitmap =
-     * BitmapFactory.decodeStream(getContentResolver() .openInputStream(sUri),
-     * null, options); int h = photoBitmap.getHeight(); int w =
-     * photoBitmap.getWidth(); if ((w > h) && (w > 256)) { double ratio = 256d /
-     * w; w = 256; h = (int) (ratio * h); } else if ((h > w) && (h > 256)) {
-     * double ratio = 256d / h; h = 256; w = (int) (ratio * w); } final Bitmap
-     * scaled = Bitmap.createScaledBitmap(photoBitmap, w, h, true);
-     * photoBitmap.recycle(); sImageView.setImageBitmap(scaled);
-     */
     final DisplayMetrics dm = new DisplayMetrics();
     getWindowManager().getDefaultDisplay().getMetrics(dm);
-    sWebView.loadData("<meta name='viewport' content='width=" + dm.widthPixels
+    sWebView.loadData("<meta name='viewport' content='width=" + dm.widthPixels/2
         + "' /><img src='" + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 
