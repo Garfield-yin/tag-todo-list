@@ -94,6 +94,7 @@ public class ToDo extends Activity {
   public static final int TAG_UNINDENT_ID = 20;
   public static final int TAG_IMPORT_BACKUP_ID = 21;
   public static final int TAG_IMPORT_CSV_ID = 22;
+  public static final int TAG_CLEAR_CHECKED_ID = 23;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -655,6 +656,12 @@ public class ToDo extends Activity {
       case TAG_CLEAR_ID:
         removeAllTasks();
         return true;
+      case TAG_CLEAR_CHECKED_ID:
+        sDbHelper.deleteEntries(
+            mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+                .toString(), true);
+        selectTag(mTagSpinner.getSelectedItemPosition());
+        return true;
       case TAG_UNINDENT_ID:
         final Cursor c = sDbHelper.getTasks(
             mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
@@ -717,7 +724,7 @@ public class ToDo extends Activity {
    * Deletes all the tasks in the active tag
    */
   private final void removeAllTasks() {
-    Intent i = new Intent(this, Confirmation.class);
+    final Intent i = new Intent(this, Confirmation.class);
     i.putExtra(ToDoDB.KEY_NAME,
         mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
             .toString());
@@ -767,6 +774,7 @@ public class ToDo extends Activity {
     super.onCreateOptionsMenu(menu);
     final SubMenu sb = menu.addSubMenu(R.string.more);
     sb.add(0, TAG_CLEAR_ID, 0, R.string.menu_clear);
+    sb.add(0, TAG_CLEAR_CHECKED_ID, 0, R.string.delete_checked);
     sb.add(0, TAG_IMPORT_CSV_ID, 0, R.string.import_CSV);
     sb.add(0, TAG_IMPORT_BACKUP_ID, 0, R.string.backup_import);
     sb.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);

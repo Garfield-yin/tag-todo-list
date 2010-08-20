@@ -57,7 +57,7 @@ public final class Confirmation extends Activity {
           startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(v
               .getContext().getString(R.string.url_help))));
         } else if (mAction.equals(Integer.toString(ToDo.TAG_CLEAR_ID))) {
-          sDbHelper.deleteEntries(mTagName);
+          sDbHelper.deleteEntries(mTagName, false);
           setResult(RESULT_OK);
           finish();
         } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_BACKUP_ID))) {

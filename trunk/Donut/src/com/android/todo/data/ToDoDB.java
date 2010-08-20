@@ -1128,14 +1128,23 @@ public final class ToDoDB extends ADB {
    * 
    * @param name
    *          name of the tag to clear of tasks
+   * @param checked
+   *          if true, will only delete checked tasks
    */
-  public void deleteEntries(String tag) {
-    Cursor c = getTasks(tag, -1, null);
+  public final void deleteEntries(final String tag, final boolean checked) {
+    final Cursor c = getTasks(tag, -1, null);
     if (c.getCount() > 0) {
-      int name = c.getColumnIndexOrThrow(KEY_NAME);
+      final int name = c.getColumnIndexOrThrow(KEY_NAME);
+      final int status = c.getColumnIndex(ToDoDB.KEY_STATUS);
       c.moveToFirst();
       do {
-        deleteTask(c.getString(name));
+        if (checked) {
+          if (c.getInt(status) > 0) {
+            deleteTask(c.getString(name));
+          }
+        } else {
+          deleteTask(c.getString(name));
+        }
       } while (c.moveToNext());
     }
     c.close();
