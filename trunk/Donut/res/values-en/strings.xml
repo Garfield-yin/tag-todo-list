@@ -20,6 +20,7 @@
 <string name="import_CSV_keep_looking">Keep looking...</string>
 <string name="import_CSV_success">Import succesful\n</string>
 <string name="menu_unindent">Unindent all the tasks</string>
+<string name="delete_checked">Delete all checked tasks</string>
 <string name="impossible_tag_deletion">You can\'t delete the last tag,\nbut you can rename it from the menu.\n</string>
 <string name="size_change">Checked tasks limit</string>
 <string name="backup_import">Import backup from SD</string>
