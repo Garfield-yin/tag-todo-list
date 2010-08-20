@@ -197,8 +197,11 @@ public final class WidgetChange extends BroadcastReceiver {
           }
           sTask = 0;
         }
-        if (sTaskCursor.getPosition()<0){
+        if (sTaskCursor.getPosition()<0 && sTaskCursor.getCount()>0){
           sTaskCursor.moveToFirst();
+        }
+        if (sTaskCursor.getCount()<1){
+          return;
         }
         rv.setTextViewText(R.id.widgetItem, sTaskCursor.getString(sTaskCursor
             .getColumnIndex(ToDoDB.KEY_NAME)));

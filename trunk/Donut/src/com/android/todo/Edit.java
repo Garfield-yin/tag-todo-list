@@ -162,36 +162,37 @@ public final class Edit extends Activity {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
 
       // now comes priority stuff
+
+      mPriorityText = creating ? this.getString(R.string.priority_default)
+          : this.getString(R.string.priority);
+      mPrioritySb = new SeekBar(this);
+      mPrioritySb.setVerticalScrollBarEnabled(true);
+      mPrioritySb.setMax(getSharedPreferences(ToDo.PREFS_NAME,
+          Context.MODE_PRIVATE).getInt(Config.PRIORITY_MAX, 100) + 1);
+      int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
+          .getPriority(Edit.sTask);
+      mPrioritySb.setPadding(0, 0, 0, 10);
+      mPrioritySb.setProgress(priority);
+      final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
+      mPrioritySb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+        public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+          t.setText(mPriorityText + arg1);
+        }
+
+        public void onStartTrackingTouch(SeekBar arg0) {
+          t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
+              + (int) (32 * dm.ydpi / 240));
+          mPriorityText = Edit.this.getString(R.string.priority);
+          t.show();
+        }
+
+        public void onStopTrackingTouch(SeekBar arg0) {
+          t.show();
+        }
+
+      });
       if (!sPref.getBoolean(Config.PRIORITY_DISABLE, false)) {
-        mPriorityText = creating ? this.getString(R.string.priority_default)
-            : this.getString(R.string.priority);
-        mPrioritySb = new SeekBar(this);
-        mPrioritySb.setVerticalScrollBarEnabled(true);
-        mPrioritySb.setMax(getSharedPreferences(ToDo.PREFS_NAME,
-            Context.MODE_PRIVATE).getInt(Config.PRIORITY_MAX, 100) + 1);
-        int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
-            .getPriority(Edit.sTask);
-        mPrioritySb.setPadding(0, 0, 0, 10);
-        mPrioritySb.setProgress(priority);
-        final Toast t = Toast.makeText(this, null, Toast.LENGTH_LONG);
-        mPrioritySb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-          public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-            t.setText(mPriorityText + arg1);
-          }
-
-          public void onStartTrackingTouch(SeekBar arg0) {
-            t.setGravity(Gravity.TOP, 0, mBodyText.getTop()
-                + (int) (32 * dm.ydpi / 240));
-            mPriorityText = Edit.this.getString(R.string.priority);
-            t.show();
-          }
-
-          public void onStopTrackingTouch(SeekBar arg0) {
-            t.show();
-          }
-
-        });
         ll.addView(mPrioritySb);
       }
 
