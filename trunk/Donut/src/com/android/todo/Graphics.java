@@ -46,8 +46,8 @@ public final class Graphics extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this,
-        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
+    TagToDoList.setTheme(this,
+        getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setContentView(R.layout.note);
 

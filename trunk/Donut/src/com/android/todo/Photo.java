@@ -34,8 +34,8 @@ public final class Photo extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this,
-        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
+    TagToDoList.setTheme(this,
+        getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setTitle(R.string.entry_photo_note);
     setContentView(R.layout.photo);
@@ -52,7 +52,7 @@ public final class Photo extends Activity {
         final Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         i.putExtra(MediaStore.EXTRA_OUTPUT, sUri);
         i.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-        startActivityForResult(i, ToDo.TASK_PHOTO_ID);
+        startActivityForResult(i, TagToDoList.TASK_PHOTO_ID);
       }
     });
     sDelButton = (Button) findViewById(R.id.photoDelButton);
@@ -87,7 +87,7 @@ public final class Photo extends Activity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == ToDo.TASK_PHOTO_ID) {
+    if (requestCode == TagToDoList.TASK_PHOTO_ID) {
       if (resultCode == RESULT_OK) {
         try {
           populateFields();

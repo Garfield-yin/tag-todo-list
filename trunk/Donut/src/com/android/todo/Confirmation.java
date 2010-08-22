@@ -32,7 +32,7 @@ public final class Confirmation extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this, ToDo.sPref);
+    TagToDoList.setTheme(this, TagToDoList.sPref);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.message);
     mMessage = (TextView) findViewById(R.id.messageText);
@@ -49,21 +49,21 @@ public final class Confirmation extends Activity {
 
     mFirstButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        if (mAction.equals(Integer.toString(ToDo.TAG_DELETE_ID))) {
+        if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
           sDbHelper.deleteTag(mTagName);
           setResult(RESULT_OK);
           finish();
-        } else if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
+        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
           startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(v
               .getContext().getString(R.string.url_help))));
-        } else if (mAction.equals(Integer.toString(ToDo.TAG_CLEAR_ID))) {
+        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
           sDbHelper.deleteEntries(mTagName, false);
           setResult(RESULT_OK);
           finish();
-        } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_BACKUP_ID))) {
-          ToDo.importBackupSD(getApplicationContext());
+        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
+          TagToDoList.importBackupSD(getApplicationContext());
           finish();
-        } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_CSV_ID))) {
+        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_CSV_ID))) {
           final File[] files = Utils.listFilesAsArray(new File("/sdcard"),
               new FilenameFilter() {
                 public boolean accept(File dir, String name) {
@@ -138,23 +138,23 @@ public final class Confirmation extends Activity {
    */
   private void populateFields() {
     if (mTagName != null) {
-      if (mAction.equals(Integer.toString(ToDo.TAG_DELETE_ID))) {
+      if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
         mMessage.setText(R.string.confirm_tag_deletion);
-      } else if (mAction.equals(Integer.toString(ToDo.TAG_CLEAR_ID))) {
+      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
         mMessage.setText(R.string.confirm_entry_clearing);
       }
       mFirstButton.setText(android.R.string.yes);
       mSecondButton.setText(android.R.string.no);
     } else {
-      if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
+      if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
         mMessage.setText(R.string.help_text);
         mFirstButton.setText(R.string.help_site);
         mSecondButton.setText(R.string.go_back);
-      } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_BACKUP_ID))) {
+      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
         mMessage.setText(R.string.confirm_backup_import);
         mFirstButton.setText(android.R.string.yes);
         mSecondButton.setText(android.R.string.no);
-      } else if (mAction.equals(Integer.toString(ToDo.TAG_IMPORT_CSV_ID))) {
+      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_CSV_ID))) {
         mMessage.setText(R.string.import_CSV_confirm);
         mFirstButton.setText(android.R.string.yes);
         mSecondButton.setText(android.R.string.no);
@@ -180,10 +180,10 @@ public final class Confirmation extends Activity {
     super.onResume();
     mAction = getIntent().getAction();
     sDbHelper = ToDoDB.getInstance(getApplicationContext());
-    if (mAction.equals(Integer.toString(ToDo.TAG_HELP_ID))) {
+    if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.standardButtonLayout);
       if (ll.getChildCount() < 3) {
-        if (ToDo.sPref.getBoolean(Config.AD_DISABLED, false)) {
+        if (TagToDoList.sPref.getBoolean(Config.AD_DISABLED, false)) {
           final ImageButton ib = new ImageButton(this);
           ib.setImageResource(R.drawable.paypal);
           ib.setOnClickListener(new OnClickListener() {

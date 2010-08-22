@@ -85,8 +85,8 @@ public final class Edit extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    sPref = getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE);
-    ToDo.setTheme(this, sPref);
+    sPref = getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
+    TagToDoList.setTheme(this, sPref);
     super.onCreate(savedInstanceState);
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
     setContentView(R.layout.edit);
@@ -156,9 +156,9 @@ public final class Edit extends Activity {
 
     final String action = getIntent().getAction();
     final boolean creating = action.equals(Integer
-        .toString(ToDo.ACTIVITY_CREATE_ENTRY));
+        .toString(TagToDoList.ACTIVITY_CREATE_ENTRY));
 
-    if (creating || action.equals(Integer.toString(ToDo.ACTIVITY_EDIT_ENTRY))) {
+    if (creating || action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
       final LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
 
       // now comes priority stuff
@@ -167,7 +167,7 @@ public final class Edit extends Activity {
           : this.getString(R.string.priority);
       mPrioritySb = new SeekBar(this);
       mPrioritySb.setVerticalScrollBarEnabled(true);
-      mPrioritySb.setMax(getSharedPreferences(ToDo.PREFS_NAME,
+      mPrioritySb.setMax(getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE).getInt(Config.PRIORITY_MAX, 100) + 1);
       int priority = creating ? mPrioritySb.getMax() / 2 : mDbHelper
           .getPriority(Edit.sTask);
@@ -341,7 +341,7 @@ public final class Edit extends Activity {
     mConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         final String newName = ToDoDB.sanitize(mBodyText.getText().toString());
-        if (action.equals(Integer.toString(ToDo.TAG_CREATE_ID))) {
+        if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
           if (!(mDbHelper.createTag(newName))) {
             showMessage(v.getContext().getString(R.string.tag_existent));
             return;
@@ -349,9 +349,9 @@ public final class Edit extends Activity {
             Edit.this.setResult(RESULT_OK,
                 new Intent().putExtra(ToDoDB.KEY_NAME, newName));
           }
-        } else if (action.equals(Integer.toString(ToDo.TAG_EDIT_ID))) {
+        } else if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
           mDbHelper.updateTag(sTask, newName);
-        } else if (action.equals(Integer.toString(ToDo.ACTIVITY_CREATE_ENTRY))) {
+        } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
           final String result = mDbHelper.createTask(sTask, newName);
           if (sSuperTask != null && sSuperTask.length() > 0) {
             try {
@@ -366,11 +366,11 @@ public final class Edit extends Activity {
             return;
           }
           updateTask(newName);
-        } else if (action.equals(Integer.toString(ToDo.ACTIVITY_EDIT_ENTRY))) {
+        } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
           mDbHelper.deleteAlarm(sTask);
           mDbHelper.updateTask(sTask, newName);
           updateTask(newName);
-        } else if (action.equals(Integer.toString(ToDo.TASK_WRITTEN_ID))) {
+        } else if (action.equals(Integer.toString(TagToDoList.TASK_WRITTEN_ID))) {
           mDbHelper.setWrittenNote(sTask, newName);
         }
         finish();
@@ -595,26 +595,26 @@ public final class Edit extends Activity {
   private void populateFields() {
     final String action = getIntent().getAction();
     if (sTask != null) {
-      if (action.equals(Integer.toString(ToDo.TAG_EDIT_ID))) {
+      if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
         mTaskText.setText(R.string.edit_tag);
         mBodyText.setText(sTask);
         mBodyText.setSelection(sTask.length(), sTask.length());
-      } else if (action.equals(Integer.toString(ToDo.ACTIVITY_CREATE_ENTRY))) {
+      } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
         mTaskText.setText(R.string.entry_create);
-      } else if (action.equals(Integer.toString(ToDo.ACTIVITY_EDIT_ENTRY))) {
+      } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
         mTaskText.setText(R.string.edit_entry);
         mBodyText.setText(sTask);
         mBodyText.setSelection(sTask.length(), sTask.length());
-      } else if (action.equals(Integer.toString(ToDo.TASK_WRITTEN_ID))) {
+      } else if (action.equals(Integer.toString(TagToDoList.TASK_WRITTEN_ID))) {
         mTaskText.setText(R.string.edit_written_note);
         mBodyText.setText(mDbHelper.getWrittenNote(sTask));
       }
     } else {
-      if (action.equals(Integer.toString(ToDo.TAG_CREATE_ID))) {
+      if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
         mTaskText.setText(R.string.create_tag);
       }
     }
-    if (ToDo.sTts != null) {
+    if (TagToDoList.sTts != null) {
       new OneTimeTTS(this, mTaskText.getText().toString());
     }
   }
@@ -677,8 +677,8 @@ public final class Edit extends Activity {
    *          The name of the task
    */
   private final void syncToWeb(final String name) {
-    if (ToDo.SYNC_GCAL) {
-      final SharedPreferences pref = getSharedPreferences(ToDo.PREFS_NAME,
+    if (TagToDoList.SYNC_GCAL) {
+      final SharedPreferences pref = getSharedPreferences(TagToDoList.PREFS_NAME,
           Context.MODE_PRIVATE);
       GoogleCalendar.setLogin(pref.getString(Config.GOOGLE_USERNAME, ""),
           pref.getString(Config.GOOGLE_PASSWORD, ""));
