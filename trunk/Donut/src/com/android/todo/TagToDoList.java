@@ -65,7 +65,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
  * This is the main activity. It shows the main UI elements, including the ToDo
  * list entries.
  */
-public class ToDo extends Activity {
+public class TagToDoList extends Activity {
   // Activities: (keeping these as activities so as not to confuse with some of
   // the ones below)
   public static final int ACTIVITY_CREATE_ENTRY = 5;
@@ -162,7 +162,7 @@ public class ToDo extends Activity {
   public void onCreate(Bundle icicle) {
     sPref = getSharedPreferences(PREFS_NAME, 0);
     sEditor = sPref.edit();
-    ToDo.setTheme(this, sPref);
+    TagToDoList.setTheme(this, sPref);
     super.onCreate(icicle);
     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
         .cancel(2);
@@ -219,16 +219,16 @@ public class ToDo extends Activity {
     mStatButton.setBackgroundColor(Color.TRANSPARENT);
     mStatButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
-        final Dialog d = new Dialog(ToDo.this);
+        final Dialog d = new Dialog(TagToDoList.this);
 
-        TableLayout tl = new TableLayout(ToDo.this);
-        TableRow tr1 = new TableRow(ToDo.this);
-        TableRow tr2 = new TableRow(ToDo.this);
-        TableRow tr3 = new TableRow(ToDo.this);
-        TextView tvCount1 = new TextView(ToDo.this);
-        TextView tvExplanation1 = new TextView(ToDo.this);
-        TextView tvCount2 = new TextView(ToDo.this);
-        TextView tvExplanation2 = new TextView(ToDo.this);
+        TableLayout tl = new TableLayout(TagToDoList.this);
+        TableRow tr1 = new TableRow(TagToDoList.this);
+        TableRow tr2 = new TableRow(TagToDoList.this);
+        TableRow tr3 = new TableRow(TagToDoList.this);
+        TextView tvCount1 = new TextView(TagToDoList.this);
+        TextView tvExplanation1 = new TextView(TagToDoList.this);
+        TextView tvCount2 = new TextView(TagToDoList.this);
+        TextView tvExplanation2 = new TextView(TagToDoList.this);
 
         /* First row */
         tvCount1.setTextColor(Color.WHITE);
@@ -270,7 +270,7 @@ public class ToDo extends Activity {
         tl.addView(tr2);
         /* Second row */
 
-        final Button b = new Button(ToDo.this);
+        final Button b = new Button(TagToDoList.this);
         b.setText(R.string.go_back);
         b.setOnClickListener(new View.OnClickListener() {
           public void onClick(View view) {
@@ -709,7 +709,7 @@ public class ToDo extends Activity {
    */
   private void removeTag() {
     if (mTagSpinner.getCount() == 1) {
-      Utils.showDialog(-1, R.string.impossible_tag_deletion, ToDo.this);
+      Utils.showDialog(-1, R.string.impossible_tag_deletion, TagToDoList.this);
       return;
     }
     Intent i = new Intent(this, Confirmation.class);
@@ -1390,7 +1390,7 @@ public class ToDo extends Activity {
           sb.append(dueEntries.getString(name));
           sb.append("\n");
         } while (dueEntries.moveToNext());
-        Utils.showDueTasksNotification(sb.toString(), ToDo.this);
+        Utils.showDueTasksNotification(sb.toString(), TagToDoList.this);
       }
       dueEntries.close();
       return true;

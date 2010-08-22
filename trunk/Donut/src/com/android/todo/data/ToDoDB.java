@@ -17,7 +17,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.android.todo.R;
-import com.android.todo.ToDo;
+import com.android.todo.TagToDoList;
 import com.android.todo.Utils;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
@@ -756,7 +756,7 @@ public final class ToDoDB extends ADB {
       final Cursor checkedC = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
           KEY_STATUS }, KEY_STATUS + " = 1", null, null, null, null);
       final SharedPreferences settings = mCtx.getSharedPreferences(
-          ToDo.PREFS_NAME, 0);
+          TagToDoList.PREFS_NAME, 0);
       int limit = settings.getInt("listSizeLimit", 50);
       if (checkedC.getCount() >= limit) {
         int counter = checkedC.getCount();

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.todo.Edit;
-import com.android.todo.ToDo;
+import com.android.todo.TagToDoList;
 import com.android.todo.data.ToDoDB;
 
 public final class GlobalSearchHandler extends Activity {
@@ -16,7 +16,7 @@ public final class GlobalSearchHandler extends Activity {
 
     startActivity(new Intent(this, Edit.class)
         .putExtra(Edit.EXTERNAL_INVOKER, true)
-        .setAction(ToDo.ACTIVITY_EDIT_ENTRY + "")
+        .setAction(TagToDoList.ACTIVITY_EDIT_ENTRY + "")
         .putExtra(ToDoDB.KEY_NAME, getIntent().getData().getLastPathSegment())
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     finish();

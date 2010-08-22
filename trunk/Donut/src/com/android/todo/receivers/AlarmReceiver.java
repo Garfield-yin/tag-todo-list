@@ -15,7 +15,7 @@ import android.net.Uri;
 
 import com.android.todo.Config;
 import com.android.todo.R;
-import com.android.todo.ToDo;
+import com.android.todo.TagToDoList;
 import com.android.todo.Utils;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Apollo;
@@ -57,7 +57,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final Notification notification = new Notification(R.drawable.small_icon,
         task, System.currentTimeMillis());
     final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
-        new Intent(c, ToDo.class), Intent.FLAG_ACTIVITY_NEW_TASK);
+        new Intent(c, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
     notification.setLatestEventInfo(c, c.getString(R.string.alarm), task,
         contentIntent);
     notification.flags = Notification.FLAG_AUTO_CANCEL;
@@ -70,7 +70,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final int ringerMode = ((AudioManager) c
         .getSystemService(Context.AUDIO_SERVICE)).getRingerMode();
     final SharedPreferences settings = c.getSharedPreferences(
-        ToDo.PREFS_NAME, Context.MODE_PRIVATE);
+        TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
     if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
       final boolean b = settings.getBoolean(Config.CUSTOM_ALARM, false);
       if (b) {

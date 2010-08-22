@@ -46,8 +46,8 @@ public final class Audio extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    ToDo.setTheme(this,
-        getSharedPreferences(ToDo.PREFS_NAME, Context.MODE_PRIVATE));
+    TagToDoList.setTheme(this,
+        getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE));
     super.onCreate(savedInstanceState);
     setTitle(R.string.audio_note_title);
     setContentView(R.layout.audio);
