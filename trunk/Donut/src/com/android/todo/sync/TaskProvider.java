@@ -60,7 +60,7 @@ public class TaskProvider extends ContentProvider {
         if (c.getCount() > 0) {
           final int idIndex = c.getColumnIndex(ToDoDB.KEY_ROWID);
           final int nameIndex = c.getColumnIndex(ToDoDB.KEY_NAME);
-          final int tagIndex = c.getColumnIndex(ToDoDB.KEY_PARENT);
+          final int tagIndex = c.getColumnIndex(ToDoDB.KEY_TAG);
           c.moveToFirst();
           do {
             final String task = c.getString(nameIndex);

@@ -49,7 +49,11 @@ public abstract class ADB {
   /**
    * The parent of a task (tag)
    */
-  public static final String KEY_PARENT = "parent";
+  public static final String KEY_TAG = "parent";
+
+  /**
+   * The supertask of a task
+   */
   public static final String KEY_SUPERTASK = "supertask";
 
   /**
@@ -153,8 +157,7 @@ public abstract class ADB {
    */
   public Cursor getUncheckedEntries() {
     return mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS }, KEY_STATUS + "=0", null, null, null,
-        null);
+        KEY_STATUS }, KEY_STATUS + "=0", null, null, null, null);
   }
 
   /**
