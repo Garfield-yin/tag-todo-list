@@ -18,6 +18,7 @@ public final class CSV {
   public static final String PATH = "/sdcard/Tag-ToDo_data/csv/";
 
   /**
+   * Imports tasks from a CSV over the existing to-do list.
    * 
    * @param f
    * @return
@@ -62,6 +63,7 @@ public final class CSV {
   }
 
   /**
+   * Exports current to-do list as CSV.
    * 
    * @param f
    * @param dbHelper
@@ -77,7 +79,7 @@ public final class CSV {
         c.moveToFirst();
         final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
         final int status = c.getColumnIndex(ToDoDB.KEY_STATUS);
-        final int parent = c.getColumnIndex(ToDoDB.KEY_PARENT);
+        final int parent = c.getColumnIndex(ToDoDB.KEY_TAG);
         writer.writeNext(new String[] { "TASK", "CHECKED", "TAG" });
         do {
           try{

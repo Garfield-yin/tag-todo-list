@@ -519,12 +519,12 @@ public class TagToDoList extends Activity {
               .findViewById(R.id.taskCollapseButton);
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_SUBTASKS) > 0) {
             ib.setTag(Boolean.valueOf(collapsed = sDbHelper.getIntFlag(
-                taskName, ToDoDB.KEY_COLLAPSED) != 0));
+                taskName, ToDoDB.KEY_IS_COLLAPSED) != 0));
             ib.setImageResource(collapsed ? android.R.drawable.ic_menu_add
                 : android.R.drawable.ic_menu_close_clear_cancel);
             ib.setOnClickListener(new OnClickListener() {
               public void onClick(View v) {
-                sDbHelper.setFlag(taskName, ToDoDB.KEY_COLLAPSED,
+                sDbHelper.setFlag(taskName, ToDoDB.KEY_IS_COLLAPSED,
                     (Boolean) ib.getTag() ? 0 : 1);
                 selectTag(mTagSpinner.getSelectedItemPosition());
               }
