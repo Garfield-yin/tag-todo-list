@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
@@ -79,10 +78,9 @@ public final class Photo extends Activity {
    * @throws FileNotFoundException
    */
   private final void populateFields() throws FileNotFoundException {
-    final DisplayMetrics dm = new DisplayMetrics();
-    getWindowManager().getDefaultDisplay().getMetrics(dm);
-    sWebView.loadData("<meta name='viewport' content='width=" + dm.widthPixels/2
-        + "' /><img src='" + sUri.toString() + "'/>", "text/html", "UTF-8");
+    sWebView.loadData(
+        "<meta name='viewport' content='initial-scale=2.0' /><img src='"
+            + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 
   @Override

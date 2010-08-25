@@ -57,6 +57,7 @@ import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.speech.TTS;
+import com.android.todo.sync.CSV;
 import com.android.todo.sync.GoogleCalendar;
 import com.android.todo.widget.TagToDoWidget;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -95,6 +96,7 @@ public class TagToDoList extends Activity {
   public static final int TAG_IMPORT_BACKUP_ID = 21;
   public static final int TAG_IMPORT_CSV_ID = 22;
   public static final int TAG_CLEAR_CHECKED_ID = 23;
+  public static final int TAG_EXPORT_CSV_ID = 24;
 
   public static final String PREFS_NAME = "TagToDoListPrefs";
   private static final String PRIORITY_SORT = "prioritySorting";
@@ -628,17 +630,6 @@ public class TagToDoList extends Activity {
    */
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    return applyMenuChoice(item) || super.onOptionsItemSelected(item);
-  }
-
-  /**
-   * Chooses the right action depending on what menu item has been clicked.
-   * 
-   * @param item
-   *          The menu item which has been clicked
-   * @return
-   */
-  private final boolean applyMenuChoice(MenuItem item) {
     Intent i;
     switch (item.getItemId()) {
       case TAG_CREATE_ID:
@@ -684,6 +675,22 @@ public class TagToDoList extends Activity {
         i = new Intent(this, Confirmation.class);
         i.setAction(Integer.toString(TAG_IMPORT_CSV_ID));
         startActivity(i);
+        break;
+      case TAG_EXPORT_CSV_ID:
+        final Calendar cal = Calendar.getInstance();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("tag-todo-");
+        sb.append(cal.get(Calendar.YEAR));
+        sb.append('-');
+        sb.append(cal.get(Calendar.MONTH) + 1);
+        sb.append('-');
+        sb.append(cal.get(Calendar.DAY_OF_MONTH));
+        sb.append(".csv");
+        Toast.makeText(
+            this,
+            getString(
+                CSV.exportCSV(new File(CSV.PATH, sb.toString()), sDbHelper))
+                .concat(" ".concat(sb.toString())), Toast.LENGTH_LONG).show();
         break;
       case TAG_IMPORT_BACKUP_ID:
         i = new Intent(this, Confirmation.class);
@@ -776,6 +783,7 @@ public class TagToDoList extends Activity {
     sb.add(0, TAG_CLEAR_ID, 0, R.string.menu_clear);
     sb.add(0, TAG_CLEAR_CHECKED_ID, 0, R.string.delete_checked);
     sb.add(0, TAG_IMPORT_CSV_ID, 0, R.string.import_CSV);
+    sb.add(0, TAG_EXPORT_CSV_ID, 0, R.string.export_CSV);
     sb.add(0, TAG_IMPORT_BACKUP_ID, 0, R.string.backup_import);
     sb.add(0, TAG_EDIT_ID, 0, R.string.menu_edit_tag);
     sb.add(0, TAG_UNINDENT_ID, 0, R.string.menu_unindent);
