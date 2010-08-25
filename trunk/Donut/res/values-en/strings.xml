@@ -11,6 +11,9 @@
 <string name="menu_new_entry">Add a new task</string>
 <string name="menu_instructions">Instructions</string>
 <string name="menu_clear">Delete all the tasks</string>
+<string name="export_CSV">Export CSV file (beta)</string>
+<string name="export_CSV_success">The following file has been created:</string>
+<string name="export_CSV_impossible">Are you sure there\'s an SD card in the phone? Could not create </string><!-- followed by the file name -->
 <string name="import_CSV">Import CSV file (beta)</string>
 <string name="import_CSV_confirm">Are you sure you want to import tasks from a CSV file? Your current tasks won\'t be deleted and the app will try to merge the tasks and tags in an intuitive way.\n\nHowever, the CSV structure should start with: task name, task completion and tag/category. If you\'re not sure your file matches this, you can try to import anyway, the app will tell you.</string>
 <string name="import_CSV_impossible">A CSV file hasn\'t been found, or the SD card isn\'t in the phone.</string>
