@@ -33,6 +33,13 @@ import com.android.todo.sync.GoogleCalendar;
  * This activity represents a configuration screen
  */
 public final class Config extends Activity {
+  /**
+   * For every reference key listed below, an analytics event will be recorded
+   * (except the ones which imply private issues or the ones which are really
+   * unimportant)
+   * 
+   * @see {@link com.android.todo.TagToDoList#onDestroy()} for Analytics
+   */
   public static final String SELECTED_TAB = "selectedTab";
   public static final String CUSTOM_ALARM = "customAlarm";
   public static final String ALARM_URI = "alarmUri";
@@ -129,8 +136,10 @@ public final class Config extends Activity {
 
     sConfirmButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        TagToDoList.sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText().toString());
-        TagToDoList.sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText().toString());
+        TagToDoList.sEditor.putString(GOOGLE_USERNAME, sUserEdit.getText()
+            .toString());
+        TagToDoList.sEditor.putString(GOOGLE_PASSWORD, sPassEdit.getText()
+            .toString());
         TagToDoList.sEditor.commit();
 
         GoogleCalendar.setLogin(sUserEdit.getText().toString(), sPassEdit
@@ -228,7 +237,7 @@ public final class Config extends Activity {
             R.string.size_change, R.string.checked_tasks_limit_description);
 
         // setting minimum and maximum priority for tasks
-        Utils.addSeekBar(ll, TagToDoList.sPref, PRIORITY_MAX, 100, 101,
+        Utils.addSeekBar(ll, TagToDoList.sPref, PRIORITY_MAX, 100, 100,
             R.string.config_3_priority, R.string.max_priority_description);
 
         // backup on the SD card every time app closes
@@ -237,7 +246,8 @@ public final class Config extends Activity {
         cb.setText(R.string.config_15_priority_disable);
         cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-            TagToDoList.sEditor.putBoolean(PRIORITY_DISABLE, isChecked).commit();
+            TagToDoList.sEditor.putBoolean(PRIORITY_DISABLE, isChecked)
+                .commit();
           }
         });
         ll.addView(cb);

@@ -853,10 +853,51 @@ public class TagToDoList extends Activity {
             .toString(VERSION.SDK_INT)));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
             Analytics.SPACE_STATE, mTagSpinner.getCount());
-        Analytics.sTracker.trackPageView("config/ad/".concat(Boolean
-            .toString(sPref.getBoolean(Config.AD_DISABLED, false))));
-        Analytics.sTracker.trackPageView("config/visually-challenged/"
-            .concat(Boolean.toString(sTts != null)));
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.AD_DISABLED, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.AD_DISABLED, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.ALARM_VIBRATION, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.AD_DISABLED, true) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.BACKUP_SDCARD, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.BACKUP_SDCARD, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.BLIND_MODE, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.BLIND_MODE, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.CHECKED_LIMIT, Analytics.SPACE_STATE,
+            sPref.getInt(Config.AD_DISABLED, 100));
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.CUSTOM_ALARM, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.CUSTOM_ALARM, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.FULLSCREEN, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.FULLSCREEN, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.GOOGLE_CALENDAR, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.GOOGLE_CALENDAR, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.NOTE_PREVIEW, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.NOTE_PREVIEW, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.PRIORITY_DISABLE, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.PRIORITY_DISABLE, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.PRIORITY_MAX, Analytics.SPACE_STATE,
+            sPref.getInt(Config.PRIORITY_MAX, 100));
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.SHOW_COLLAPSE, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.SHOW_COLLAPSE, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.SHOW_DUE_TIME, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.SHOW_DUE_TIME, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.TEXT_SIZE, Analytics.SPACE_STATE,
+            sPref.getInt(Config.TEXT_SIZE, 16));
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.VISUAL_PRIORITY, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.VISUAL_PRIORITY, false) ? 1 : 0);
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
