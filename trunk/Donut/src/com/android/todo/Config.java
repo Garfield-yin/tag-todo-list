@@ -61,6 +61,7 @@ public final class Config extends Activity {
   public static final String AD_DISABLED = "adDisabled";
   public static final String TEXT_SIZE = "textSize";
   public static final String PRIORITY_DISABLE = "priorityDisabled";
+  public static final String TASK_PADDING = "taskPadding";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -237,6 +238,10 @@ public final class Config extends Activity {
             R.string.size_change, R.string.checked_tasks_limit_description);
 
         // setting minimum and maximum priority for tasks
+        if (TagToDoList.sPref.getInt(PRIORITY_MAX, 100) == 101) {
+          // this IF clause is to be deleted soon
+          TagToDoList.sEditor.putInt(PRIORITY_MAX, 100);
+        }
         Utils.addSeekBar(ll, TagToDoList.sPref, PRIORITY_MAX, 100, 100,
             R.string.config_3_priority, R.string.max_priority_description);
 
@@ -269,6 +274,10 @@ public final class Config extends Activity {
         // setting the checked tasks limit
         Utils.addSeekBar(ll, TagToDoList.sPref, TEXT_SIZE, 16, 30,
             R.string.config_14_text_size, R.string.text_size_description);
+
+        // setting the task padding
+        Utils.addSeekBar(ll, TagToDoList.sPref, TASK_PADDING, 12, 40,
+            R.string.config_16_task_padding, R.string.task_padding_description);
 
         // show collapse buttons (for subtasks)
         cb = new CheckBox(this);

@@ -380,10 +380,10 @@ public class TagToDoList extends Activity {
     };
 
     final ToDoDB dbHelper = sDbHelper;
-    final int textSize = sPref.getInt(Config.TEXT_SIZE, 16);
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
-        ccl, textSize, selectedTag, 0, null)));
+        ccl, sPref.getInt(Config.TEXT_SIZE, 16),
+        sPref.getInt(Config.TASK_PADDING, 12) - 12, selectedTag, 0, null)));
   }
 
   /**
@@ -401,6 +401,10 @@ public class TagToDoList extends Activity {
    *          A local reference to mCollapseLayout
    * @param ccl
    *          Things to happen when a task is checked
+   * @param textSize
+   *          Font size
+   * @param taskPadding
+   *          Task padding
    * @param selectedTag
    *          Index of the selected tag
    * @param depth
@@ -412,7 +416,8 @@ public class TagToDoList extends Activity {
   public final int processDepth(final ToDoDB dbHelper,
       final LayoutInflater inflater, final LinearLayout el,
       final OnCheckedChangeListener ccl, final int textSize,
-      final int selectedTag, final int depth, final String superTask) {
+      final int taskPadding, final int selectedTag, final int depth,
+      final String superTask) {
     final Cursor c = sDbHelper.getTasks(selectedTag != -1 ? mTagsArrayAdapter
         .getItem(selectedTag).toString() : null, depth, superTask);
 
@@ -436,6 +441,7 @@ public class TagToDoList extends Activity {
       do {
         final LinearLayout ll = new LinearLayout(this);
         inflater.inflate(R.layout.task, ll);
+        ll.setPadding(0, 0, 0, taskPadding);
         final CheckBox cb = (CheckBox) ll.findViewById(R.id.taskCheckBox);
         final String taskName = c.getString(name);
         cb.setText(taskName);
@@ -591,7 +597,7 @@ public class TagToDoList extends Activity {
 
         if (c.getInt(subtasks) > 0 && !collapsed) {
           numberOfUnchecked += processDepth(dbHelper, inflater, el, ccl,
-              textSize, selectedTag, depth + 1, c.getString(name));
+              textSize, taskPadding, selectedTag, depth + 1, c.getString(name));
         }
       } while (c.moveToPrevious());
     }
@@ -892,6 +898,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.SHOW_DUE_TIME, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.SHOW_DUE_TIME, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.TASK_PADDING, Analytics.SPACE_STATE,
+            sPref.getInt(Config.TASK_PADDING, 12));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.TEXT_SIZE, Analytics.SPACE_STATE,
             sPref.getInt(Config.TEXT_SIZE, 16));
