@@ -907,6 +907,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.VISUAL_PRIORITY, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.VISUAL_PRIORITY, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.ALARM_DURATION, Analytics.SPACE_STATE,
+            sPref.getInt(Config.ALARM_DURATION, 20));
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
@@ -1231,6 +1234,7 @@ public class TagToDoList extends Activity {
    * implementations of this method in other classes(Activities) as well, where
    * not conflicting with input methods.
    */
+  @Override
   public boolean dispatchKeyEvent(KeyEvent msg) {
     if (msg.getAction() != KeyEvent.ACTION_DOWN) {
       return false;

@@ -1,5 +1,8 @@
 package com.android.todo.olympus;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -10,7 +13,8 @@ import android.net.Uri;
 public final class Apollo {
   private static MediaPlayer sPlayer;
   private static int sCounter;
-  
+  private static Timer sAudioTimer = null;
+
   /**
    * Plays the audio file at the given URI for several times.
    * 
@@ -46,8 +50,11 @@ public final class Apollo {
    * 
    * @param c
    * @param uri
+   * @param seconds
+   *          Maximum play time
    */
-  public final static void play(final Context c, final Uri uri) {
+  public final static void play(final Context c, final Uri uri,
+      final int seconds) {
     sPlayer = new MediaPlayer();
     try {
       sPlayer.setDataSource(c, uri);
@@ -57,7 +64,20 @@ public final class Apollo {
       // user already has a notification onscreen
       return;
     }
-    sPlayer.start();
+    if (seconds > 0) {
+      sPlayer.start();
+      if (sAudioTimer != null) {
+        sAudioTimer.cancel();
+      }
+      (sAudioTimer = new Timer()).schedule(new TimerTask() {
+        public void run() {
+          try {
+            sPlayer.stop();
+          } catch (Exception e) {
+          }
+        }
+      }, seconds * 1000);
+    }
   }
 
 }
