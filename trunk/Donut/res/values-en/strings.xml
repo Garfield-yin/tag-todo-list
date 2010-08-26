@@ -136,7 +136,8 @@
 <string name="checked_tasks_limit_description">This limit prevents the app from keeping more than so many checked tasks. When the limit is reached, the app automatically deletes the oldest checked tasks.</string>
 <string name="max_priority_description">Some people prefer to fine tune task priority, some prefer a simpler system with fewer levels (e.g. 5).</string>
 <string name="text_size_description">The task font size will be this big.</string>
-<string name="task_padding_description">This is the so called padding of the task.</string>
+<string name="task_padding_description">This is the so called padding of the task. Very small values for this might make some descriptive texts under tasks look cropped.</string>
+<string name="alarm_duration_description">How many seconds before this audio alarm should shut up?</string>
 <string name="config_1_gcal">(experimental) Synchronize tasks with due dates to Google Calendar</string>
 <string name="config_2_backup">Backup todo list on SD card every time the app closes</string>
 <string name="config_3_priority">Maximum priority for tasks</string>
@@ -154,6 +155,7 @@
 <string name="config_14_text_size">Task size</string>
 <string name="config_15_priority_disable">I\'m not using priority. Remove the priority bar in the edit screen.</string>
 <string name="config_16_task_padding">Distance between tasks</string>
+<string name="config_17_alarm_duration">Alarm duration</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

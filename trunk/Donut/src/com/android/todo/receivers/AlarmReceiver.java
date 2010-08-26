@@ -77,7 +77,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
         final String uriString = settings.getString(Config.ALARM_URI,
             null);
         if (uriString != null) {
-          Apollo.play(c, Uri.parse(uriString));
+          Apollo.play(c, Uri.parse(uriString), settings.getInt(Config.ALARM_DURATION, 20));
         } else {
           Apollo.play(28, c, (Uri) intent.getParcelableExtra(RINGTONE));
         }

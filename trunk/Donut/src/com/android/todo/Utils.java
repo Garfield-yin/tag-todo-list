@@ -51,7 +51,7 @@ public final class Utils {
    * @param titleStringId
    * @param descriptionStringId
    */
-  public final static void addSeekBar(final LinearLayout ll,
+  public final static LinearLayout addSeekBar(final LinearLayout ll,
       final SharedPreferences sp, final String key, final int defaultValue,
       final int maxValue, final int titleStringId, final int descriptionStringId) {
     final Context c = ll.getContext();
@@ -94,6 +94,7 @@ public final class Utils {
     localLayout.addView(localDescription);
     localLayout.setPadding(10, 5, 15, 5);
     ll.addView(localLayout);
+    return localLayout;
   }
 
   /**

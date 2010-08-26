@@ -62,6 +62,7 @@ public final class Config extends Activity {
   public static final String TEXT_SIZE = "textSize";
   public static final String PRIORITY_DISABLE = "priorityDisabled";
   public static final String TASK_PADDING = "taskPadding";
+  public static final String ALARM_DURATION = "alarmDuration";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -409,14 +410,20 @@ public final class Config extends Activity {
         cb.setChecked(b);
         sSongPicker.setVisibility(b ? View.VISIBLE : View.GONE);
         cb.setText(R.string.config_10_alarm);
+        ll.addView(cb);
+        ll.addView(sSongPicker);
+        // setting the alarm duration
+        final LinearLayout sb = Utils.addSeekBar(ll, TagToDoList.sPref,
+            ALARM_DURATION, 20, 120, R.string.config_17_alarm_duration,
+            R.string.alarm_duration_description);
+        sb.setVisibility(b ? View.VISIBLE : View.GONE);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
             TagToDoList.sEditor.putBoolean(CUSTOM_ALARM, isChecked).commit();
             sSongPicker.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            sb.setVisibility(isChecked ? View.VISIBLE : View.GONE);
           }
         });
-        ll.addView(cb);
-        ll.addView(sSongPicker);
 
         // vibrate during the alarm?
         cb = new CheckBox(this);
@@ -523,12 +530,35 @@ public final class Config extends Activity {
     }
   }
 
+  /**
+   * Gets the title of the alarm audio at the specified Uri.
+   * 
+   * @param uri
+   * @return
+   */
   private final String getAudioTitle(final Uri uri) {
     final ContentResolver cr = getContentResolver();
     final Cursor c = cr.query(uri,
         new String[] { MediaStore.Audio.AudioColumns.TITLE }, null, null, null);
     c.moveToFirst();
     return c.getString(c.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE));
+  }
+
+  /**
+   * This intercepts a keyboard action.
+   */
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent msg) {
+    if (msg.getAction() != KeyEvent.ACTION_DOWN) {
+      return false;
+    }
+    final int keyCode = msg.getKeyCode();
+    switch (keyCode) {
+      case KeyEvent.KEYCODE_BACK:
+        sCloseButton.performClick();
+        return true;
+    }
+    return false;
   }
 
   /**
