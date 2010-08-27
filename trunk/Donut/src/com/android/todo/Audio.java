@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,7 +32,7 @@ import com.android.todo.data.ToDoDB;
  */
 public final class Audio extends Activity {
 
-  public static final String PATH = "/sdcard/Tag-ToDo_data/audio/";
+  public static final String PATH = "/Tag-ToDo_data/audio/";
   private static final int MAX_RECORDING_DURATION = 50; // in seconds
   private static Button sAudioExitButton;
   private static Button sAudioRecordButton;
@@ -53,7 +54,7 @@ public final class Audio extends Activity {
     setContentView(R.layout.audio);
 
     // checking if the necessary folders exist on the sdcard
-    final File f = new File(PATH);
+    final File f = new File(Environment.getExternalStorageDirectory(),PATH);
     if (f.exists() == false) {
       try {
         f.mkdirs();

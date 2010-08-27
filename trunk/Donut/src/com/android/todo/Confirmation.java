@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -60,12 +61,14 @@ public final class Confirmation extends Activity {
           sDbHelper.deleteEntries(mTagName, false);
           setResult(RESULT_OK);
           finish();
-        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
+        } else if (mAction.equals(Integer
+            .toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
           TagToDoList.importBackupSD(getApplicationContext());
           finish();
-        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_CSV_ID))) {
-          final File[] files = Utils.listFilesAsArray(new File("/sdcard"),
-              new FilenameFilter() {
+        } else if (mAction.equals(Integer
+            .toString(TagToDoList.TAG_IMPORT_CSV_ID))) {
+          final File[] files = Utils.listFilesAsArray(
+              Environment.getExternalStorageDirectory(), new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                   return name.endsWith(".csv");
                 }
@@ -150,11 +153,13 @@ public final class Confirmation extends Activity {
         mMessage.setText(R.string.help_text);
         mFirstButton.setText(R.string.help_site);
         mSecondButton.setText(R.string.go_back);
-      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
+      } else if (mAction.equals(Integer
+          .toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
         mMessage.setText(R.string.confirm_backup_import);
         mFirstButton.setText(android.R.string.yes);
         mSecondButton.setText(android.R.string.no);
-      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_IMPORT_CSV_ID))) {
+      } else if (mAction
+          .equals(Integer.toString(TagToDoList.TAG_IMPORT_CSV_ID))) {
         mMessage.setText(R.string.import_CSV_confirm);
         mFirstButton.setText(android.R.string.yes);
         mSecondButton.setText(android.R.string.no);
