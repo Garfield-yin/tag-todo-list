@@ -17,6 +17,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -31,7 +32,7 @@ import com.android.todo.data.ToDoDB;
  * ToDo list entry
  */
 public final class Graphics extends Activity {
-  public final static String PATH = "/sdcard/Tag-ToDo_data/graphics/";
+  public final static String PATH = "/Tag-ToDo_data/graphics/";
 
   private Paint mPaint;
   private MyView mView;
@@ -52,7 +53,7 @@ public final class Graphics extends Activity {
     setContentView(R.layout.note);
 
     // checking if the necessary folders exist on the sdcard
-    final File f = new File(PATH);
+    final File f = new File(Environment.getExternalStorageDirectory(),PATH);
     if (f.exists() == false) {
       try {
         f.mkdirs();

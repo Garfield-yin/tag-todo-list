@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -132,7 +133,8 @@ public final class Utils {
     if (!newWay) {
       return "note_" + task.hashCode() + ".png";
     }
-    return Graphics.PATH + task.hashCode() + ".png";
+    return Environment.getExternalStorageDirectory().getPath() + Graphics.PATH
+        + task.hashCode() + ".png";
   }
 
   /**
@@ -144,7 +146,8 @@ public final class Utils {
    * @return the audio file name
    */
   public final static String getAudioName(final String task) {
-    return Audio.PATH + task.hashCode() + ".3gpp";
+    return Environment.getExternalStorageDirectory().getPath() + Audio.PATH
+        + task.hashCode() + ".3gpp";
   }
 
   /**

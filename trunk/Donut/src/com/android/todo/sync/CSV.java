@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 
 import android.database.Cursor;
+import android.os.Environment;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -15,7 +16,7 @@ import com.android.todo.data.ToDoDB;
  * Class that deals with CSV imports and exports.
  */
 public final class CSV {
-  public static final String PATH = "/sdcard/Tag-ToDo_data/csv/";
+  public static final String PATH = "/Tag-ToDo_data/csv/";
 
   /**
    * Imports tasks from a CSV over the existing to-do list.
@@ -71,7 +72,7 @@ public final class CSV {
    */
   public final static int exportCSV(final File f, final ToDoDB dbHelper) {
     try {
-      new File(CSV.PATH).mkdir();
+      new File(Environment.getExternalStorageDirectory(),CSV.PATH).mkdir();
       final FileWriter fw = new FileWriter(f);
       final CSVWriter writer = new CSVWriter(fw);
       final Cursor c = dbHelper.getTasks(null, -1, null);

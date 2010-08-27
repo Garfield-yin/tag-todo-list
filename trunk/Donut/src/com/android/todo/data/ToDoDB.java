@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
@@ -306,8 +307,8 @@ public final class ToDoDB extends ADB {
       // column
       if (oldVersion < 92 && newVersion >= 92) {
         try {
-          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD " + KEY_IS_COLLAPSED
-              + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD "
+              + KEY_IS_COLLAPSED + " INTEGER DEFAULT 0");
         } catch (Exception e) {
         }
       }
@@ -405,7 +406,8 @@ public final class ToDoDB extends ADB {
   public static final void createBackup() {
     try {
       // checking if the Tag-ToDo folder exists on the sdcard
-      final File f = new File("/sdcard/Tag-ToDo_data/");
+      final File f = new File(Environment.getExternalStorageDirectory(),
+          "/Tag-ToDo_data/");
       if (f.exists() == false) {
         try {
           f.mkdirs();
@@ -415,7 +417,7 @@ public final class ToDoDB extends ADB {
       }
 
       Utils.copy(new File("/data/data/com.android.todo/databases"), new File(
-          "/sdcard/Tag-ToDo_data/database_backup"));
+          Environment.getExternalStorageDirectory(),"/Tag-ToDo_data/database_backup"));
     } catch (Exception e) {
       Utils.showDialog(R.string.notification, R.string.backup_fail, mCtx);
     }

@@ -22,6 +22,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
@@ -832,7 +833,8 @@ public class TagToDoList extends Activity {
   public static final void importBackupSD(final Context c) {
     sDbHelper.close();
     try {
-      Utils.copy(new File("/sdcard/Tag-ToDo_data/database_backup"), new File(
+      Utils.copy(new File(Environment.getExternalStorageDirectory(),
+          "/Tag-ToDo_data/database_backup"), new File(
           "/data/data/com.android.todo/databases"));
     } catch (Exception e) {
       Utils.showDialog(R.string.notification, R.string.backup_import_fail,
