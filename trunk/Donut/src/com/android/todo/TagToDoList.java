@@ -163,7 +163,7 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
-    sPref = getSharedPreferences(PREFS_NAME, 0);
+    sPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     sEditor = sPref.edit();
     TagToDoList.setTheme(this, sPref);
     super.onCreate(icicle);
@@ -912,6 +912,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.ALARM_DURATION, Analytics.SPACE_STATE,
             sPref.getInt(Config.ALARM_DURATION, 20));
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.ALARM_SCREEN, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.ALARM_SCREEN, false) ? 1 : 0);
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }

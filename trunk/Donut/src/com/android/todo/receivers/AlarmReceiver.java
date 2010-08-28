@@ -13,12 +13,12 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
 
+import com.android.todo.Alarm;
 import com.android.todo.Config;
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
 import com.android.todo.Utils;
 import com.android.todo.data.ToDoDB;
-import com.android.todo.olympus.Apollo;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.olympus.Chronos.Time;
@@ -32,8 +32,7 @@ public final class AlarmReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context c, Intent intent) {
-    final NotificationManager manager = (NotificationManager) c
-        .getSystemService(Context.NOTIFICATION_SERVICE);
+
     final String task = intent.getStringExtra(ToDoDB.KEY_NAME);
 
     // checking if this alarm needs to be set again (e.g. monthly)
@@ -54,14 +53,6 @@ public final class AlarmReceiver extends BroadcastReceiver {
     }
     dbHelper.close();
 
-    final Notification notification = new Notification(R.drawable.small_icon,
-        task, System.currentTimeMillis());
-    final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
-        new Intent(c, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
-    notification.setLatestEventInfo(c, c.getString(R.string.alarm), task,
-        contentIntent);
-    notification.flags = Notification.FLAG_AUTO_CANCEL;
-
     /**
      * Makes the alarm sound separately. We only want it to ring a few times, so
      * that it doesn't drain the user's battery in case he doesn't have the
@@ -72,25 +63,29 @@ public final class AlarmReceiver extends BroadcastReceiver {
     final SharedPreferences settings = c.getSharedPreferences(
         TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
     if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-      final boolean b = settings.getBoolean(Config.CUSTOM_ALARM, false);
-      if (b) {
-        final String uriString = settings.getString(Config.ALARM_URI,
-            null);
-        if (uriString != null) {
-          Apollo.play(c, Uri.parse(uriString), settings.getInt(Config.ALARM_DURATION, 20));
-        } else {
-          Apollo.play(28, c, (Uri) intent.getParcelableExtra(RINGTONE));
-        }
-      } else {
-        Apollo.play(28, c, (Uri) intent.getParcelableExtra(RINGTONE));
+      Alarm.soundAlarm(c, settings, (Uri) intent.getParcelableExtra(RINGTONE));
+    }
+
+    if (settings.getBoolean(Config.ALARM_SCREEN, false)) {
+      c.startActivity(new Intent(c, Alarm.class).setFlags(
+          Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION)
+          .putExtra(ToDoDB.KEY_NAME, task));
+    } else {
+      final Notification notification = new Notification(R.drawable.small_icon,
+          task, System.currentTimeMillis());
+      final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
+          new Intent(c, TagToDoList.class), Intent.FLAG_ACTIVITY_NEW_TASK);
+      notification.setLatestEventInfo(c, c.getString(R.string.alarm), task,
+          contentIntent);
+      notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+      if (ringerMode != AudioManager.RINGER_MODE_SILENT
+          && settings.getBoolean(Config.ALARM_VIBRATION, true)) {
+        notification.vibrate = (long[]) intent.getExtras().get(VIBRATION);
       }
-    }
 
-    if (ringerMode != AudioManager.RINGER_MODE_SILENT
-        && settings.getBoolean(Config.ALARM_VIBRATION, true)) {
-      notification.vibrate = (long[]) intent.getExtras().get(VIBRATION);
+      ((NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE))
+          .notify(2, notification);
     }
-
-    manager.notify(2, notification);
   }
 }

@@ -156,6 +156,12 @@
 <string name="config_15_priority_disable">I\'m not using priority. Remove the priority bar in the edit screen.</string>
 <string name="config_16_task_padding">Distance between tasks</string>
 <string name="config_17_alarm_duration">Alarm duration</string>
+<string name="config_18_alarm_snooze">Instead of a message in the notification bar, show the alarm as a Snooze/Dismiss screen</string>
+
+<!-- Alarm screen -->
+<string name="alarm_dismiss">Dismiss</string>
+<string name="alarm_snooze">Snooze</string>
+<string name="alarm_last_message">This is the last alarm for this task!</string>
 
 <!-- Default content of the to-do list -->
 <string name="default_content_tag1">Personal</string>

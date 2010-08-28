@@ -63,6 +63,7 @@ public final class Config extends Activity {
   public static final String PRIORITY_DISABLE = "priorityDisabled";
   public static final String TASK_PADDING = "taskPadding";
   public static final String ALARM_DURATION = "alarmDuration";
+  public static final String ALARM_SCREEN = "alarmScreen";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -384,7 +385,7 @@ public final class Config extends Activity {
         });
         ll.addView(cb);
 
-        // change default alarm sound?
+        // change default alarm?
         cb = new CheckBox(this);
         sSongPicker = new Button(this);
         final String UriString = TagToDoList.sPref.getString(ALARM_URI, null);
@@ -395,11 +396,7 @@ public final class Config extends Activity {
         }
         sSongPicker.setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
-            // Intent intent = new Intent(Intent.ACTION_PICK);
-            // intent.setType("vnd.android.cursor.dir/track");
-            // ConfigScreen.this.startActivityForResult(intent,1);
-
-            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+            final Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
             Intent c = Intent.createChooser(i,
                 v.getContext().getString(R.string.config_10_alarm_pick));
@@ -412,11 +409,13 @@ public final class Config extends Activity {
         cb.setText(R.string.config_10_alarm);
         ll.addView(cb);
         ll.addView(sSongPicker);
+
         // setting the alarm duration
         final LinearLayout sb = Utils.addSeekBar(ll, TagToDoList.sPref,
             ALARM_DURATION, 20, 120, R.string.config_17_alarm_duration,
             R.string.alarm_duration_description);
         sb.setVisibility(b ? View.VISIBLE : View.GONE);
+
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
             TagToDoList.sEditor.putBoolean(CUSTOM_ALARM, isChecked).commit();
@@ -424,6 +423,17 @@ public final class Config extends Activity {
             sb.setVisibility(isChecked ? View.VISIBLE : View.GONE);
           }
         });
+
+        // alarm screen
+        cb = new CheckBox(this);
+        cb.setChecked(TagToDoList.sPref.getBoolean(ALARM_SCREEN, false));
+        cb.setText(R.string.config_18_alarm_snooze);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(ALARM_SCREEN, isChecked).commit();
+          }
+        });
+        ll.addView(cb);
 
         // vibrate during the alarm?
         cb = new CheckBox(this);
@@ -540,6 +550,9 @@ public final class Config extends Activity {
     final ContentResolver cr = getContentResolver();
     final Cursor c = cr.query(uri,
         new String[] { MediaStore.Audio.AudioColumns.TITLE }, null, null, null);
+    if (c.getCount() < 1) {
+      return c.getString(R.string.config_10_alarm_pick);
+    }
     c.moveToFirst();
     return c.getString(c.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE));
   }

@@ -73,10 +73,22 @@ public final class Apollo {
         public void run() {
           try {
             sPlayer.stop();
+            sPlayer.release();
           } catch (Exception e) {
           }
         }
       }, seconds * 1000);
+    }
+  }
+  
+  /**
+   * Shuts everything up
+   */
+  public final static void shutUp(){
+    try {
+      sPlayer.stop();
+      sPlayer.release();
+    } catch (Exception e) {
     }
   }
 
