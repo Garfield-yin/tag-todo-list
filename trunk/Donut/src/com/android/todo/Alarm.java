@@ -24,7 +24,7 @@ import com.android.todo.olympus.Apollo;
  * This is an Alarm screen (of the Snooze/Dismiss type).
  */
 public final class Alarm extends Activity {
-  private static long SNOOZE_TIME = 20000; // 5 minutes
+  private static long SNOOZE_TIME = 300000; // 5 minutes
   private String mTask;
   private Handler mHandler;
   private Runnable mRunnable;

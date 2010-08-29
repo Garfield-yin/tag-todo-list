@@ -700,8 +700,10 @@ public class TagToDoList extends Activity {
         Toast.makeText(
             this,
             getString(
-                CSV.exportCSV(new File(CSV.PATH, sb.toString()), sDbHelper))
-                .concat(" ".concat(sb.toString())), Toast.LENGTH_LONG).show();
+                CSV.exportCSV(
+                    new File(Environment.getExternalStorageDirectory(),
+                        CSV.PATH + sb.toString()), sDbHelper)).concat(
+                " ".concat(sb.toString())), Toast.LENGTH_LONG).show();
         break;
       case TAG_IMPORT_BACKUP_ID:
         i = new Intent(this, Confirmation.class);
