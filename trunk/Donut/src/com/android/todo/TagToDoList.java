@@ -881,7 +881,7 @@ public class TagToDoList extends Activity {
             sPref.getBoolean(Config.BLIND_MODE, false) ? 1 : 0);
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.CHECKED_LIMIT, Analytics.SPACE_STATE,
-            sPref.getInt(Config.AD_DISABLED, 100));
+            sPref.getBoolean(Config.AD_DISABLED, false) ? 1: 0);
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.CUSTOM_ALARM, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.CUSTOM_ALARM, false) ? 1 : 0);
