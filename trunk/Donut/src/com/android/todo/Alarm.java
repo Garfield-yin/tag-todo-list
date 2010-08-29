@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -89,10 +90,12 @@ public final class Alarm extends Activity {
     ll.addView(mSnoozeButton);
     setContentView(ll);
     unlockScreen();
+    wakeScreen();
 
     mRunnable = new Runnable() {
       public void run() {
         unlockScreen();
+        wakeScreen();
         switch (++mAlarmCount) {
           case 1:
             if (sPref == null) {
@@ -166,6 +169,21 @@ public final class Alarm extends Activity {
   private final void unlockScreen() {
     ((KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE))
         .newKeyguardLock(KEYGUARD_SERVICE).disableKeyguard();
+  }
+
+  /**
+   * Makes the screen bright
+   */
+  private final void wakeScreen() {
+    final PowerManager.WakeLock wl = ((PowerManager) getSystemService(Context.POWER_SERVICE))
+        .newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+            | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TagToDoWake");
+    wl.acquire();
+    new Handler().postDelayed(new Runnable() {
+      public void run() {
+        wl.release();
+      }
+    }, 20000);
   }
 
   @Override

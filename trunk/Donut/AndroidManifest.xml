@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.android.todo" android:versionName="4.2"
-	android:versionCode="62">
+	package="com.android.todo" android:versionName="4.2.4"
+	android:versionCode="66">
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
 		android:theme="@android:style/Theme.NoTitleBar">
 		<activity android:name=".TagToDoList" android:label="@string/app_name">
@@ -10,14 +10,13 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".Edit"
-			android:windowSoftInputMode="stateVisible|adjustPan">
+		<activity android:name=".Edit" android:windowSoftInputMode="stateVisible|adjustPan">
 		</activity>
 		<activity android:name=".Confirmation"></activity>
 		<activity android:name=".Photo"></activity>
 		<activity android:name=".Graphics"></activity>
 		<activity android:name=".Audio"></activity>
-		<activity android:name=".Alarm"></activity>
+		<activity android:name=".Alarm" android:screenOrientation="portrait"></activity>
 		<activity android:name=".NotificationActivity"></activity>
 		<activity android:name=".Config"></activity>
 		<uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
@@ -77,6 +76,7 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 	<uses-permission android:name="android.permission.DISABLE_KEYGUARD"></uses-permission>
+	<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 
 	<uses-sdk android:minSdkVersion="4"></uses-sdk>
 
