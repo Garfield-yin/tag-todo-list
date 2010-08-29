@@ -638,6 +638,10 @@ public class TagToDoList extends Activity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     Intent i;
+    if (Analytics.sTracker != null) {
+      Analytics.sTracker.trackPageView(Analytics.ACTION_PRESS + "/menu/"
+          + item.getItemId());
+    }
     switch (item.getItemId()) {
       case TAG_CREATE_ID:
         createTag();

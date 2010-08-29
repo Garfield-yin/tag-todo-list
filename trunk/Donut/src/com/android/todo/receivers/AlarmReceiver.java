@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Vibrator;
 
 import com.android.todo.Alarm;
 import com.android.todo.Config;
@@ -67,6 +68,11 @@ public final class AlarmReceiver extends BroadcastReceiver {
     }
 
     if (settings.getBoolean(Config.ALARM_SCREEN, false)) {
+      if (ringerMode != AudioManager.RINGER_MODE_SILENT
+          && settings.getBoolean(Config.ALARM_VIBRATION, true)) {
+        ((Vibrator) c.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(
+            new long[] { 500, 500, 500, 500, 500, 500, 500, 500, 500, 500 }, -1);
+      }
       c.startActivity(new Intent(c, Alarm.class).setFlags(
           Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION)
           .putExtra(ToDoDB.KEY_NAME, task));
