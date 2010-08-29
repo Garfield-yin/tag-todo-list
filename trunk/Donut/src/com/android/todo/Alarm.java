@@ -2,15 +2,13 @@
 
 package com.android.todo;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,35 +24,43 @@ import com.android.todo.olympus.Apollo;
  * This is an Alarm screen (of the Snooze/Dismiss type).
  */
 public final class Alarm extends Activity {
-  private static int SNOOZE_TIME = 20000; // 5 minutes
-  private static String sTask;
-  private static Timer sTimer1 = null, sTimer2 = null;
+  private static long SNOOZE_TIME = 20000; // 5 minutes
+  private String mTask;
+  private Handler mHandler;
+  private Runnable mRunnable;
   private static SharedPreferences sPref;
-  private static int sSnoozeCount;
+  private Button mSnoozeButton;
+  private int mSnoozeCount;
+  private int mAlarmCount;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    sSnoozeCount = 0;
+    mSnoozeCount = 0;
+    mAlarmCount = 0;
     if (savedInstanceState != null) {
-      sTask = savedInstanceState.getString(ToDoDB.KEY_NAME);
+      mTask = savedInstanceState.getString(ToDoDB.KEY_NAME);
     } else {
-      sTask = null;
+      mTask = null;
     }
-    if (sTask == null) {
+    if (mTask == null) {
       final Bundle extras = getIntent().getExtras();
       if (extras != null) {
-        sTask = extras.getString(ToDoDB.KEY_NAME);
+        mTask = extras.getString(ToDoDB.KEY_NAME);
       } else {
-        sTask = null;
+        mTask = null;
       }
     }
     final LinearLayout ll = new LinearLayout(this);
     ll.setOrientation(LinearLayout.VERTICAL);
+    final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
+        LayoutParams.FILL_PARENT);
+    ll.setLayoutParams(lp);
 
     final TextView tv = new TextView(this);
-    tv.setText(sTask);
+    tv.setText(mTask);
     tv.setPadding(0, 10, 0, 10);
+    tv.setTextSize(20);
     tv.setGravity(Gravity.CENTER_HORIZONTAL);
     ll.addView(tv);
 
@@ -62,61 +68,73 @@ public final class Alarm extends Activity {
     b.setText(R.string.alarm_dismiss);
     b.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        if (sTimer1 != null) {
-          sTimer1.cancel();
-          sTimer1 = null;
+        if (mHandler != null && mRunnable != null) {
+          mHandler.removeCallbacks(mRunnable);
         }
-        if (sTimer2 != null) {
-          sTimer2.cancel();
-          sTimer1 = null;
-        }
+        Apollo.shutUp();
         finish();
       }
     });
     ll.addView(b);
-    final Button snoozeButton = new Button(this);
-    snoozeButton.setText(R.string.alarm_snooze);
-    final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
-        LayoutParams.FILL_PARENT);
+    mSnoozeButton = new Button(this);
+    mSnoozeButton.setText(R.string.alarm_snooze);
     lp.weight = 1;
-    snoozeButton.setLayoutParams(lp);
-    snoozeButton.setOnClickListener(new OnClickListener() {
+    mSnoozeButton.setLayoutParams(lp);
+    mSnoozeButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         Apollo.shutUp();
-        sSnoozeCount++;
-        ll.removeView(snoozeButton);
+        snoozeMorph(++mSnoozeCount);
       }
     });
-    ll.addView(snoozeButton);
+    ll.addView(mSnoozeButton);
     setContentView(ll);
     unlockScreen();
 
-    if (sTimer1 != null) {
-      sTimer1.cancel();
-    }
-    (sTimer1 = new Timer()).schedule(new TimerTask() {
+    mRunnable = new Runnable() {
       public void run() {
         unlockScreen();
-        if (sPref == null) {
-          sPref = getSharedPreferences(TagToDoList.PREFS_NAME,
-              Context.MODE_PRIVATE);
+        switch (++mAlarmCount) {
+          case 1:
+            if (sPref == null) {
+              sPref = Alarm.this.getSharedPreferences(TagToDoList.PREFS_NAME,
+                  Context.MODE_PRIVATE);
+            }
+            mHandler.postDelayed(this, SNOOZE_TIME);
+            break;
+          case 2:
+            final TextView tv = new TextView(Alarm.this);
+            tv.setText(R.string.alarm_last_message);
+            tv.setLayoutParams(lp);
+            tv.setGravity(Gravity.CENTER);
+            ll.addView(tv);
+            break;
         }
+
+        snoozeMorph(mAlarmCount);
+
         Alarm.soundAlarm(Alarm.this, sPref,
             Uri.parse("android.resource://com.android.todo/" + R.raw.beep));
-
-        // setting second and last alarm (you can only snooze 2 times!)
-        (sTimer2 = new Timer()).schedule(new TimerTask() {
-          public void run() {
-            unlockScreen();
-            Alarm.soundAlarm(Alarm.this, sPref,
-                Uri.parse("android.resource://com.android.todo/" + R.raw.beep));
-            TextView tv = new TextView(Alarm.this);
-            tv.setText(R.string.alarm_last_message);
-            ll.addView(tv);
-          }
-        }, SNOOZE_TIME);
       }
-    }, SNOOZE_TIME);
+    };
+    (mHandler = new Handler()).postDelayed(mRunnable, SNOOZE_TIME);
+
+  }
+
+  /**
+   * Gradually waking up the user by shrinking the Snooze button :)
+   * 
+   * @param times
+   */
+  private final void snoozeMorph(final int times) {
+    switch (times) {
+      case 1:
+        mSnoozeButton.setLayoutParams(new LayoutParams(
+            LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+        break;
+      case 2:
+        mSnoozeButton.setVisibility(View.GONE);
+        break;
+    }
   }
 
   /**
@@ -153,7 +171,7 @@ public final class Alarm extends Activity {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putString(ToDoDB.KEY_NAME, sTask);
+    outState.putString(ToDoDB.KEY_NAME, mTask);
   }
 
   @Override
