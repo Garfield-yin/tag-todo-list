@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.android.todo" android:versionName="4.0.6"
-	android:versionCode="61">
+	package="com.android.todo" android:versionName="4.2"
+	android:versionCode="62">
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
 		android:theme="@android:style/Theme.NoTitleBar">
 		<activity android:name=".TagToDoList" android:label="@string/app_name">
