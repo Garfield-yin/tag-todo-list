@@ -2,6 +2,8 @@
 
 package com.android.todo.receivers;
 
+import java.util.Calendar;
+
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -54,29 +56,49 @@ public final class AlarmReceiver extends BroadcastReceiver {
     }
     dbHelper.close();
 
-    /**
-     * Makes the alarm sound separately. We only want it to ring a few times, so
-     * that it doesn't drain the user's battery in case he doesn't have the
-     * phone.
-     */
     final int ringerMode = ((AudioManager) c
         .getSystemService(Context.AUDIO_SERVICE)).getRingerMode();
     final SharedPreferences settings = c.getSharedPreferences(
         TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
-    if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-      Alarm.soundAlarm(c, settings, (Uri) intent.getParcelableExtra(RINGTONE));
-    }
 
     if (settings.getBoolean(Config.ALARM_SCREEN, false)) {
       if (ringerMode != AudioManager.RINGER_MODE_SILENT
           && settings.getBoolean(Config.ALARM_VIBRATION, true)) {
-        ((Vibrator) c.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(
-            new long[] { 500, 500, 500, 500, 500, 500, 500, 500, 500, 500 }, -1);
+        ((Vibrator) c.getSystemService(Context.VIBRATOR_SERVICE))
+            .vibrate(new long[] { 500, 500, 500, 500, 500, 500, 500, 500, 500,
+                500 }, -1);
       }
-      c.startActivity(new Intent(c, Alarm.class).setFlags(
-          Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION)
-          .putExtra(ToDoDB.KEY_NAME, task));
+      final int alarmPhase = intent.getIntExtra(Alarm.ALARM_PHASE, 0);
+
+      if (alarmPhase < 2) {
+        final PendingIntent pi = PendingIntent.getBroadcast(c,
+            task.hashCode() - 1 - alarmPhase, Utils.getAlarmIntent(new Intent(c,
+                AlarmReceiver.class)
+                .putExtra(Alarm.ALARM_PHASE, alarmPhase + 1), task), 0);
+        final AlarmManager am = (AlarmManager) c
+            .getSystemService(Context.ALARM_SERVICE);
+        final Calendar cal = Calendar.getInstance();
+        cal.roll(Calendar.MINUTE, Alarm.SNOOZE_TIME);
+        Chronos.setSingularAlarm(
+            am,
+            pi,
+            new Time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
+                -1),
+            new Date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal
+                .get(Calendar.DAY_OF_MONTH)));
+      }
+
+      c.startActivity(new Intent(c, Alarm.class)
+          .setFlags(
+              Intent.FLAG_ACTIVITY_NEW_TASK
+                  | Intent.FLAG_ACTIVITY_NO_USER_ACTION)
+          .putExtra(ToDoDB.KEY_NAME, task)
+          .putExtra(Alarm.ALARM_PHASE, alarmPhase));
     } else {
+      if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+        Alarm
+            .soundAlarm(c, settings, (Uri) intent.getParcelableExtra(RINGTONE));
+      }
       final Notification notification = new Notification(R.drawable.small_icon,
           task, System.currentTimeMillis());
       final PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
