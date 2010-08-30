@@ -79,7 +79,7 @@ public final class Photo extends Activity {
    */
   private final void populateFields() throws FileNotFoundException {
     sWebView.loadData(
-        "<meta name='viewport' content='initial-scale=0.5' /><img src='"
+        "<meta name='viewport' content='initial-scale=0.2' /><img src='"
             + sUri.toString() + "'/>", "text/html", "UTF-8");
   }
 
