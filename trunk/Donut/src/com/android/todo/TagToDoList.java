@@ -3,6 +3,8 @@
 package com.android.todo;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import android.app.Activity;
@@ -19,6 +21,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Bundle;
@@ -27,6 +30,7 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,6 +41,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -52,6 +57,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.admob.android.ads.AdManager;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -86,6 +92,7 @@ public class TagToDoList extends Activity {
   public static final int TASK_EMAIL_ID = 12;
   public static final int TASK_SMS_ID = 13;
   public static final int TASK_PHOTO_ID = 14;
+  public static final int TASK_TAGS_ID = 25;
 
   // Menu IDs:
   public static final int TAG_CREATE_ID = 15;
@@ -163,6 +170,7 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
+    AdManager.setTestDevices(new String[]{AdManager.TEST_EMULATOR});
     sPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     sEditor = sPref.edit();
     TagToDoList.setTheme(this, sPref);
@@ -881,7 +889,7 @@ public class TagToDoList extends Activity {
             sPref.getBoolean(Config.BLIND_MODE, false) ? 1 : 0);
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.CHECKED_LIMIT, Analytics.SPACE_STATE,
-            sPref.getBoolean(Config.AD_DISABLED, false) ? 1: 0);
+            sPref.getBoolean(Config.AD_DISABLED, false) ? 1 : 0);
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.CUSTOM_ALARM, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.CUSTOM_ALARM, false) ? 1 : 0);
@@ -1076,14 +1084,15 @@ public class TagToDoList extends Activity {
     menu.add(0, TASK_SUBTASK_ID, 0, R.string.entry_subtask_add);
     menu.add(0, TASK_EDIT_ID, 0, R.string.entry_edit);
     menu.add(0, TASK_REMOVE_ID, 0, R.string.entry_delete);
-    SubMenu submenu = menu.addSubMenu(R.string.entry_group_move);
-    submenu.add(0, TASK_MOVE_ID, 0, R.string.entry_move);
-    submenu.add(0, TASK_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
-    submenu = menu.addSubMenu(R.string.entry_group_notes);
+    SubMenu submenu = menu.addSubMenu(R.string.entry_group_notes);
     submenu.add(0, TASK_AUDIO_ID, 0, R.string.entry_audio_note);
     submenu.add(0, TASK_GRAPHICAL_ID, 0, R.string.entry_graphical_note);
     submenu.add(0, TASK_PHOTO_ID, 0, R.string.entry_photo_note);
     submenu.add(0, TASK_WRITTEN_ID, 0, R.string.entry_written_note);
+    submenu = menu.addSubMenu(R.string.entry_group_move);
+    submenu.add(0, TASK_TAGS_ID, 0, R.string.entry_add_tags);
+    submenu.add(0, TASK_MOVE_ID, 0, R.string.entry_move);
+    submenu.add(0, TASK_MOVE_UNDER_TASK_ID, 0, R.string.entry_move_under_task);
     submenu = menu.addSubMenu(R.string.entry_group_share);
     submenu.add(0, TASK_EMAIL_ID, 0, R.string.email);
     submenu.add(0, TASK_SMS_ID, 0, R.string.SMS);
@@ -1139,22 +1148,21 @@ public class TagToDoList extends Activity {
         startActivity(i);
         break;
       case TASK_MOVE_ID:
-        final AdapterView.OnItemSelectedListener l = mTagSpinner
+        final OnItemSelectedListener l = mTagSpinner
             .getOnItemSelectedListener();
         final int p = mTagSpinner.getSelectedItemPosition();
-        mTagSpinner
-            .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-              public void onItemSelected(AdapterView<?> av, View v, int index,
-                  long arg3) {
-                sDbHelper.updateTaskParent(mContextEntry, mTagsArrayAdapter
-                    .getItem(index).toString(), 0);
-                av.setOnItemSelectedListener(l);
-                av.setSelection(p);
-              }
+        mTagSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+          public void onItemSelected(AdapterView<?> av, View v, int index,
+              long arg3) {
+            sDbHelper.updateTaskParent(mContextEntry, mTagsArrayAdapter
+                .getItem(index).toString(), 0);
+            av.setOnItemSelectedListener(l);
+            av.setSelection(p);
+          }
 
-              public void onNothingSelected(AdapterView<?> arg0) {
-              }
-            });
+          public void onNothingSelected(AdapterView<?> arg0) {
+          }
+        });
         mTagSpinner.performClick();
         break;
       case TASK_MOVE_UNDER_TASK_ID:
@@ -1234,6 +1242,99 @@ public class TagToDoList extends Activity {
         break;
       case TASK_INSTANTACTION_ID:
         mContextAction.perform(this);
+        break;
+      case TASK_TAGS_ID:
+        final ArrayList<String> al = new ArrayList<String>(
+            Arrays.asList(sDbHelper.getStringFlag(mContextEntry,
+                ToDoDB.KEY_SECONDARY_TAGS).split("'")));
+        final Dialog d = new Dialog(this);
+        d.setTitle(R.string.entry_add_tags);
+        final LinearLayout ll = new LinearLayout(this);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.setPadding(0, 0, 10, 0);
+        final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
+            LayoutParams.FILL_PARENT);
+        for (int tagIndex = 0; tagIndex < mTagsArrayAdapter.getCount(); tagIndex++) {
+          final LinearLayout row = new LinearLayout(this);
+          row.setOrientation(LinearLayout.HORIZONTAL);
+          final ImageButton ib = new ImageButton(this);
+          ib.setBackgroundColor(Color.TRANSPARENT);
+          ib.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+              ImageButton ib = (ImageButton) v;
+              TextView tv = (TextView) ((LinearLayout) v.getParent())
+                  .getChildAt(1);
+              if ((Integer) ib.getTag() == 0) {
+                ib.setImageResource(android.R.drawable.btn_star_big_on);
+                tv.setTextAppearance(v.getContext(),
+                    android.R.style.TextAppearance_Medium);
+                al.add(tv.getText().toString());
+                ib.setTag(1);
+              } else {
+                ib.setImageResource(android.R.drawable.btn_star_big_off);
+                tv.setTextAppearance(v.getContext(),
+                    android.R.style.TextAppearance_Small);
+                al.remove(tv.getText().toString());
+                ib.setTag(0);
+              }
+            }
+          });
+          final TextView tv = new TextView(this);
+          tv.setLayoutParams(lp);
+          tv.setGravity(Gravity.CENTER_VERTICAL);
+          tv.setText(mTagsArrayAdapter.getItem(tagIndex));
+          if (al.contains(mTagsArrayAdapter.getItem(tagIndex))) {
+            ib.setImageResource(android.R.drawable.btn_star_big_on);
+            tv.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+            ib.setTag(1);
+          } else {
+            ib.setImageResource(android.R.drawable.btn_star_big_off);
+            tv.setTextAppearance(this, android.R.style.TextAppearance_Small);
+            ib.setTag(0);
+          }
+          if (sDbHelper.getStringFlag(mContextEntry, ToDoDB.KEY_TAG).equals(
+              mTagsArrayAdapter.getItem(tagIndex))) {
+            ib.setVisibility(View.INVISIBLE);
+            tv.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+            tv.setTypeface(null, Typeface.ITALIC);
+          } else {
+            tv.setOnClickListener(new OnClickListener() {
+              public void onClick(View v) {
+                ((ImageButton) ((LinearLayout) v.getParent()).getChildAt(0))
+                    .performClick();
+              }
+            });
+          }
+          row.addView(ib);
+          row.addView(tv);
+          ll.addView(row);
+        }
+        final Button b = new Button(this);
+        b.setText(R.string.go_back);
+        b.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            final StringBuilder sb = new StringBuilder();
+            for (String s : al) {
+              sb.append('\'');
+              sb.append(s);
+            }
+            String s = sb.toString();
+            if (s.startsWith("'")) {
+              s = s.substring(1);
+            }
+            sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_SECONDARY_TAGS, s);
+            selectTag(mTagSpinner.getSelectedItemPosition());
+            d.dismiss();
+          }
+        });
+        final ScrollView sv = new ScrollView(this);
+        sv.addView(ll);
+        final LinearLayout bigLayout = new LinearLayout(this);
+        bigLayout.setOrientation(LinearLayout.VERTICAL);
+        bigLayout.addView(b);
+        bigLayout.addView(sv);
+        d.setContentView(bigLayout);
+        d.show();
         break;
     }
     return true;

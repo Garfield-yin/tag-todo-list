@@ -51,6 +51,10 @@ public final class ToDoDB extends ADB {
   public static final String KEY_NOTE_IS_AUDIO = "isaudionote";
   public static final String KEY_NOTE_IS_PHOTO = "isphotonote";
 
+  // key for the secondary tags string (they are concatenated into one big
+  // string) (chose String on purpose)
+  public static final String KEY_SECONDARY_TAGS = "secondaryTags";
+
   public static final String KEY_IS_COLLAPSED = "iscollapsed";
   private static final String KEY_CHECKED_TASKS_LIMIT_AWARE = "checkedTasksLimitAware";
 
@@ -125,6 +129,7 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 91, 92);
       onUpgrade(db, 100, 101);
       onUpgrade(db, 101, 102);
+      onUpgrade(db, 120, 121);
     }
 
     @Override
@@ -333,6 +338,16 @@ public final class ToDoDB extends ADB {
         }
       }
 
+      // upgrade to db v121 (corresponding to app v4.5) or bigger;
+      // this is for secondary tags
+      if (oldVersion < 121 && newVersion >= 121) {
+        try {
+          db.execSQL("ALTER TABLE " + DB_TASK_TABLE + " ADD "
+              + KEY_SECONDARY_TAGS + " TEXT");
+        } catch (Exception e) {
+        }
+      }
+
       // must be last:
       FLAG_UPDATED = true;
     }
@@ -417,7 +432,8 @@ public final class ToDoDB extends ADB {
       }
 
       Utils.copy(new File("/data/data/com.android.todo/databases"), new File(
-          Environment.getExternalStorageDirectory(),"/Tag-ToDo_data/database_backup"));
+          Environment.getExternalStorageDirectory(),
+          "/Tag-ToDo_data/database_backup"));
     } catch (Exception e) {
       Utils.showDialog(R.string.notification, R.string.backup_fail, mCtx);
     }
@@ -535,10 +551,11 @@ public final class ToDoDB extends ADB {
         .query(
             DB_TASK_TABLE,
             new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_TAG,
-                KEY_SUBTASKS },
-            ((tag != null ? KEY_TAG + " = '" + tag + "' " : "1=1 ")
-                + (depth != -1 ? "AND " + KEY_DEPTH + " = " + depth + " " : "") + (superTask != null ? "AND "
-                + KEY_SUPERTASK + " = '" + superTask + "' "
+                KEY_SUBTASKS, KEY_SECONDARY_TAGS },
+            ((tag != null ? KEY_TAG + "='" + tag + "' OR " + KEY_SECONDARY_TAGS
+                + " LIKE '%" + tag + "%' " : "1=1 ")
+                + (depth != -1 ? "AND " + KEY_DEPTH + "=" + depth + " " : "") + (superTask != null ? "AND "
+                + KEY_SUPERTASK + "='" + superTask + "' "
                 : ""))
                 + "ORDER BY "
                 + KEY_STATUS
@@ -581,7 +598,7 @@ public final class ToDoDB extends ADB {
     tasks.moveToFirst();
     final String value = tasks.getString(1);
     tasks.close();
-    return value;
+    return value != null ? value : "";
   }
 
   /**
@@ -635,24 +652,6 @@ public final class ToDoDB extends ADB {
         KEY_STATUS, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE },
         KEY_EXTRA_OPTIONS + " = 1 AND " + KEY_STATUS + " = 0", null, null,
         null, null);
-  }
-
-  /**
-   * Returns the written note for the given task.
-   * 
-   * @param task
-   * @return written note
-   */
-  public final String getWrittenNote(final String task) {
-    final Cursor taskCursor = mDb.query(DB_TASK_TABLE, new String[] {
-        KEY_ROWID, KEY_NAME, KEY_WRITTEN_NOTE },
-        KEY_NAME + " = '" + task + "'", null, null, null, null);
-    // for now, assuming we have a task named like this :)
-    taskCursor.moveToFirst();
-    String note = taskCursor.getString(taskCursor
-        .getColumnIndexOrThrow(KEY_WRITTEN_NOTE));
-    taskCursor.close();
-    return note;
   }
 
   /**
@@ -906,7 +905,8 @@ public final class ToDoDB extends ADB {
 
   /**
    * Updates (Moves) the specified task with a new parent (tag). Also takes care
-   * of moving the subtasks.
+   * of moving the subtasks and of removing the new parent tag from the
+   * secondary tags.
    * 
    * @param task
    * @param newParent
@@ -920,6 +920,7 @@ public final class ToDoDB extends ADB {
     final Cursor subtasks = getTasks(null, -1, task);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
+      // a
       subtasks.moveToFirst();
       do {
         updateTaskParent(subtasks.getString(name), newParent, depth + 1);
@@ -929,7 +930,17 @@ public final class ToDoDB extends ADB {
     final ContentValues args = new ContentValues();
     args.put(KEY_TAG, newParent);
     args.put(KEY_DEPTH, depth);
-    mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    String secondaryTags = getStringFlag(task, KEY_SECONDARY_TAGS);
+    secondaryTags = secondaryTags.replace(newParent, "");
+    if (secondaryTags.startsWith("'")) {
+      secondaryTags = secondaryTags.substring(1);
+    }
+    if (secondaryTags.endsWith("'")) {
+      secondaryTags = secondaryTags.substring(0, secondaryTags.length() - 1);
+    }
+    secondaryTags = secondaryTags.replace("\'\'", "\'");
+    args.put(KEY_SECONDARY_TAGS, secondaryTags);
+    mDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + "'", null);
   }
 
   /**
