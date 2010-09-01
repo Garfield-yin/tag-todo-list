@@ -82,6 +82,7 @@ public final class Edit extends Activity {
   private static Date sDate;
   private static Time sTime;
   private static SharedPreferences sPref;
+  private static LinearLayout sLayout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -157,12 +158,11 @@ public final class Edit extends Activity {
     final String action = getIntent().getAction();
     final boolean creating = action.equals(Integer
         .toString(TagToDoList.ACTIVITY_CREATE_ENTRY));
+    
+    sLayout = (LinearLayout) findViewById(R.id.editLinearLayout);
 
     if (creating || action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
-      final LinearLayout ll = (LinearLayout) findViewById(R.id.editLinearLayout);
-
       // now comes priority stuff
-
       mPriorityText = creating ? this.getString(R.string.priority_default)
           : this.getString(R.string.priority);
       mPrioritySb = new SeekBar(this);
@@ -193,7 +193,7 @@ public final class Edit extends Activity {
 
       });
       if (!sPref.getBoolean(Config.PRIORITY_DISABLE, false)) {
-        ll.addView(mPrioritySb);
+        sLayout.addView(mPrioritySb);
       }
 
       mDateTimeLayout = new LinearLayout(this);
@@ -325,7 +325,7 @@ public final class Edit extends Activity {
         }
       });
 
-      ll.addView(mDateTimeLayout);
+      sLayout.addView(mDateTimeLayout);
 
       if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
         final AdView ad = new AdView(this);
@@ -334,7 +334,7 @@ public final class Edit extends Activity {
         ad.setSecondaryTextColor(Color.DKGRAY);
         ad.setKeywords(getString(R.string.ad_keywords));
         ad.setRequestInterval(0);
-        ll.addView(ad);
+        sLayout.addView(ad);
       }
     }
 
@@ -607,11 +607,20 @@ public final class Edit extends Activity {
         mBodyText.setSelection(sTask.length(), sTask.length());
       } else if (action.equals(Integer.toString(TagToDoList.TASK_WRITTEN_ID))) {
         mTaskText.setText(R.string.edit_written_note);
-        mBodyText.setText(mDbHelper.getWrittenNote(sTask));
+        mBodyText.setText(mDbHelper.getStringFlag(sTask, ToDoDB.KEY_WRITTEN_NOTE));
       }
     } else {
       if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
         mTaskText.setText(R.string.create_tag);
+        if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
+          final AdView ad = new AdView(this);
+          ad.setBackgroundColor(Color.BLACK);
+          ad.setPrimaryTextColor(Color.WHITE);
+          ad.setSecondaryTextColor(Color.DKGRAY);
+          ad.setKeywords(getString(R.string.ad_keywords));
+          ad.setRequestInterval(0);
+          sLayout.addView(ad);
+        }
       }
     }
     if (TagToDoList.sTts != null) {

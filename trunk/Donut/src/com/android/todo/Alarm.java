@@ -5,6 +5,7 @@ package com.android.todo;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.KeyguardManager;
+import android.app.KeyguardManager.KeyguardLock;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +42,8 @@ public final class Alarm extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    wakeScreen();
+    unlockScreen();
     if (savedInstanceState != null) {
       mTask = savedInstanceState.getString(ToDoDB.KEY_NAME);
       mPhase = savedInstanceState.getInt(Alarm.ALARM_PHASE);
@@ -61,8 +64,8 @@ public final class Alarm extends Activity {
     final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
         LayoutParams.FILL_PARENT);
     ll.setLayoutParams(lp);
-    
-    final ImageView iv=new ImageView(this);
+
+    final ImageView iv = new ImageView(this);
     iv.setImageResource(R.drawable.icon);
     ll.addView(iv);
 
@@ -81,10 +84,10 @@ public final class Alarm extends Activity {
         if (mPhase < 2) {
           // removing subsequent internal alarm
           ((AlarmManager) Alarm.this.getSystemService(Context.ALARM_SERVICE))
-              .cancel(PendingIntent.getBroadcast(Alarm.this,
-                  mTask.hashCode() - 1 - mPhase, Utils.getAlarmIntent(new Intent(
-                      Alarm.this, AlarmReceiver.class).putExtra(
-                      Alarm.ALARM_PHASE, mPhase + 1), mTask), 0));
+              .cancel(PendingIntent.getBroadcast(Alarm.this, mTask.hashCode()
+                  - 1 - mPhase, Utils.getAlarmIntent(new Intent(Alarm.this,
+                  AlarmReceiver.class).putExtra(Alarm.ALARM_PHASE, mPhase + 1),
+                  mTask), 0));
         }
         finish();
       }
@@ -119,17 +122,15 @@ public final class Alarm extends Activity {
       tv.setLayoutParams(lp);
       tv.setGravity(Gravity.CENTER);
       ll.addView(tv);
-    }else{
+    } else {
       new Handler().postDelayed(new Runnable() {
         public void run() {
-          Alarm.this.finish();
+          finish();
         }
       }, 120000);
     }
 
     setContentView(ll);
-    unlockScreen();
-    wakeScreen();
 
     if (sPref == null) {
       sPref = getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
@@ -166,8 +167,11 @@ public final class Alarm extends Activity {
    * Unlocks the screen
    */
   private final void unlockScreen() {
-    ((KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE))
-        .newKeyguardLock(KEYGUARD_SERVICE).disableKeyguard();
+    final KeyguardManager km = ((KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE));
+    if (km.inKeyguardRestrictedInputMode()) {
+      final KeyguardLock kl = km.newKeyguardLock(KEYGUARD_SERVICE);
+      kl.disableKeyguard();
+    }
   }
 
   /**
