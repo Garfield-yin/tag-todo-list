@@ -64,6 +64,7 @@ public final class Config extends Activity {
   public static final String TASK_PADDING = "taskPadding";
   public static final String ALARM_DURATION = "alarmDuration";
   public static final String ALARM_SCREEN = "alarmScreen";
+  public static final String DETAILED_STATS = "statsDetailed";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;

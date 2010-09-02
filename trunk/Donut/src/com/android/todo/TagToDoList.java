@@ -13,7 +13,6 @@ import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -57,7 +56,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admob.android.ads.AdManager;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -170,7 +168,6 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
-    AdManager.setTestDevices(new String[]{AdManager.TEST_EMULATOR});
     sPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     sEditor = sPref.edit();
     TagToDoList.setTheme(this, sPref);
@@ -231,78 +228,9 @@ public class TagToDoList extends Activity {
     mStatButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         final Dialog d = new Dialog(TagToDoList.this);
-
-        TableLayout tl = new TableLayout(TagToDoList.this);
-        TableRow tr1 = new TableRow(TagToDoList.this);
-        TableRow tr2 = new TableRow(TagToDoList.this);
-        TableRow tr3 = new TableRow(TagToDoList.this);
-        TextView tvCount1 = new TextView(TagToDoList.this);
-        TextView tvExplanation1 = new TextView(TagToDoList.this);
-        TextView tvCount2 = new TextView(TagToDoList.this);
-        TextView tvExplanation2 = new TextView(TagToDoList.this);
-
-        /* First row */
-        tvCount1.setTextColor(Color.WHITE);
-        tvCount1.setTextSize(44);
-        tvCount1.setTextColor(Color.YELLOW);
-        tvCount1.setPadding(1, 20, 0, 0);
-        tvCount1.setGravity(1);
-        String s = sDbHelper.countUncheckedEntries(mTagsArrayAdapter.getItem(
-            mTagSpinner.getSelectedItemPosition()).toString())
-            + "";
-        tvCount1.setText(s);
-        tr1.addView(tvCount1);
-
-        tvExplanation1.setText(R.string.message_tasks_left_tag);
-        tvExplanation1.setTextSize(19);
-        tvExplanation1.setPadding(0, 37, 0, 0);
-        tr1.addView(tvExplanation1);
-
-        tr1.setBaselineAligned(false);
-        tl.addView(tr1);
-        /* First row */
-
-        /* Second row */
-        tvCount2.setTextColor(Color.WHITE);
-        tvCount2.setTextSize(44);
-        tvCount2.setTextColor(Color.YELLOW);
-        tvCount2.setPadding(1, 20, 0, 20);
-        tvCount2.setGravity(1);
-        s = sDbHelper.countUncheckedEntries() + "";
-        tvCount2.setText(s);
-        tr2.addView(tvCount2);
-
-        tvExplanation2.setText(R.string.message_tasks_left_total);
-        tvExplanation2.setTextSize(19);
-        tvExplanation2.setPadding(0, 37, 0, 0);
-        tr2.addView(tvExplanation2);
-
-        tr2.setBaselineAligned(false);
-        tl.addView(tr2);
-        /* Second row */
-
-        final Button b = new Button(TagToDoList.this);
-        b.setText(R.string.go_back);
-        b.setOnClickListener(new View.OnClickListener() {
-          public void onClick(View view) {
-            d.dismiss();
-          }
-        });
-        tr3.addView(b);
-        tl.addView(tr3);
-
+        d.setContentView(getStats(d,
+            sPref.getBoolean(Config.DETAILED_STATS, false)));
         d.setTitle(R.string.message_stats);
-        d.setContentView(tl);
-        d.setOnKeyListener(new Dialog.OnKeyListener() {
-          public boolean onKey(DialogInterface di, int keyCode, KeyEvent msg) {
-            if (keyCode == KeyEvent.KEYCODE_ENTER
-                || keyCode == KeyEvent.KEYCODE_DEL
-                || keyCode == KeyEvent.KEYCODE_SPACE) {
-              b.performClick();
-            }
-            return false;
-          }
-        });
         d.show();
       }
     });
@@ -353,6 +281,79 @@ public class TagToDoList extends Activity {
         return false;
       }
     };
+  }
+
+  /**
+   * Gets the stats view.
+   * 
+   * @param d
+   *          the Dialog view the returned view will be in
+   * @param detailed
+   * @return
+   */
+  private final View getStats(final Dialog d, final boolean detailed) {
+    final Button b = new Button(TagToDoList.this);
+    b.setText(R.string.go_back);
+    b.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View view) {
+        d.dismiss();
+      }
+    });
+    
+    final CheckBox cb = new CheckBox(TagToDoList.this);
+    cb.setChecked(detailed);
+    cb.setText(R.string.stats_detailed);
+    cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+      public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+        sEditor.putBoolean(Config.DETAILED_STATS, isChecked).commit();
+      }
+    });
+    
+    if (detailed) {
+      final LinearLayout ll = new LinearLayout(d.getContext());
+      return ll;
+    }
+    final TableLayout tl = new TableLayout(TagToDoList.this);
+    final TableRow tr1 = new TableRow(TagToDoList.this);
+    final TableRow tr2 = new TableRow(TagToDoList.this);
+    final TableRow tr3 = new TableRow(TagToDoList.this);
+    final TextView tvCount1 = new TextView(TagToDoList.this);
+    final TextView tvExplanation1 = new TextView(TagToDoList.this);
+    final TextView tvCount2 = new TextView(TagToDoList.this);
+    final TextView tvExplanation2 = new TextView(TagToDoList.this);
+
+    tvCount1.setTextSize(44);
+    tvCount1.setTextColor(Color.YELLOW);
+    tvCount1.setPadding(1, 20, 0, 0);
+    tvCount1.setGravity(1);
+    String s = sDbHelper.countUncheckedEntries(mTagsArrayAdapter.getItem(
+        mTagSpinner.getSelectedItemPosition()).toString())
+        + "";
+    tvCount1.setText(s);
+    tr1.addView(tvCount1);
+    tvExplanation1.setText(R.string.message_tasks_left_tag);
+    tvExplanation1.setTextSize(19);
+    tvExplanation1.setPadding(0, 37, 0, 0);
+    tr1.addView(tvExplanation1);
+    tr1.setBaselineAligned(false);
+    tl.addView(tr1);
+    tvCount2.setTextSize(44);
+    tvCount2.setTextColor(Color.YELLOW);
+    tvCount2.setPadding(1, 20, 0, 20);
+    tvCount2.setGravity(1);
+    s = sDbHelper.countUncheckedEntries() + "";
+    tvCount2.setText(s);
+    tr2.addView(tvCount2);
+    tvExplanation2.setText(R.string.message_tasks_left_total);
+    tvExplanation2.setTextSize(19);
+    tvExplanation2.setPadding(0, 37, 0, 0);
+    tr2.addView(tvExplanation2);
+    tr2.setBaselineAligned(false);
+    tl.addView(tr2);
+    tr3.addView(b);
+    tr3.addView(cb);
+    tl.addView(tr3);
+    return tl;
   }
 
   /**
@@ -512,6 +513,12 @@ public class TagToDoList extends Activity {
           if (sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_AUDIO) > 0) {
             taskNoteLayout.addView(getNoteButton(taskName, R.drawable.audio,
                 TASK_AUDIO_ID));
+          }
+
+          if (sDbHelper.getStringFlag(taskName, ToDoDB.KEY_SECONDARY_TAGS)
+              .length() > 0) {
+            taskNoteLayout.addView(getNoteButton(taskName, R.drawable.star,
+                TASK_TAGS_ID));
           }
 
           try { // placed in different try-catch clauses because these fields
@@ -929,6 +936,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.ALARM_SCREEN, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.ALARM_SCREEN, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.DETAILED_STATS, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.DETAILED_STATS, false) ? 1 : 0);
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
@@ -1116,6 +1126,10 @@ public class TagToDoList extends Activity {
    */
   private final boolean changeTask(final int selectedItem) {
     Intent i;
+    if (Analytics.sTracker != null) {
+      Analytics.sTracker.trackPageView(Analytics.ACTION_PRESS + "/taskMenu/"
+          + selectedItem);
+    }
     switch (selectedItem) {
       case TASK_EDIT_ID:
         i = new Intent(this, Edit.class);
@@ -1213,24 +1227,12 @@ public class TagToDoList extends Activity {
         startActivity(i);
         break;
       case TASK_SMS_ID:
-        if (Analytics.sTracker != null) {
-          // we log the number of characters
-          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
-              "TASK_MENU_SMS_BUTTON", Analytics.SPACE_INTERFACE,
-              mContextEntry.length());
-        }
         i = new Intent(Intent.ACTION_VIEW);
         i.putExtra("sms_body", getString(R.string.todo) + ": " + mContextEntry);
         i.setType("vnd.android-dir/mms-sms");
         startActivity(i);
         break;
       case TASK_EMAIL_ID:
-        if (Analytics.sTracker != null) {
-          // we log the number of characters
-          Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
-              "TASK_MENU_EMAIL_BUTTON", Analytics.SPACE_INTERFACE,
-              mContextEntry.length());
-        }
         // Create a new Intent to send messages
         i = new Intent(Intent.ACTION_SEND);
         // Add attributes to the intent
@@ -1254,6 +1256,24 @@ public class TagToDoList extends Activity {
         ll.setPadding(0, 0, 10, 0);
         final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
             LayoutParams.FILL_PARENT);
+        final Button closeButton = new Button(this);
+        closeButton.setText(R.string.go_back);
+        closeButton.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            final StringBuilder sb = new StringBuilder();
+            for (String s : al) {
+              sb.append('\'');
+              sb.append(s);
+            }
+            String s = sb.toString();
+            if (s.startsWith("'")) {
+              s = s.substring(1);
+            }
+            sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_SECONDARY_TAGS, s);
+            selectTag(mTagSpinner.getSelectedItemPosition());
+            d.dismiss();
+          }
+        });
         for (int tagIndex = 0; tagIndex < mTagsArrayAdapter.getCount(); tagIndex++) {
           final LinearLayout row = new LinearLayout(this);
           row.setOrientation(LinearLayout.HORIZONTAL);
@@ -1280,6 +1300,7 @@ public class TagToDoList extends Activity {
             }
           });
           final TextView tv = new TextView(this);
+          tv.setTag(tagIndex);
           tv.setLayoutParams(lp);
           tv.setGravity(Gravity.CENTER_VERTICAL);
           tv.setText(mTagsArrayAdapter.getItem(tagIndex));
@@ -1297,41 +1318,26 @@ public class TagToDoList extends Activity {
             ib.setVisibility(View.INVISIBLE);
             tv.setTextAppearance(this, android.R.style.TextAppearance_Medium);
             tv.setTypeface(null, Typeface.ITALIC);
-          } else {
-            tv.setOnClickListener(new OnClickListener() {
-              public void onClick(View v) {
-                ((ImageButton) ((LinearLayout) v.getParent()).getChildAt(0))
-                    .performClick();
-              }
-            });
           }
+          tv.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+              closeButton.performClick();
+              mTagSpinner.setSelection((Integer) v.getTag());
+            }
+          });
           row.addView(ib);
           row.addView(tv);
           ll.addView(row);
         }
-        final Button b = new Button(this);
-        b.setText(R.string.go_back);
-        b.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-            final StringBuilder sb = new StringBuilder();
-            for (String s : al) {
-              sb.append('\'');
-              sb.append(s);
-            }
-            String s = sb.toString();
-            if (s.startsWith("'")) {
-              s = s.substring(1);
-            }
-            sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_SECONDARY_TAGS, s);
-            selectTag(mTagSpinner.getSelectedItemPosition());
-            d.dismiss();
-          }
-        });
         final ScrollView sv = new ScrollView(this);
         sv.addView(ll);
         final LinearLayout bigLayout = new LinearLayout(this);
         bigLayout.setOrientation(LinearLayout.VERTICAL);
-        bigLayout.addView(b);
+        final TextView tv = new TextView(this);
+        tv.setPadding(10, 0, 10, 5);
+        tv.setText(R.string.entry_tags_explanation);
+        bigLayout.addView(tv);
+        bigLayout.addView(closeButton);
         bigLayout.addView(sv);
         d.setContentView(bigLayout);
         d.show();

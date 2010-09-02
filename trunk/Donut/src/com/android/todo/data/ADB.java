@@ -20,7 +20,7 @@ public abstract class ADB {
    * deletion of alarms. The name of the attribute (DATABASE_VERSION) IS NOT TO
    * BE CHANGED!
    */
-  public static final int DATABASE_VERSION = 121;
+  public static final int DATABASE_VERSION = 123;
 
   protected static Context mCtx;
   public SQLiteDatabase mDb;
@@ -95,7 +95,7 @@ public abstract class ADB {
 
   /**
    * Returns an int which contains all the necessary information. It is encoded
-   * like this: (year*12+month)*31+day
+   * like this: (year*12+month)*32+day
    * 
    * @param task
    * @return encoded date
@@ -106,7 +106,7 @@ public abstract class ADB {
         + " = '" + task + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
     entry.moveToFirst();
-    final int e = 372 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 31
+    final int e = 384 * entry.getInt(entry.getColumnIndex(KEY_DUE_YEAR)) + 32
         * entry.getInt(entry.getColumnIndex(KEY_DUE_MONTH))
         + entry.getInt(entry.getColumnIndex(KEY_DUE_DATE));
     entry.close();
