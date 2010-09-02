@@ -64,7 +64,7 @@ public final class Chronos {
   }
 
   /**
-   * This class represents dates. An encoded date is (year*12+month)*31+day. It
+   * This class represents dates. An encoded date is (year*12+month)*32+day. It
    * includes monthly periodicity in case the month and year are 0 but the day
    * isn't.
    */
@@ -75,9 +75,9 @@ public final class Chronos {
     private int mEncodedDate;
 
     public Date(final int encodedDate) {
-      mDayOfMonth = encodedDate % 31;
-      mMonth = encodedDate / 31 % 12;
-      mYear = encodedDate / 372;
+      mDayOfMonth = encodedDate % 32;
+      mMonth = encodedDate / 32 % 12;
+      mYear = encodedDate / 384;
       mEncodedDate = encodedDate;
     }
 
@@ -85,7 +85,7 @@ public final class Chronos {
       mDayOfMonth = dayOfMonth;
       mMonth = month;
       mYear = year;
-      mEncodedDate = (year * 12 + month) * 31 + dayOfMonth;
+      mEncodedDate = (year * 12 + month) * 32 + dayOfMonth;
     }
 
     public final int getDay() {
@@ -153,7 +153,7 @@ public final class Chronos {
    * Decodes an encoded date.
    * 
    * @param encodedDate
-   *          a date encoded as an int, like this: (year*12+month)*31+day
+   *          a date encoded as an int, like this: (year*12+month)*32+day
    * @param months
    *          a list of months, as a String, in the user's language, separated
    *          by space
@@ -161,8 +161,8 @@ public final class Chronos {
    */
   public final static String decodeDate(final int encodedDate,
       final String months) {
-    return months.split(" ")[encodedDate / 31 % 12] + " " + (encodedDate % 31)
-        + ", " + (encodedDate / 372);
+    return months.split(" ")[encodedDate / 32 % 12] + " " + (encodedDate % 32)
+        + ", " + (encodedDate / 384);
   }
 
   /**
@@ -205,8 +205,8 @@ public final class Chronos {
         alarmCal.set(Calendar.MINUTE, t.getMinute());
         return alarmCal.getTimeInMillis();
       }
-      final int encodedDateDif = d.getEncodedDate() - 372
-          * c.get(Calendar.YEAR) - 31 * c.get(Calendar.MONTH)
+      final int encodedDateDif = d.getEncodedDate() - 384
+          * c.get(Calendar.YEAR) - 32 * c.get(Calendar.MONTH)
           - c.get(Calendar.DAY_OF_MONTH);
       if (encodedDateDif < 0 || (encodedDateDif == 0 && encodedTimeDif < -1)) {
         return -1;

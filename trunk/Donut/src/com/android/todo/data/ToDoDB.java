@@ -130,6 +130,7 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 100, 101);
       onUpgrade(db, 101, 102);
       onUpgrade(db, 120, 121);
+      onUpgrade(db, 121, 122);
     }
 
     @Override
@@ -346,6 +347,34 @@ public final class ToDoDB extends ADB {
               + KEY_SECONDARY_TAGS + " TEXT");
         } catch (Exception e) {
         }
+      }
+
+      // upgrade to db v123 (corresponding to app v4.5) or bigger;
+      // changing the way the date is encoded; from (year*12+month)*31+date to
+      // (year*12+month)*32+date
+      if (oldVersion < 123 && newVersion >= 123) {
+        final Cursor c = db.query(DB_TASK_TABLE, new String[] { KEY_NAME,
+            KEY_DUE_DATE }, null, null, null, null, null);
+        if (c.getCount() > 0) {
+          c.moveToFirst();
+          final ContentValues args = new ContentValues();
+          do {
+            try {
+              final int encodedDate = c.getInt(1);
+              if (encodedDate > 31 && encodedDate % 31 == 0) {
+                args.put(KEY_DUE_DATE, (encodedDate / 31 - 1) * 32 + 31);
+                db.update(DB_TASK_TABLE, args,
+                    KEY_NAME + "='" + c.getString(0) + "'", null);
+              }
+            } catch (Exception e) {
+              if (Analytics.sTracker != null) {
+                Analytics.sTracker.trackPageView(Analytics.EXCEPTION + '/'
+                    + e.getMessage());
+              }
+            }
+          } while (c.moveToNext());
+        }
+        c.close();
       }
 
       // must be last:
@@ -818,7 +847,7 @@ public final class ToDoDB extends ADB {
     if (goDown == null) {
       ContentValues args = new ContentValues();
       args.put(KEY_STATUS, checked ? 1 : 0);
-      mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+      mDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + "'", null);
     } else if (goDown.equals(Boolean.TRUE)) {
       // applying the same to subtasks
       Cursor c = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
@@ -955,7 +984,6 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DUE_YEAR, d.getYear());
     args.put(KEY_DUE_MONTH, d.getMonth());
     args.put(KEY_DUE_DATE, d.getDay());
-    // args.put(KEY_EXTRA_OPTIONS, 1);
     return mDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
