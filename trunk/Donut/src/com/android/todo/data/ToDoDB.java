@@ -363,8 +363,8 @@ public final class ToDoDB extends ADB {
               final int encodedDate = c.getInt(1);
               if (encodedDate > 31 && encodedDate % 31 == 0) {
                 args.put(KEY_DUE_DATE, (encodedDate / 31 - 1) * 32 + 31);
-                db.update(DB_TASK_TABLE, args,
-                    KEY_NAME + "='" + c.getString(0) + "'", null);
+                db.update(DB_TASK_TABLE, args, KEY_NAME + "='" + c.getString(0)
+                    + "'", null);
               }
             } catch (Exception e) {
               if (Analytics.sTracker != null) {
@@ -541,7 +541,7 @@ public final class ToDoDB extends ADB {
    * 
    * @return Cursor over all tags
    */
-  public final Cursor getAllTags() {
+  public final Cursor getTags() {
     return mDb.query(DB_TAG_TABLE, new String[] { KEY_ROWID, KEY_NAME }, null,
         null, null, null,
         ALPHABET_ORDER_TOKEN != "" ? ALPHABET_ORDER_TOKEN.substring(2) : "");
@@ -684,42 +684,21 @@ public final class ToDoDB extends ADB {
   }
 
   /**
-   * Return the count of unchecked entries in a tag
+   * Return the count of unchecked tasks
    * 
    * @param tag
-   *          for which to fetch all the to-do list entries
-   * @return number of unchecked entries (tasks left to do)
+   *          for which to fetch all the to-do list tasks. If null, it will
+   *          return the number of unchecked tasks in all tags
+   * @return number of unchecked tasks
    */
-  public int countUncheckedEntries(String tag) {
-    final Cursor c = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_STATUS, KEY_TAG }, KEY_TAG + " = '" + tag + "'", null,
-        null, null, null);
-    final int value = c.getColumnIndexOrThrow(KEY_STATUS);
-    int unchecked = 0;
-    if (c.getCount() > 0) {
-      c.moveToFirst();
-      do {
-        if (c.getInt(value) == 0) {
-          unchecked += 1;
-        }
-      } while (c.moveToNext());
-    }
+  public final int getUncheckedCount(final String tag) {
+    final Cursor c = mDb.query(DB_TASK_TABLE, new String[] {},
+        (tag != null ? '('+KEY_TAG + "='" + tag + "' OR "+KEY_SECONDARY_TAGS
+            + " LIKE '%" + tag + "%') AND " : "") + KEY_STATUS
+            + "=0", null, null, null, null);
+    final int unchecked = c.getCount();
     c.close();
     return unchecked;
-  }
-
-  /**
-   * Return the count of unchecked entries in ALL tags
-   * 
-   * @return number of unchecked entries (tasks left to do)
-   */
-  public final int countUncheckedEntries() {
-    final Cursor c = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_STATUS, KEY_TAG }, KEY_STATUS + " = 0", null, null, null,
-        null);
-    final int count = c.getCount();
-    c.close();
-    return count;
   }
 
   /**

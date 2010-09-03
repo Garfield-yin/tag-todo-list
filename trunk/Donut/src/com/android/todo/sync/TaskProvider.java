@@ -45,7 +45,7 @@ public class TaskProvider extends ContentProvider {
       case URI_TASKS:
         return dbHelper.getTasks(null, -1, null);
       case URI_TAGS:
-        return dbHelper.getAllTags();
+        return dbHelper.getTags();
       case URI_SPECIFIC_TAG:
         return dbHelper.getTasks(uri.getLastPathSegment(), -1, null);
       case URI_TASKS_DUE:
