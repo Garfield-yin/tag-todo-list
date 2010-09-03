@@ -49,6 +49,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -135,7 +136,7 @@ public class TagToDoList extends Activity {
   public static Editor sEditor;
   private Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
-  private ArrayAdapter<CharSequence> mTagsArrayAdapter;
+  private ArrayAdapter<CharSequence> mTagsAdapter;
   private Button mStatButton;
   private Button mAddEntryButton;
   private ScrollView mScrollView;
@@ -185,7 +186,7 @@ public class TagToDoList extends Activity {
             selectTag(position);
             // if (BLIND_MODE) {
             if (sTts != null) {
-              sTts.speak(mTagsArrayAdapter.getItem(
+              sTts.speak(mTagsAdapter.getItem(
                   mTagSpinner.getSelectedItemPosition()).toString());
             }
             // }
@@ -365,9 +366,8 @@ public class TagToDoList extends Activity {
     tvCount1.setTextColor(Color.YELLOW);
     tvCount1.setPadding(1, 20, 0, 0);
     tvCount1.setGravity(LinearLayout.VERTICAL);
-    tvCount1.setText(Integer.toString(sDbHelper
-        .getUncheckedCount(mTagsArrayAdapter.getItem(
-            mTagSpinner.getSelectedItemPosition()).toString())));
+    tvCount1.setText(Integer.toString(sDbHelper.getUncheckedCount(mTagsAdapter
+        .getItem(mTagSpinner.getSelectedItemPosition()).toString())));
     tr1.addView(tvCount1);
     tvExplanation1.setText(R.string.message_tasks_left_tag);
     tvExplanation1.setTextSize(19);
@@ -463,7 +463,7 @@ public class TagToDoList extends Activity {
       final OnCheckedChangeListener ccl, final int textSize,
       final int taskPadding, final int selectedTag, final int depth,
       final String superTask) {
-    final Cursor c = sDbHelper.getTasks(selectedTag != -1 ? mTagsArrayAdapter
+    final Cursor c = sDbHelper.getTasks(selectedTag != -1 ? mTagsAdapter
         .getItem(selectedTag).toString() : null, depth, superTask);
 
     final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
@@ -710,13 +710,13 @@ public class TagToDoList extends Activity {
         return true;
       case TAG_CLEAR_CHECKED_ID:
         sDbHelper.deleteEntries(
-            mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition())
                 .toString(), true);
         selectTag(mTagSpinner.getSelectedItemPosition());
         return true;
       case TAG_UNINDENT_ID:
         final Cursor c = sDbHelper.getTasks(
-            mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition())
                 .toString(), -1, null);
         final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
         if (c.getCount() > 0) {
@@ -784,8 +784,7 @@ public class TagToDoList extends Activity {
     }
     Intent i = new Intent(this, Confirmation.class);
     i.putExtra(ToDoDB.KEY_NAME,
-        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
-            .toString());
+        mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition()).toString());
     i.setAction(Integer.toString(TAG_DELETE_ID));
     startActivity(i);
   }
@@ -796,8 +795,7 @@ public class TagToDoList extends Activity {
   private final void removeAllTasks() {
     final Intent i = new Intent(this, Confirmation.class);
     i.putExtra(ToDoDB.KEY_NAME,
-        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
-            .toString());
+        mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition()).toString());
     i.setAction(Integer.toString(TAG_CLEAR_ID));
     startActivity(i);
   }
@@ -808,8 +806,7 @@ public class TagToDoList extends Activity {
   private void editTag() {
     Intent i = new Intent(this, Edit.class);
     i.putExtra(ToDoDB.KEY_NAME,
-        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
-            .toString());
+        mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition()).toString());
     i.setAction(Integer.toString(TAG_EDIT_ID));
     startActivity(i);
   }
@@ -829,8 +826,7 @@ public class TagToDoList extends Activity {
   private void createEntry() {
     Intent i = new Intent(this, Edit.class);
     i.putExtra(ToDoDB.KEY_NAME,
-        mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
-            .toString());
+        mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition()).toString());
     i.putExtra(ToDoDB.KEY_SUPERTASK, "");
     i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
     startActivity(i);
@@ -863,13 +859,13 @@ public class TagToDoList extends Activity {
    * Populates the interface with tags
    */
   private final void fillTagData() {
-    mTagsArrayAdapter = new ArrayAdapter<CharSequence>(this,
+    mTagsAdapter = new ArrayAdapter<CharSequence>(this,
         android.R.layout.simple_spinner_item);
-    mTagsArrayAdapter
+    mTagsAdapter
         .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
     Cursor c = sDbHelper.getTags();
-    ArrayAdapter<CharSequence> taa = mTagsArrayAdapter;
+    ArrayAdapter<CharSequence> taa = mTagsAdapter;
 
     c.moveToFirst();
     do {
@@ -1015,8 +1011,17 @@ public class TagToDoList extends Activity {
     getWindowManager().getDefaultDisplay().getMetrics(dm);
 
     final boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    if (landscape && dm.widthPixels > 799) {//tablet/landscape mode
-      Toast.makeText(this, dm.widthPixels + "", 1).show();
+    if (landscape && dm.widthPixels > 799) {// tablet/landscape mode
+      final LinearLayout bigLayout = (LinearLayout) findViewById(R.id.TagToDoLayout);
+      final LinearLayout tagLayout = new LinearLayout(this);
+      final LayoutParams lp=new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+      lp.width=200;
+      tagLayout.setLayoutParams(lp);
+      getLayoutInflater().inflate(R.layout.taglist, tagLayout);
+      final ListView tagList = (ListView) tagLayout
+          .findViewById(R.id.tagList);
+      tagList.setAdapter(mTagsAdapter);
+      bigLayout.addView(tagLayout, 0);
     }
 
     // Is the notes preview feature enabled?
@@ -1108,10 +1113,9 @@ public class TagToDoList extends Activity {
       case TAG_CREATE_ID:
         if (resultCode == RESULT_OK) {
           fillTagData();
-          sEditor.putInt(
-              LAST_TAB,
-              mTagsArrayAdapter.getPosition(data
-                  .getStringExtra(ToDoDB.KEY_NAME))).commit();
+          sEditor.putInt(LAST_TAB,
+              mTagsAdapter.getPosition(data.getStringExtra(ToDoDB.KEY_NAME)))
+              .commit();
         }
         break;
     }
@@ -1180,7 +1184,7 @@ public class TagToDoList extends Activity {
       case TASK_SUBTASK_ID:
         i = new Intent(this, Edit.class);
         i.putExtra(ToDoDB.KEY_NAME,
-            mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition())
+            mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition())
                 .toString());
         i.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
         i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
@@ -1208,8 +1212,8 @@ public class TagToDoList extends Activity {
         mTagSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
           public void onItemSelected(AdapterView<?> av, View v, int index,
               long arg3) {
-            sDbHelper.updateTaskParent(mContextEntry, mTagsArrayAdapter
-                .getItem(index).toString(), 0);
+            sDbHelper.updateTaskParent(mContextEntry,
+                mTagsAdapter.getItem(index).toString(), 0);
             av.setOnItemSelectedListener(l);
             av.setSelection(p);
           }
@@ -1277,7 +1281,7 @@ public class TagToDoList extends Activity {
         i = new Intent(Intent.ACTION_SEND);
         // Add attributes to the intent
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.tasks) + " - "
-            + mTagsArrayAdapter.getItem(mTagSpinner.getSelectedItemPosition()));
+            + mTagsAdapter.getItem(mTagSpinner.getSelectedItemPosition()));
         i.putExtra(Intent.EXTRA_TEXT, mContextEntry);
         i.setType("plain/text");
         startActivity(Intent.createChooser(i, getString(R.string.email)));
@@ -1314,7 +1318,7 @@ public class TagToDoList extends Activity {
             d.dismiss();
           }
         });
-        for (int tagIndex = 0; tagIndex < mTagsArrayAdapter.getCount(); tagIndex++) {
+        for (int tagIndex = 0; tagIndex < mTagsAdapter.getCount(); tagIndex++) {
           final LinearLayout row = new LinearLayout(this);
           row.setOrientation(LinearLayout.HORIZONTAL);
           final ImageButton ib = new ImageButton(this);
@@ -1343,8 +1347,8 @@ public class TagToDoList extends Activity {
           tv.setTag(tagIndex);
           tv.setLayoutParams(lp);
           tv.setGravity(Gravity.CENTER_VERTICAL);
-          tv.setText(mTagsArrayAdapter.getItem(tagIndex));
-          if (al.contains(mTagsArrayAdapter.getItem(tagIndex))) {
+          tv.setText(mTagsAdapter.getItem(tagIndex));
+          if (al.contains(mTagsAdapter.getItem(tagIndex))) {
             ib.setImageResource(android.R.drawable.btn_star_big_on);
             tv.setTextAppearance(this, android.R.style.TextAppearance_Medium);
             ib.setTag(1);
@@ -1354,7 +1358,7 @@ public class TagToDoList extends Activity {
             ib.setTag(0);
           }
           if (sDbHelper.getStringFlag(mContextEntry, ToDoDB.KEY_TAG).equals(
-              mTagsArrayAdapter.getItem(tagIndex))) {
+              mTagsAdapter.getItem(tagIndex))) {
             ib.setVisibility(View.INVISIBLE);
             tv.setTextAppearance(this, android.R.style.TextAppearance_Medium);
             tv.setTypeface(null, Typeface.ITALIC);
