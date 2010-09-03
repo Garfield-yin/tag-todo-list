@@ -50,6 +50,7 @@
 <string name="message_tasks_left_tag">tasks left in this tag&quot;  &quot;</string>
 <string name="message_tasks_left_total">tasks left in total</string>
 <string name="stats_detailed">detailed stats</string>
+<string name="stats_tasks_unchecked">Unchecked tasks</string>
 
 <!-- Task menu -->
 <string name="entry_group_notes">+ Notes</string>
@@ -212,6 +213,7 @@
 <string name="email">Email</string>
 <string name="todo">TO-DO</string>
 <string name="tasks">Task</string>
+<string name="tag">Tag</string>
 <string name="or">or</string>
 
 <!-- Search -->

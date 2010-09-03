@@ -228,8 +228,34 @@ public class TagToDoList extends Activity {
     mStatButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         final Dialog d = new Dialog(TagToDoList.this);
-        d.setContentView(getStats(d,
-            sPref.getBoolean(Config.DETAILED_STATS, false)));
+        final boolean detailed = sPref.getBoolean(Config.DETAILED_STATS, false);
+        final Button b = new Button(TagToDoList.this);
+        b.setText(R.string.go_back);
+        b.setOnClickListener(new View.OnClickListener() {
+          public void onClick(View view) {
+            d.dismiss();
+          }
+        });
+
+        final CheckBox cb = new CheckBox(TagToDoList.this);
+        cb.setChecked(detailed);
+        cb.setText(R.string.stats_detailed);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+            sEditor.putBoolean(Config.DETAILED_STATS, isChecked).commit();
+            d.dismiss();
+            mStatButton.performClick();
+          }
+        });
+        final TableLayout tl = getStats(d, detailed);
+        final TableRow tr = new TableRow(TagToDoList.this);
+        tr.addView(b);
+        tr.addView(cb);
+        tl.addView(tr);
+        final ScrollView sv = new ScrollView(TagToDoList.this);
+        sv.addView(tl);
+
+        d.setContentView(sv);
         d.setTitle(R.string.message_stats);
         d.show();
       }
@@ -247,9 +273,6 @@ public class TagToDoList extends Activity {
       public void onClick(View view) {
         createEntry();
         if (Analytics.sTracker != null) {
-          // we log the action, pressed button, action trigger and the
-          // existing
-          // number of tasks #EventLogSyntax
           Analytics.sTracker.trackEvent(Analytics.ACTION_PRESS,
               "ADD_TASK_BUTTON", Analytics.SPACE_INTERFACE,
               mEntryLayout.getChildCount());
@@ -286,50 +309,65 @@ public class TagToDoList extends Activity {
   /**
    * Gets the stats view.
    * 
-   * @param d
-   *          the Dialog view the returned view will be in
    * @param detailed
    * @return
    */
-  private final View getStats(final Dialog d, final boolean detailed) {
-    final Button b = new Button(TagToDoList.this);
-    b.setText(R.string.go_back);
-    b.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View view) {
-        d.dismiss();
-      }
-    });
-    
-    final CheckBox cb = new CheckBox(TagToDoList.this);
-    cb.setChecked(detailed);
-    cb.setText(R.string.stats_detailed);
-    cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-        sEditor.putBoolean(Config.DETAILED_STATS, isChecked).commit();
-      }
-    });
-    
+  private final TableLayout getStats(final Dialog d, final boolean detailed) {
+    final TableLayout tl = new TableLayout(this);
     if (detailed) {
-      final LinearLayout ll = new LinearLayout(d.getContext());
-      return ll;
+      tl.setPadding(5, 0, 5, 0);
+      final TableRow tr1 = new TableRow(TagToDoList.this);
+      TextView tv1 = new TextView(TagToDoList.this);
+      tv1.setText(R.string.stats_tasks_unchecked);
+      tr1.addView(tv1);
+      tv1 = new TextView(TagToDoList.this);
+      tv1.setGravity(Gravity.CENTER_HORIZONTAL);
+      tv1.setText(R.string.tag);
+      tr1.addView(tv1);
+      tl.addView(tr1);
+
+      final Cursor c = sDbHelper.getTags();
+      final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
+      c.moveToFirst();
+      do {
+        final String tagName = c.getString(name);
+        final TableRow tr = new TableRow(TagToDoList.this);
+        final TextView tvCount = new TextView(TagToDoList.this);
+        tvCount.setTextSize(30);
+        tvCount.setTextColor(Color.YELLOW);
+        tvCount.setGravity(Gravity.CENTER);
+        tvCount.setText(Integer.toString(sDbHelper.getUncheckedCount(tagName)));
+        tr.addView(tvCount);
+        final Button b = new Button(TagToDoList.this);
+        b.setText(tagName);
+        b.setTag(c.getPosition());
+        b.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            d.dismiss();
+            mTagSpinner.setSelection((Integer) v.getTag());
+          }
+        });
+        tr.addView(b);
+        tl.addView(tr);
+      } while (c.moveToNext());
+      c.close();
+      return tl;
     }
-    final TableLayout tl = new TableLayout(TagToDoList.this);
-    final TableRow tr1 = new TableRow(TagToDoList.this);
-    final TableRow tr2 = new TableRow(TagToDoList.this);
-    final TableRow tr3 = new TableRow(TagToDoList.this);
-    final TextView tvCount1 = new TextView(TagToDoList.this);
-    final TextView tvExplanation1 = new TextView(TagToDoList.this);
-    final TextView tvCount2 = new TextView(TagToDoList.this);
-    final TextView tvExplanation2 = new TextView(TagToDoList.this);
+    final TableRow tr1 = new TableRow(this);
+    final TableRow tr2 = new TableRow(this);
+    final TableRow tr3 = new TableRow(this);
+    final TextView tvCount1 = new TextView(this);
+    final TextView tvExplanation1 = new TextView(this);
+    final TextView tvCount2 = new TextView(this);
+    final TextView tvExplanation2 = new TextView(this);
 
     tvCount1.setTextSize(44);
     tvCount1.setTextColor(Color.YELLOW);
     tvCount1.setPadding(1, 20, 0, 0);
-    tvCount1.setGravity(1);
-    String s = sDbHelper.countUncheckedEntries(mTagsArrayAdapter.getItem(
-        mTagSpinner.getSelectedItemPosition()).toString())
-        + "";
-    tvCount1.setText(s);
+    tvCount1.setGravity(LinearLayout.VERTICAL);
+    tvCount1.setText(Integer.toString(sDbHelper
+        .getUncheckedCount(mTagsArrayAdapter.getItem(
+            mTagSpinner.getSelectedItemPosition()).toString())));
     tr1.addView(tvCount1);
     tvExplanation1.setText(R.string.message_tasks_left_tag);
     tvExplanation1.setTextSize(19);
@@ -340,9 +378,8 @@ public class TagToDoList extends Activity {
     tvCount2.setTextSize(44);
     tvCount2.setTextColor(Color.YELLOW);
     tvCount2.setPadding(1, 20, 0, 20);
-    tvCount2.setGravity(1);
-    s = sDbHelper.countUncheckedEntries() + "";
-    tvCount2.setText(s);
+    tvCount2.setGravity(LinearLayout.VERTICAL);
+    tvCount2.setText(Integer.toString(sDbHelper.getUncheckedCount(null)));
     tr2.addView(tvCount2);
     tvExplanation2.setText(R.string.message_tasks_left_total);
     tvExplanation2.setTextSize(19);
@@ -350,8 +387,6 @@ public class TagToDoList extends Activity {
     tr2.addView(tvExplanation2);
     tr2.setBaselineAligned(false);
     tl.addView(tr2);
-    tr3.addView(b);
-    tr3.addView(cb);
     tl.addView(tr3);
     return tl;
   }
@@ -833,7 +868,7 @@ public class TagToDoList extends Activity {
     mTagsArrayAdapter
         .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-    Cursor c = sDbHelper.getAllTags();
+    Cursor c = sDbHelper.getTags();
     ArrayAdapter<CharSequence> taa = mTagsArrayAdapter;
 
     c.moveToFirst();
@@ -976,9 +1011,16 @@ public class TagToDoList extends Activity {
     setAlphabeticalSort(sPref.getInt(ALPHABET_SORT, 0));
     setDueDateSort(sPref.getInt(DUEDATE_SORT, 0));
 
+    final DisplayMetrics dm = new DisplayMetrics();
+    getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+    final boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    if (landscape && dm.widthPixels > 799) {//tablet/landscape mode
+      Toast.makeText(this, dm.widthPixels + "", 1).show();
+    }
+
     // Is the notes preview feature enabled?
-    SHOW_NOTES = sPref.getBoolean(Config.NOTE_PREVIEW, false)
-        || getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    SHOW_NOTES = sPref.getBoolean(Config.NOTE_PREVIEW, false) || landscape;
 
     // Should the collapse buttons be shown?
     SHOW_COLLAPSE = sPref.getBoolean(Config.SHOW_COLLAPSE, false);
@@ -995,8 +1037,6 @@ public class TagToDoList extends Activity {
       };
       // this positions the description under the task, but to the right of the
       // checkbox icon
-      final DisplayMetrics dm = new DisplayMetrics();
-      getWindowManager().getDefaultDisplay().getMetrics(dm);
       sDescriptionAlignment = (int) (26 * dm.xdpi / 150);
     }
 
