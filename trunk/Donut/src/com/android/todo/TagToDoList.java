@@ -41,7 +41,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -164,7 +163,7 @@ public class TagToDoList extends Activity {
         c.setTheme(android.R.style.Theme_Black_NoTitleBar);
       }
     } else {
-      if (sPref.getBoolean(Config.FULLSCREEN, false)) {
+      if (sp.getBoolean(Config.FULLSCREEN, false)) {
         c.setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
       } else {
         c.setTheme(android.R.style.Theme_Light_NoTitleBar);
