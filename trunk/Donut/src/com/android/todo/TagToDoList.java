@@ -864,8 +864,8 @@ public class TagToDoList extends Activity {
     mTagsAdapter
         .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-    Cursor c = sDbHelper.getTags();
-    ArrayAdapter<CharSequence> taa = mTagsAdapter;
+    final Cursor c = sDbHelper.getTags();
+    final ArrayAdapter<CharSequence> taa = mTagsAdapter;
 
     c.moveToFirst();
     do {
@@ -1014,13 +1014,22 @@ public class TagToDoList extends Activity {
     if (landscape && dm.widthPixels > 799) {// tablet/landscape mode
       final LinearLayout bigLayout = (LinearLayout) findViewById(R.id.TagToDoLayout);
       final LinearLayout tagLayout = new LinearLayout(this);
-      final LayoutParams lp=new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+      final LayoutParams lp=new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
       lp.width=200;
       tagLayout.setLayoutParams(lp);
       getLayoutInflater().inflate(R.layout.taglist, tagLayout);
       final ListView tagList = (ListView) tagLayout
           .findViewById(R.id.tagList);
+      mTagsAdapter = new ArrayAdapter<CharSequence>(this,
+          android.R.layout.simple_list_item_1);
+      final Cursor c = sDbHelper.getTags();
+      c.moveToFirst();
+      do {
+        mTagsAdapter.add(c.getString(1));
+      } while (c.moveToNext());
+      c.close();
       tagList.setAdapter(mTagsAdapter);
+      tagList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
       bigLayout.addView(tagLayout, 0);
     }
 
