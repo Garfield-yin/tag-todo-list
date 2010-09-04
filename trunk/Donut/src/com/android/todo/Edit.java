@@ -612,7 +612,7 @@ public final class Edit extends Activity {
     } else {
       if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
         mTaskText.setText(R.string.create_tag);
-        if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
+        /*if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
           final AdView ad = new AdView(this);
           ad.setBackgroundColor(Color.BLACK);
           ad.setPrimaryTextColor(Color.WHITE);
@@ -620,7 +620,7 @@ public final class Edit extends Activity {
           ad.setKeywords(getString(R.string.ad_keywords));
           ad.setRequestInterval(0);
           sLayout.addView(ad);
-        }
+        }*/
       }
     }
     if (TagToDoList.sTts != null) {
