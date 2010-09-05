@@ -49,16 +49,20 @@
 <string name="message_stats">&quot; &quot;Stats</string>
 <string name="message_tasks_left_tag">tasks left in this tag&quot;  &quot;</string>
 <string name="message_tasks_left_total">tasks left in total</string>
+<string name="stats_detailed">detailed stats</string>
+<string name="stats_tasks_unchecked">Unchecked tasks</string>
 
 <!-- Task menu -->
 <string name="entry_group_notes">+ Notes</string>
-<string name="entry_group_move">+ Move</string>
+<string name="entry_group_move">+ Place</string>
 <string name="entry_group_share">+ Share</string>
 <string name="entry_subtask_add">Add subtask</string>
 <string name="entry_edit">Edit this task</string>
 <string name="entry_delete">Delete this task</string>
 <string name="entry_move">Move to another tag</string>
 <string name="entry_move_under_task">Move under a task</string>
+<string name="entry_add_tags">Add other tags</string>
+<string name="entry_tags_explanation">Click a star to add that tag. Click the tag name to go to that tag. The italic tag is the task\'s primary tag.</string>
 <string name="entry_written_note">Written note</string>
 <string name="entry_graphical_note">Graphical note</string>
 <string name="entry_audio_note">Audio note</string>
@@ -209,6 +213,7 @@
 <string name="email">Email</string>
 <string name="todo">TO-DO</string>
 <string name="tasks">Task</string>
+<string name="tag">Tag</string>
 <string name="or">or</string>
 
 <!-- Search -->
