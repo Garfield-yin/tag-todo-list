@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -41,7 +40,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -51,7 +49,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -112,7 +109,7 @@ public class TagToDoList extends Activity {
   private static final String ALPHABET_SORT = "alphabeticalSorting";
   private static final String DUEDATE_SORT = "dueDateSorting";
   private static final String HIDE_CHECKED_SORT = "hideChecked";
-  public static final String LAST_TAB = "lastSelectedTab";
+  public static final String LAST_TAG = "lastSelectedTab";
 
   // Flags (ideally, should be eliminated sometime in the future)
   public static boolean SYNC_GCAL;
@@ -143,7 +140,7 @@ public class TagToDoList extends Activity {
   private Button mStatButton;
   private Button mAddEntryButton;
   private ScrollView mScrollView;
-  private LinearLayout mTabletColumn = null;
+  private ListLayout mTabletList = null;
   private String mContextEntry;
   private Action mContextAction;
   private int mActiveEntry; // useful only in keyboard mode
@@ -314,28 +311,38 @@ public class TagToDoList extends Activity {
   private final void showTabletMode() {
     sDisplayMetrics = new DisplayMetrics();
     getWindowManager().getDefaultDisplay().getMetrics(sDisplayMetrics);
-    if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE
-        || sDisplayMetrics.widthPixels < 800) {
+    if (sDisplayMetrics.widthPixels < 800) {
       return;
     }
-    // tablet/landscape mode
     final LinearLayout bigLayout = (LinearLayout) findViewById(R.id.TagToDoLayout);
-    mTabletColumn = new LinearLayout(this);
+    final LinearLayout tabletColumn = new LinearLayout(this);
     final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
         LayoutParams.FILL_PARENT);
     lp.width = 200;
-    mTabletColumn.setLayoutParams(lp);
-    getLayoutInflater().inflate(R.layout.taglist, mTabletColumn);
-    bigLayout.addView(mTabletColumn, 0);
+    tabletColumn.setLayoutParams(lp);
+    getLayoutInflater().inflate(R.layout.taglist, tabletColumn);
+    bigLayout.addView(tabletColumn, 0);
     ((LinearLayout) findViewById(R.id.upperLayout)).setVisibility(View.GONE);
-    final ListView lv = (ListView) bigLayout.findViewById(R.id.tagList);
-    lv.setOnItemClickListener(new OnItemClickListener() {
-      public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-          long arg3) {
-        selectTag(true, arg2);
+    mTabletList = new ListLayout(this);
+    mTabletList.setPadding(0, 0, 5, 0);
+    mTabletList.setOnClickRunnable(new Runnable() {
+      public void run() {
+        selectTag(false, mTabletList.getSelected());
       }
     });
-    lv.setFocusable(false);
+    ((ScrollView) findViewById(R.id.tagScrollView)).addView(mTabletList);
+    ((ImageButton) findViewById(R.id.tagAddbutton))
+        .setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            createTag();
+          }
+        });
+    ((ImageButton) findViewById(R.id.tagDelButton))
+        .setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            removeTag();
+          }
+        });
   }
 
   /**
@@ -477,6 +484,9 @@ public class TagToDoList extends Activity {
 
     if (forceUI) {
       mTagSpinner.setSelection(selectedTag);
+      if (mTabletList != null) {
+        mTabletList.select(selectedTag);
+      }
       return;
     }
   }
@@ -573,9 +583,9 @@ public class TagToDoList extends Activity {
           lp.leftMargin = 0;
         }
 
+        final LinearLayout taskNoteLayout = (LinearLayout) ll
+            .findViewById(R.id.taskNotesLayout);
         if (SHOW_NOTES) {
-          final LinearLayout taskNoteLayout = (LinearLayout) ll
-              .findViewById(R.id.taskNotesLayout);
           taskNoteLayout.setOrientation(0);
 
           try {
@@ -600,12 +610,6 @@ public class TagToDoList extends Activity {
                 TASK_AUDIO_ID));
           }
 
-          if (sDbHelper.getStringFlag(taskName, ToDoDB.KEY_SECONDARY_TAGS)
-              .length() > 0) {
-            taskNoteLayout.addView(getNoteButton(taskName, R.drawable.star,
-                TASK_TAGS_ID));
-          }
-
           try { // placed in different try-catch clauses because these fields
                 // appeared in different versions
             auxInt = sDbHelper.getIntFlag(taskName, ToDoDB.KEY_NOTE_IS_PHOTO);
@@ -618,6 +622,12 @@ public class TagToDoList extends Activity {
             taskNoteLayout.addView(getNoteButton(taskName,
                 android.R.drawable.ic_menu_camera, TASK_PHOTO_ID));
           }
+        }
+        
+        if (sDbHelper.getStringFlag(taskName, ToDoDB.KEY_SECONDARY_TAGS)
+            .length() > 0) {
+          taskNoteLayout.addView(getNoteButton(taskName, R.drawable.star,
+              TASK_TAGS_ID));
         }
 
         boolean collapsed = false;
@@ -904,7 +914,7 @@ public class TagToDoList extends Activity {
    */
   private final void fillTagData() {
     ArrayAdapter<CharSequence> taa;
-    if (mTabletColumn == null) {
+    if (mTabletList == null) {
       taa = new ArrayAdapter<CharSequence>(this,
           android.R.layout.simple_spinner_item);
       taa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -923,8 +933,8 @@ public class TagToDoList extends Activity {
 
     mTagSpinner.setAdapter(taa);
 
-    if (mTabletColumn != null) {
-      ((ListView) findViewById(R.id.tagList)).setAdapter(taa);
+    if (mTabletList != null) {
+      mTabletList.setAdapter(taa);
     }
     mTagsAdapter = taa;
   }
@@ -1037,7 +1047,7 @@ public class TagToDoList extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
-    sEditor.putInt(LAST_TAB, sCurrentTag).commit();
+    sEditor.putInt(LAST_TAG, sCurrentTag).commit();
   }
 
   @Override
@@ -1062,7 +1072,7 @@ public class TagToDoList extends Activity {
 
     // Is the notes preview feature enabled?
     SHOW_NOTES = sPref.getBoolean(Config.NOTE_PREVIEW, false)
-        || mTabletColumn != null;
+        || mTabletList != null;
 
     // Should the collapse buttons be shown?
     SHOW_COLLAPSE = sPref.getBoolean(Config.SHOW_COLLAPSE, false);
@@ -1097,11 +1107,11 @@ public class TagToDoList extends Activity {
     }
 
     // Restore the last selected tag
-    sCurrentTag = sPref.getInt(LAST_TAB, 0);
+    sCurrentTag = sPref.getInt(LAST_TAG, 0);
     if (sCurrentTag >= mTagSpinner.getCount()) {
       sCurrentTag = 0;
     }
-    mTagSpinner.setSelection(sCurrentTag, true);
+    selectTag(true, sCurrentTag);
 
     if (sPref.getBoolean(Config.BLIND_MODE, false)) {
       if (sTts == null) {
@@ -1142,7 +1152,7 @@ public class TagToDoList extends Activity {
       case TAG_CREATE_ID:
         if (resultCode == RESULT_OK) {
           fillTagData();
-          sEditor.putInt(LAST_TAB,
+          sEditor.putInt(LAST_TAG,
               mTagsAdapter.getPosition(data.getStringExtra(ToDoDB.KEY_NAME)))
               .commit();
         }
@@ -1394,7 +1404,7 @@ public class TagToDoList extends Activity {
           tv.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
               closeButton.performClick();
-              mTagSpinner.setSelection((Integer) v.getTag());
+              selectTag(true, (Integer) v.getTag());
             }
           });
           row.addView(ib);
