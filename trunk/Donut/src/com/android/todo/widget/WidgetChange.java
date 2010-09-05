@@ -60,7 +60,7 @@ public final class WidgetChange extends BroadcastReceiver {
 
     // initializing UI
     sSettings = c.getSharedPreferences(TagToDoList.PREFS_NAME, 0);
-    sTagCursor.moveToPosition(sTag = sSettings.getInt(TagToDoList.LAST_TAB, 0));
+    sTagCursor.moveToPosition(sTag = sSettings.getInt(TagToDoList.LAST_TAG, 0));
     final String tag = sTagCursor.getString(sTagCursor
         .getColumnIndex(ToDoDB.KEY_NAME));
     rv.setTextViewText(R.id.tagItem, tag);
@@ -104,7 +104,7 @@ public final class WidgetChange extends BroadcastReceiver {
       case R.id.nextTagButton:
         sTagCursor.moveToPosition(sTag = Utils.iterate(sTag, sTagCursor
             .getCount(), 1));
-        sSettings.edit().putInt(TagToDoList.LAST_TAB, sTag).commit();
+        sSettings.edit().putInt(TagToDoList.LAST_TAG, sTag).commit();
         final String tag = sTagCursor.getString(sTagCursor
             .getColumnIndex(ToDoDB.KEY_NAME));
         rv.setTextViewText(R.id.tagItem, tag);
