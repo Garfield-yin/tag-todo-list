@@ -41,6 +41,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -188,10 +189,10 @@ public class TagToDoList extends Activity {
         mActiveEntry = -1;
         selectTag(false, position);
         if (sTts != null) {
-          sTts.speak(mTagsAdapter
-              .getItem(sCurrentTag).toString());
+          sTts.speak(mTagsAdapter.getItem(sCurrentTag).toString());
         }
       }
+
       public void onNothingSelected(AdapterView<?> arg0) {
       }
     });
@@ -298,9 +299,8 @@ public class TagToDoList extends Activity {
     sGestureListener = new OnTouchListener() {
       public boolean onTouch(View v, MotionEvent event) {
         if (sGestureDetector.onTouchEvent(event)) {
-          mTagSpinner.setSelection(Utils.iterate(
-              sCurrentTag, mTagSpinner.getCount(),
-              MyGestureDetector.getDirection()));
+          mTagSpinner.setSelection(Utils.iterate(sCurrentTag,
+              mTagSpinner.getCount(), MyGestureDetector.getDirection()));
           return true;
         }
         return false;
@@ -329,12 +329,13 @@ public class TagToDoList extends Activity {
     bigLayout.addView(mTabletColumn, 0);
     ((LinearLayout) findViewById(R.id.upperLayout)).setVisibility(View.GONE);
     final ListView lv = (ListView) bigLayout.findViewById(R.id.tagList);
-    lv.setOnTouchListener(new OnTouchListener(){
-      public boolean onTouch(View arg0, MotionEvent arg1) {
-        selectTag(true, lv.getSelectedItemPosition());
-        return false;
+    lv.setOnItemClickListener(new OnItemClickListener() {
+      public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+          long arg3) {
+        selectTag(true, arg2);
       }
     });
+    lv.setFocusable(false);
   }
 
   /**
@@ -434,8 +435,7 @@ public class TagToDoList extends Activity {
    * 
    */
   private final void selectTag(final boolean forceUI, int selectedTag) {
-    if (forceUI) {
-      mTagSpinner.setSelection(selectedTag);
+    if (!forceUI && selectedTag == sCurrentTag) {
       return;
     }
     final LinearLayout el = mEntryLayout;
@@ -467,13 +467,18 @@ public class TagToDoList extends Activity {
     if (selectedTag == -2) {
       selectedTag = sCurrentTag;
     }
-    sCurrentTag=selectedTag;
+    sCurrentTag = selectedTag;
 
     final ToDoDB dbHelper = sDbHelper;
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
         ccl, sPref.getInt(Config.TEXT_SIZE, 16),
         sPref.getInt(Config.TASK_PADDING, 12) - 12, selectedTag, 0, null)));
+
+    if (forceUI) {
+      mTagSpinner.setSelection(selectedTag);
+      return;
+    }
   }
 
   /**
@@ -754,15 +759,13 @@ public class TagToDoList extends Activity {
         removeAllTasks();
         return true;
       case TAG_CLEAR_CHECKED_ID:
-        sDbHelper.deleteEntries(
-            mTagsAdapter.getItem(sCurrentTag)
-                .toString(), true);
+        sDbHelper.deleteEntries(mTagsAdapter.getItem(sCurrentTag).toString(),
+            true);
         selectTag(false, -2);
         return true;
       case TAG_UNINDENT_ID:
-        final Cursor c = sDbHelper.getTasks(
-            mTagsAdapter.getItem(sCurrentTag)
-                .toString(), -1, null);
+        final Cursor c = sDbHelper.getTasks(mTagsAdapter.getItem(sCurrentTag)
+            .toString(), -1, null);
         final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
         if (c.getCount() > 0) {
           final ContentValues args = new ContentValues();
@@ -828,8 +831,7 @@ public class TagToDoList extends Activity {
       return;
     }
     Intent i = new Intent(this, Confirmation.class);
-    i.putExtra(ToDoDB.KEY_NAME,
-        mTagsAdapter.getItem(sCurrentTag).toString());
+    i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
     i.setAction(Integer.toString(TAG_DELETE_ID));
     startActivity(i);
   }
@@ -839,8 +841,7 @@ public class TagToDoList extends Activity {
    */
   private final void removeAllTasks() {
     final Intent i = new Intent(this, Confirmation.class);
-    i.putExtra(ToDoDB.KEY_NAME,
-        mTagsAdapter.getItem(sCurrentTag).toString());
+    i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
     i.setAction(Integer.toString(TAG_CLEAR_ID));
     startActivity(i);
   }
@@ -850,8 +851,7 @@ public class TagToDoList extends Activity {
    */
   private void editTag() {
     Intent i = new Intent(this, Edit.class);
-    i.putExtra(ToDoDB.KEY_NAME,
-        mTagsAdapter.getItem(sCurrentTag).toString());
+    i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
     i.setAction(Integer.toString(TAG_EDIT_ID));
     startActivity(i);
   }
@@ -870,8 +870,7 @@ public class TagToDoList extends Activity {
    */
   private void createEntry() {
     Intent i = new Intent(this, Edit.class);
-    i.putExtra(ToDoDB.KEY_NAME,
-        mTagsAdapter.getItem(sCurrentTag).toString());
+    i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
     i.putExtra(ToDoDB.KEY_SUPERTASK, "");
     i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
     startActivity(i);
@@ -1213,9 +1212,8 @@ public class TagToDoList extends Activity {
         break;
       case TASK_SUBTASK_ID:
         i = new Intent(this, Edit.class);
-        i.putExtra(ToDoDB.KEY_NAME,
-            mTagsAdapter.getItem(sCurrentTag)
-                .toString());
+        i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag)
+            .toString());
         i.putExtra(ToDoDB.KEY_SUPERTASK, mContextEntry);
         i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
         startActivity(i);
@@ -1441,16 +1439,14 @@ public class TagToDoList extends Activity {
         }
         return false;
       case KeyEvent.KEYCODE_DPAD_LEFT:
-        mTagSpinner.setSelection(Utils.iterate(
-            sCurrentTag, mTagSpinner.getCount(), 1));
+        mTagSpinner.setSelection(Utils.iterate(sCurrentTag,
+            mTagSpinner.getCount(), 1));
         // ???replace this with a method, it's called too many times
         return false;
       case (KeyEvent.KEYCODE_N):
         if (msg.isAltPressed()) {
-          mTagSpinner
-              .setSelection(Utils.iterate(
-                  sCurrentTag,
-                  mTagSpinner.getCount(), 1));
+          mTagSpinner.setSelection(Utils.iterate(sCurrentTag,
+              mTagSpinner.getCount(), 1));
         } else {
           selectAnotherEntry(1);
         }
@@ -1459,15 +1455,13 @@ public class TagToDoList extends Activity {
         selectAnotherEntry(1);
         return true;
       case KeyEvent.KEYCODE_DPAD_RIGHT:
-        mTagSpinner.setSelection(Utils.iterate(
-            sCurrentTag, mTagSpinner.getCount(), -1));
+        mTagSpinner.setSelection(Utils.iterate(sCurrentTag,
+            mTagSpinner.getCount(), -1));
         return false;
       case (KeyEvent.KEYCODE_P):
         if (msg.isAltPressed()) {
-          mTagSpinner
-              .setSelection(Utils.iterate(
-                  sCurrentTag,
-                  mTagSpinner.getCount(), -1));
+          mTagSpinner.setSelection(Utils.iterate(sCurrentTag,
+              mTagSpinner.getCount(), -1));
         } else {
           selectAnotherEntry(-1);
         }
