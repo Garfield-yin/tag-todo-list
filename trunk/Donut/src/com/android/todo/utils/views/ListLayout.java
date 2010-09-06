@@ -1,20 +1,29 @@
-package com.android.todo;
+package com.android.todo.utils.views;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public final class ListLayout extends LinearLayout {
-  private Runnable mRunnable = null;
-  private int mSelected = -1;
-
+public class ListLayout extends LinearLayout {
+  
   public ListLayout(Context context) {
     super(context);
     this.setOrientation(LinearLayout.VERTICAL);
   }
+  
+  public ListLayout(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    this.setOrientation(LinearLayout.VERTICAL);
+  }
+
+  private Runnable mRunnable = null;
+  private int mSelected = -1;
+
+
 
   public final int getSelected() {
     return mSelected;

@@ -1,6 +1,6 @@
 //class made by Teo ( www.teodorfilimon.com ). More about the app in readme.txt
 
-package com.android.todo;
+package com.android.todo.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,6 +30,10 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import com.android.todo.Audio;
+import com.android.todo.Graphics;
+import com.android.todo.NotificationActivity;
+import com.android.todo.R;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.receivers.AlarmReceiver;
 

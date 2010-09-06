@@ -12,11 +12,11 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.android.todo.Utils;
 import com.android.todo.data.ADB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.olympus.Chronos.Time;
+import com.android.todo.utils.Utils;
 
 /**
  * This is an activity used to process status bar notification activations

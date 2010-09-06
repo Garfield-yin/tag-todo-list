@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/lowerLayout" android:orientation="vertical"
+	android:id="@+id/taskGeneralLayout" android:orientation="vertical"
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-	<LinearLayout android:gravity="center_vertical"
-		android:orientation="horizontal" android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
+	<LinearLayout android:id="@+id/taskUpperLayout"
+		android:gravity="center_vertical" android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 		<CheckBox android:id="@+id/taskCheckBox"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"

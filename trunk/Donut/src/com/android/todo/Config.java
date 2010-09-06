@@ -28,6 +28,7 @@ import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.speech.TTS;
 import com.android.todo.sync.GoogleCalendar;
+import com.android.todo.utils.Utils;
 
 /**
  * This activity represents a configuration screen

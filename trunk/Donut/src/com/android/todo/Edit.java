@@ -51,6 +51,7 @@ import com.android.todo.olympus.Chronos.Time;
 import com.android.todo.receivers.AlarmReceiver;
 import com.android.todo.speech.OneTimeTTS;
 import com.android.todo.sync.GoogleCalendar;
+import com.android.todo.utils.Utils;
 import com.android.todo.widget.TagToDoWidget;
 
 /**
@@ -91,9 +92,14 @@ public final class Edit extends Activity {
     super.onCreate(savedInstanceState);
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
     setContentView(R.layout.edit);
-    final boolean noPhysicalKeyboard = (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS);
+    final Configuration config=getResources().getConfiguration();
+    final boolean noPhysicalKeyboard = (config.keyboard == Configuration.KEYBOARD_NOKEYS);
+    final InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     mTaskText = (TextView) findViewById(R.id.task);
     mBodyText = (EditText) findViewById(R.id.body);
+    if (noPhysicalKeyboard && config.orientation == Configuration.ORIENTATION_LANDSCAPE){
+      inputManager.showSoftInput(mBodyText, InputMethodManager.SHOW_IMPLICIT);
+    }
     mBodyText.setOnKeyListener(new View.OnKeyListener() {
       public boolean onKey(View v, int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -102,8 +108,6 @@ public final class Edit extends Activity {
               return false;
             }
             if (noPhysicalKeyboard) {
-              InputMethodManager inputManager = (InputMethodManager) v
-                  .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
               inputManager.hideSoftInputFromWindow(v.getWindowToken(),
                   InputMethodManager.HIDE_IMPLICIT_ONLY);
               return true;
@@ -158,10 +162,11 @@ public final class Edit extends Activity {
     final String action = getIntent().getAction();
     final boolean creating = action.equals(Integer
         .toString(TagToDoList.ACTIVITY_CREATE_ENTRY));
-    
+
     sLayout = (LinearLayout) findViewById(R.id.editLinearLayout);
 
-    if (creating || action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
+    if (creating
+        || action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
       // now comes priority stuff
       mPriorityText = creating ? this.getString(R.string.priority_default)
           : this.getString(R.string.priority);
@@ -351,7 +356,8 @@ public final class Edit extends Activity {
           }
         } else if (action.equals(Integer.toString(TagToDoList.TAG_EDIT_ID))) {
           mDbHelper.updateTag(sTask, newName);
-        } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
+        } else if (action.equals(Integer
+            .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
           final String result = mDbHelper.createTask(sTask, newName);
           if (sSuperTask != null && sSuperTask.length() > 0) {
             try {
@@ -366,7 +372,8 @@ public final class Edit extends Activity {
             return;
           }
           updateTask(newName);
-        } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
+        } else if (action.equals(Integer
+            .toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
           mDbHelper.deleteAlarm(sTask);
           mDbHelper.updateTask(sTask, newName);
           updateTask(newName);
@@ -599,28 +606,30 @@ public final class Edit extends Activity {
         mTaskText.setText(R.string.edit_tag);
         mBodyText.setText(sTask);
         mBodyText.setSelection(sTask.length(), sTask.length());
-      } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
+      } else if (action.equals(Integer
+          .toString(TagToDoList.ACTIVITY_CREATE_ENTRY))) {
         mTaskText.setText(R.string.entry_create);
-      } else if (action.equals(Integer.toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
+      } else if (action.equals(Integer
+          .toString(TagToDoList.ACTIVITY_EDIT_ENTRY))) {
         mTaskText.setText(R.string.edit_entry);
         mBodyText.setText(sTask);
         mBodyText.setSelection(sTask.length(), sTask.length());
       } else if (action.equals(Integer.toString(TagToDoList.TASK_WRITTEN_ID))) {
         mTaskText.setText(R.string.edit_written_note);
-        mBodyText.setText(mDbHelper.getStringFlag(sTask, ToDoDB.KEY_WRITTEN_NOTE));
+        mBodyText.setText(mDbHelper.getStringFlag(sTask,
+            ToDoDB.KEY_WRITTEN_NOTE));
       }
     } else {
       if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
         mTaskText.setText(R.string.create_tag);
-        /*if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
-          final AdView ad = new AdView(this);
-          ad.setBackgroundColor(Color.BLACK);
-          ad.setPrimaryTextColor(Color.WHITE);
-          ad.setSecondaryTextColor(Color.DKGRAY);
-          ad.setKeywords(getString(R.string.ad_keywords));
-          ad.setRequestInterval(0);
-          sLayout.addView(ad);
-        }*/
+        /*
+         * if (!sPref.getBoolean(Config.AD_DISABLED, false)) { final AdView ad =
+         * new AdView(this); ad.setBackgroundColor(Color.BLACK);
+         * ad.setPrimaryTextColor(Color.WHITE);
+         * ad.setSecondaryTextColor(Color.DKGRAY);
+         * ad.setKeywords(getString(R.string.ad_keywords));
+         * ad.setRequestInterval(0); sLayout.addView(ad); }
+         */
       }
     }
     if (TagToDoList.sTts != null) {
@@ -687,8 +696,8 @@ public final class Edit extends Activity {
    */
   private final void syncToWeb(final String name) {
     if (TagToDoList.SYNC_GCAL) {
-      final SharedPreferences pref = getSharedPreferences(TagToDoList.PREFS_NAME,
-          Context.MODE_PRIVATE);
+      final SharedPreferences pref = getSharedPreferences(
+          TagToDoList.PREFS_NAME, Context.MODE_PRIVATE);
       GoogleCalendar.setLogin(pref.getString(Config.GOOGLE_USERNAME, ""),
           pref.getString(Config.GOOGLE_PASSWORD, ""));
       try {

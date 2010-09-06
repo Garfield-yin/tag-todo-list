@@ -3,6 +3,7 @@
 package com.android.todo;
 
 import com.android.todo.data.ToDoDB;
+import com.android.todo.utils.Utils;
 
 import android.app.Activity;
 import android.app.NotificationManager;

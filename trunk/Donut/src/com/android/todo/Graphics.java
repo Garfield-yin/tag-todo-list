@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.android.todo.data.ToDoDB;
+import com.android.todo.utils.Utils;
 
 /**
  * This is an activity which allows us to draw a graphical note for a specific
