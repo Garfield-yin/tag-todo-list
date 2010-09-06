@@ -64,6 +64,8 @@ import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.speech.TTS;
 import com.android.todo.sync.CSV;
 import com.android.todo.sync.GoogleCalendar;
+import com.android.todo.utils.Utils;
+import com.android.todo.utils.views.ListLayout;
 import com.android.todo.widget.TagToDoWidget;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -323,14 +325,14 @@ public class TagToDoList extends Activity {
     getLayoutInflater().inflate(R.layout.taglist, tabletColumn);
     bigLayout.addView(tabletColumn, 0);
     ((LinearLayout) findViewById(R.id.upperLayout)).setVisibility(View.GONE);
-    mTabletList = new ListLayout(this);
+    mTabletList = (ListLayout) findViewById(R.id.tagTabletList);
     mTabletList.setPadding(0, 0, 5, 0);
     mTabletList.setOnClickRunnable(new Runnable() {
       public void run() {
         selectTag(false, mTabletList.getSelected());
       }
     });
-    ((ScrollView) findViewById(R.id.tagScrollView)).addView(mTabletList);
+    //((LinearLayout) findViewById(R.id.tagTabletList)).addView(mTabletList);
     ((ImageButton) findViewById(R.id.tagAddbutton))
         .setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
@@ -475,7 +477,6 @@ public class TagToDoList extends Activity {
       selectedTag = sCurrentTag;
     }
     sCurrentTag = selectedTag;
-
     final ToDoDB dbHelper = sDbHelper;
     final LayoutInflater inflater = getLayoutInflater();
     mStatButton.setText(Integer.toString(processDepth(dbHelper, inflater, el,
@@ -483,7 +484,7 @@ public class TagToDoList extends Activity {
         sPref.getInt(Config.TASK_PADDING, 12) - 12, selectedTag, 0, null)));
 
     if (forceUI) {
-      mTagSpinner.setSelection(selectedTag);
+      mTagSpinner.setSelection(selectedTag, true);
       if (mTabletList != null) {
         mTabletList.select(selectedTag);
       }
@@ -623,7 +624,7 @@ public class TagToDoList extends Activity {
                 android.R.drawable.ic_menu_camera, TASK_PHOTO_ID));
           }
         }
-        
+
         if (sDbHelper.getStringFlag(taskName, ToDoDB.KEY_SECONDARY_TAGS)
             .length() > 0) {
           taskNoteLayout.addView(getNoteButton(taskName, R.drawable.star,
@@ -1133,7 +1134,6 @@ public class TagToDoList extends Activity {
     } else {
       Analytics.sTracker = null;
     }
-
   }
 
   @Override
@@ -1853,15 +1853,17 @@ public class TagToDoList extends Activity {
     switch (x) {
       case 1:
         ToDoDB.setPriorityOrder(true, false);
+        selectTag(false, -2);
         break;
       case 2:
         ToDoDB.setPriorityOrder(true, true);
+        selectTag(false, -2);
         break;
       case 3:
         ToDoDB.setPriorityOrder(false, false);
+        selectTag(false, -2);
         break;
     }
-    selectTag(false, -2);
   }
 
   /**
@@ -1873,15 +1875,17 @@ public class TagToDoList extends Activity {
     switch (x) {
       case 1:
         ToDoDB.setAlphabeticalOrder(true, false);
+        selectTag(false, -2);
         break;
       case 2:
         ToDoDB.setAlphabeticalOrder(true, true);
+        selectTag(false, -2);
         break;
       case 3:
         ToDoDB.setAlphabeticalOrder(false, false);
+        selectTag(false, -2);
         break;
     }
-    selectTag(false, -2);
   }
 
   /**
@@ -1893,14 +1897,16 @@ public class TagToDoList extends Activity {
     switch (x) {
       case 1:
         ToDoDB.setDueDateOrder(true, false);
+        selectTag(false, -2);
         break;
       case 2:
         ToDoDB.setDueDateOrder(true, true);
+        selectTag(false, -2);
         break;
       case 3:
         ToDoDB.setDueDateOrder(false, false);
+        selectTag(false, -2);
         break;
     }
-    selectTag(false, -2);
   }
 }

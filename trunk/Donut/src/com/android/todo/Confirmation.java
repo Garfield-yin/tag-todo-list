@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.android.todo.data.ToDoDB;
 import com.android.todo.sync.CSV;
+import com.android.todo.utils.Utils;
 
 /**
  * This is a multi-purpose class used to request confirmations for tag

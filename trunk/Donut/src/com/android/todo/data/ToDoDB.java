@@ -19,12 +19,12 @@ import android.os.Environment;
 
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
-import com.android.todo.Utils;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
 import com.android.todo.olympus.Chronos.Time;
 import com.android.todo.receivers.AlarmReceiver;
 import com.android.todo.receivers.BootReceiver;
+import com.android.todo.utils.Utils;
 
 /**
  * This class handles all the interactions with the database. The database
@@ -581,8 +581,8 @@ public final class ToDoDB extends ADB {
             DB_TASK_TABLE,
             new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_TAG,
                 KEY_SUBTASKS, KEY_SECONDARY_TAGS },
-            ((tag != null ? KEY_TAG + "='" + tag + "' OR " + KEY_SECONDARY_TAGS
-                + " LIKE '%" + tag + "%' " : "1=1 ")
+            ((tag != null ? '('+KEY_TAG + "='" + tag + "' OR " + KEY_SECONDARY_TAGS
+                + " LIKE '%" + tag + "%') " : "1=1 ")
                 + (depth != -1 ? "AND " + KEY_DEPTH + "=" + depth + " " : "") + (superTask != null ? "AND "
                 + KEY_SUPERTASK + "='" + superTask + "' "
                 : ""))
@@ -607,7 +607,7 @@ public final class ToDoDB extends ADB {
         new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
         null, null, null);
     tasks.moveToFirst();
-    final int value = tasks.getInt(1);
+    final int value = tasks.getInt(tasks.getColumnIndex(key));
     tasks.close();
     return value;
   }
@@ -625,7 +625,7 @@ public final class ToDoDB extends ADB {
         new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
         null, null, null);
     tasks.moveToFirst();
-    final String value = tasks.getString(1);
+    final String value = tasks.getString(tasks.getColumnIndex(key));
     tasks.close();
     return value != null ? value : "";
   }
@@ -896,7 +896,7 @@ public final class ToDoDB extends ADB {
     final ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
-    final Cursor subtasks = getTasks(null, 1, task);
+    final Cursor subtasks = getTasks(null,-1, task);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
       subtasks.moveToFirst();
@@ -1119,12 +1119,13 @@ public final class ToDoDB extends ADB {
     String curTask = superTask;
     Cursor c;
     while ((c = mDb.query(DB_TASK_TABLE,
-        new String[] { KEY_NAME, KEY_SUPERTASK }, KEY_NAME + " = '" + curTask
+        new String[] { KEY_NAME, KEY_SUPERTASK }, KEY_NAME + "='" + curTask
             + "'", null, null, null, null)).getCount() > 0) {
       c.moveToFirst();
-      if (task.equals(curTask = c.getString(1))) {
+      if (task.equals(curTask = c.getString(c.getColumnIndex(KEY_SUPERTASK)))) {
         throw new Exception();
       }
+      c.close();
     }
 
     c = mDb.query(DB_TASK_TABLE, new String[] { KEY_NAME, KEY_DEPTH,
@@ -1133,11 +1134,11 @@ public final class ToDoDB extends ADB {
     c.moveToFirst();
     ContentValues args = new ContentValues();
     args.put(KEY_SUPERTASK, superTask);
-    args.put(KEY_DEPTH, c.getInt(1) + 1);
-    updateTaskParent(task, c.getString(3), c.getInt(1) + 1);
+    args.put(KEY_DEPTH, c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
+    updateTaskParent(task, c.getString(c.getColumnIndex(KEY_TAG)), c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
     args = new ContentValues();
-    args.put(KEY_SUBTASKS, c.getInt(2) + 1);
+    args.put(KEY_SUBTASKS, c.getInt(c.getColumnIndex(KEY_SUBTASKS)) + 1);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + superTask + "'", null);
     c.close();
     updateTask(superTask, false, null);
@@ -1225,7 +1226,7 @@ public final class ToDoDB extends ADB {
     if (subtasks.getCount() > 0) {
       subtasks.moveToFirst();
       do {
-        deleteTask(subtasks.getString(0));
+        deleteTask(subtasks.getString(subtasks.getColumnIndex(KEY_NAME)));
       } while (subtasks.moveToNext());
     }
     subtasks.close();

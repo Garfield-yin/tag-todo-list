@@ -15,8 +15,8 @@ import android.widget.RemoteViews;
 import com.android.todo.Edit;
 import com.android.todo.R;
 import com.android.todo.TagToDoList;
-import com.android.todo.Utils;
 import com.android.todo.data.ToDoDB;
+import com.android.todo.utils.Utils;
 
 /**
  * This is an activity used process user actions on the widget

@@ -24,6 +24,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.todo.data.ToDoDB;
+import com.android.todo.utils.Utils;
 
 /**
  * This is another activity (basically an audio screen). It will allow the user
