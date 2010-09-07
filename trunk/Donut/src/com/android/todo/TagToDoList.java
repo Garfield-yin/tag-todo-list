@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -61,6 +62,7 @@ import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
+import com.android.todo.olympus.Zeus;
 import com.android.todo.speech.TTS;
 import com.android.todo.sync.CSV;
 import com.android.todo.sync.GoogleCalendar;
@@ -305,6 +307,8 @@ public class TagToDoList extends Activity {
         return false;
       }
     };
+    
+    Zeus.remind(configButton, Config.CONFIG_VIEWS);
   }
 
   /**
@@ -313,7 +317,8 @@ public class TagToDoList extends Activity {
   private final void showTabletMode() {
     sDisplayMetrics = new DisplayMetrics();
     getWindowManager().getDefaultDisplay().getMetrics(sDisplayMetrics);
-    if (sDisplayMetrics.widthPixels < 800) {
+    if (sDisplayMetrics.widthPixels < 800
+        || getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
       return;
     }
     final LinearLayout bigLayout = (LinearLayout) findViewById(R.id.TagToDoLayout);
@@ -332,7 +337,7 @@ public class TagToDoList extends Activity {
         selectTag(false, mTabletList.getSelected());
       }
     });
-    //((LinearLayout) findViewById(R.id.tagTabletList)).addView(mTabletList);
+    // ((LinearLayout) findViewById(R.id.tagTabletList)).addView(mTabletList);
     ((ImageButton) findViewById(R.id.tagAddbutton))
         .setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
@@ -540,6 +545,7 @@ public class TagToDoList extends Activity {
     final int maxPriority = mMaxPriority;
     final boolean hideChecked = HIDE_CHECKED;
     int auxInt;
+    String auxString;
     boolean auxBool;
 
     if (c.getCount() > 0) {
@@ -625,8 +631,17 @@ public class TagToDoList extends Activity {
           }
         }
 
-        if (sDbHelper.getStringFlag(taskName, ToDoDB.KEY_SECONDARY_TAGS)
-            .length() > 0) {
+        try { // placed in different try-catch clauses because these fields
+          // appeared in different versions
+          auxString = sDbHelper.getStringFlag(taskName,
+              ToDoDB.KEY_SECONDARY_TAGS);
+        } catch (Exception e) {
+          sDbHelper.repair();
+          auxString = sDbHelper.getStringFlag(taskName,
+              ToDoDB.KEY_SECONDARY_TAGS);
+        }
+
+        if (auxString.length() > 0) {
           taskNoteLayout.addView(getNoteButton(taskName, R.drawable.star,
               TASK_TAGS_ID));
         }
@@ -1034,6 +1049,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.DETAILED_STATS, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.DETAILED_STATS, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.CONFIG_VIEWS, Analytics.SPACE_STATE,
+            sPref.getInt(Config.CONFIG_VIEWS, 0));
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }

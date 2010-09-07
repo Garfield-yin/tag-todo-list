@@ -66,6 +66,7 @@ public final class Config extends Activity {
   public static final String ALARM_DURATION = "alarmDuration";
   public static final String ALARM_SCREEN = "alarmScreen";
   public static final String DETAILED_STATS = "statsDetailed";
+  public static final String CONFIG_VIEWS = "numberOfConfigViews";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -223,6 +224,9 @@ public final class Config extends Activity {
         }
       }
     });
+
+    TagToDoList.sEditor.putInt(Config.CONFIG_VIEWS,
+        TagToDoList.sPref.getInt(Config.CONFIG_VIEWS, 0) + 1);
   }
 
   /**
