@@ -307,7 +307,7 @@ public class TagToDoList extends Activity {
         return false;
       }
     };
-    
+
     Zeus.remind(configButton, Config.CONFIG_VIEWS);
   }
 
@@ -529,8 +529,8 @@ public class TagToDoList extends Activity {
       final OnCheckedChangeListener ccl, final int textSize,
       final int taskPadding, final int selectedTag, final int depth,
       final String superTask) {
-    final Cursor c = sDbHelper.getTasks(selectedTag != -1 ? mTagsAdapter
-        .getItem(selectedTag).toString() : null, depth, superTask);
+    final Cursor c = sDbHelper.getTasks(selectedTag == -1 || depth > 0 ? null
+        : mTagsAdapter.getItem(selectedTag).toString(), depth, superTask);
 
     final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
     final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
@@ -1346,6 +1346,11 @@ public class TagToDoList extends Activity {
         mContextAction.perform(this);
         break;
       case TASK_TAGS_ID:
+        if (sDbHelper.getIntFlag(mContextEntry, ToDoDB.KEY_DEPTH) > 0) {
+          Utils.showDialog(R.string.notification,
+              R.string.entry_tags_impossible, this);
+          break;
+        }
         final ArrayList<String> al = new ArrayList<String>(
             Arrays.asList(sDbHelper.getStringFlag(mContextEntry,
                 ToDoDB.KEY_SECONDARY_TAGS).split("'")));

@@ -63,6 +63,7 @@
 <string name="entry_move_under_task">Move under a task</string>
 <string name="entry_add_tags">Add other tags</string>
 <string name="entry_tags_explanation">Click a star to add that tag. Click the tag name to go to that tag. The italic tag is the task\'s primary tag.</string>
+<string name="entry_tags_impossible">You can only add multiple tags to unindented tasks. In case they have subtasks, the multiple tags will be applied to the entire hierarchy of tasks.</string>
 <string name="entry_written_note">Written note</string>
 <string name="entry_graphical_note">Graphical note</string>
 <string name="entry_audio_note">Audio note</string>
