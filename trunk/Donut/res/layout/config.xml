@@ -13,7 +13,8 @@
 			android:paddingTop="66dip">
 			<ScrollView android:id="@+id/configScrollView"
 				android:orientation="vertical" android:layout_width="fill_parent"
-				android:layout_height="fill_parent">
+				android:layout_height="fill_parent"
+				android:scrollbarAlwaysDrawVerticalTrack="true">
 				<LinearLayout android:id="@+id/configLayout"
 					android:orientation="vertical" android:gravity="fill_horizontal"
 					android:layout_width="fill_parent" android:layout_height="fill_parent">
