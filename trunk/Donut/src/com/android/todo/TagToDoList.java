@@ -529,8 +529,15 @@ public class TagToDoList extends Activity {
       final OnCheckedChangeListener ccl, final int textSize,
       final int taskPadding, final int selectedTag, final int depth,
       final String superTask) {
-    final Cursor c = sDbHelper.getTasks(selectedTag == -1 || depth > 0 ? null
-        : mTagsAdapter.getItem(selectedTag).toString(), depth, superTask);
+    Cursor c;
+    try {
+      c = sDbHelper.getTasks(selectedTag == -1 || depth > 0 ? null
+          : mTagsAdapter.getItem(selectedTag).toString(), depth, superTask);
+    } catch (Exception e) {
+      sDbHelper.repair();
+      c = sDbHelper.getTasks(selectedTag == -1 || depth > 0 ? null
+          : mTagsAdapter.getItem(selectedTag).toString(), depth, superTask);
+    }
 
     final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
     final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);

@@ -197,6 +197,9 @@ public final class Config extends Activity {
         }
       }
     });
+    
+    TagToDoList.sEditor.putInt(CONFIG_VIEWS,
+        TagToDoList.sPref.getInt(CONFIG_VIEWS, 0) + 1).commit();
 
     if (!TagToDoList.sPref.getBoolean(AD_DISABLED, false)) {
       sDonateButton.setVisibility(View.GONE);
@@ -224,9 +227,6 @@ public final class Config extends Activity {
         }
       }
     });
-
-    TagToDoList.sEditor.putInt(Config.CONFIG_VIEWS,
-        TagToDoList.sPref.getInt(Config.CONFIG_VIEWS, 0) + 1);
   }
 
   /**
