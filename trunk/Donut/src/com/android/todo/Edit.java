@@ -39,6 +39,7 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -92,14 +93,8 @@ public final class Edit extends Activity {
     super.onCreate(savedInstanceState);
     mDbHelper = ToDoDB.getInstance(getApplicationContext());
     setContentView(R.layout.edit);
-    final Configuration config=getResources().getConfiguration();
-    final boolean noPhysicalKeyboard = (config.keyboard == Configuration.KEYBOARD_NOKEYS);
-    final InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     mTaskText = (TextView) findViewById(R.id.task);
     mBodyText = (EditText) findViewById(R.id.body);
-    if (noPhysicalKeyboard && config.orientation == Configuration.ORIENTATION_LANDSCAPE){
-      inputManager.showSoftInput(mBodyText, InputMethodManager.SHOW_IMPLICIT);
-    }
     mBodyText.setOnKeyListener(new View.OnKeyListener() {
       public boolean onKey(View v, int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -107,9 +102,7 @@ public final class Edit extends Activity {
             if (event.isShiftPressed()) {
               return false;
             }
-            if (noPhysicalKeyboard) {
-              inputManager.hideSoftInputFromWindow(v.getWindowToken(),
-                  InputMethodManager.HIDE_IMPLICIT_ONLY);
+            if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
               return true;
             }
             String currentText = ((EditText) v).getText().toString();
@@ -128,6 +121,19 @@ public final class Edit extends Activity {
         keyCount += 1;
         return false;
       }
+    });
+
+    mBodyText.setOnEditorActionListener(new OnEditorActionListener() {
+      public boolean onEditorAction(TextView tv, int arg1, KeyEvent e) {
+        if (e != null && e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+          ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+              .hideSoftInputFromWindow(tv.getApplicationWindowToken(),
+                  InputMethodManager.HIDE_NOT_ALWAYS);
+          mConfirmButton.performClick();
+        }
+        return false;
+      }
+
     });
 
     // setting a maximum height for the edit box;

@@ -542,6 +542,7 @@ public class TagToDoList extends Activity {
     final int name = c.getColumnIndex(ToDoDB.KEY_NAME);
     final int value = c.getColumnIndex(ToDoDB.KEY_STATUS);
     final int subtasks = c.getColumnIndex(ToDoDB.KEY_SUBTASKS);
+    final int secondary_tags = c.getColumnIndex(ToDoDB.KEY_SECONDARY_TAGS);
 
     // these LayoutParams will be used for subtask indentation
     final LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT,
@@ -552,8 +553,8 @@ public class TagToDoList extends Activity {
     final int maxPriority = mMaxPriority;
     final boolean hideChecked = HIDE_CHECKED;
     int auxInt;
-    String auxString;
     boolean auxBool;
+    String auxString;
 
     if (c.getCount() > 0) {
       c.moveToLast();
@@ -638,17 +639,8 @@ public class TagToDoList extends Activity {
           }
         }
 
-        try { // placed in different try-catch clauses because these fields
-          // appeared in different versions
-          auxString = sDbHelper.getStringFlag(taskName,
-              ToDoDB.KEY_SECONDARY_TAGS);
-        } catch (Exception e) {
-          sDbHelper.repair();
-          auxString = sDbHelper.getStringFlag(taskName,
-              ToDoDB.KEY_SECONDARY_TAGS);
-        }
-
-        if (auxString.length() > 0) {
+        auxString = c.getString(secondary_tags);
+        if (auxString != null && auxString.length() > 0) {
           taskNoteLayout.addView(getNoteButton(taskName, R.drawable.star,
               TASK_TAGS_ID));
         }
