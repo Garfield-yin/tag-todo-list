@@ -19,7 +19,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -79,7 +78,6 @@ public final class Edit extends Activity {
   private static String mPriorityText;
   private ToDoDB mDbHelper;
   private static String mMonthsString;
-  private static String aux = "";
   private static int keyCount = 0;
   private static Date sDate;
   private static Time sTime;
@@ -98,19 +96,6 @@ public final class Edit extends Activity {
     mBodyText.setOnKeyListener(new View.OnKeyListener() {
       public boolean onKey(View v, int keyCode, KeyEvent event) {
         switch (keyCode) {
-          case KeyEvent.KEYCODE_ENTER:
-            if (event.isShiftPressed()) {
-              return false;
-            }
-            if (getResources().getConfiguration().keyboard == Configuration.KEYBOARD_NOKEYS) {
-              return true;
-            }
-            String currentText = ((EditText) v).getText().toString();
-            if (!(currentText.equals(aux))) {
-              mConfirmButton.performClick();
-            }
-            aux = currentText;
-            return true;
           case KeyEvent.KEYCODE_DEL:
             String currentText2 = ((EditText) v).getText().toString();
             if (keyCount == 0 && currentText2.length() == 0) {
@@ -125,11 +110,16 @@ public final class Edit extends Activity {
 
     mBodyText.setOnEditorActionListener(new OnEditorActionListener() {
       public boolean onEditorAction(TextView tv, int arg1, KeyEvent e) {
-        if (e != null && e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+        if (e != null && e.getAction() == KeyEvent.ACTION_DOWN
+            && e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+          if (e.isShiftPressed()) {
+            return false;
+          }
           ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
               .hideSoftInputFromWindow(tv.getApplicationWindowToken(),
                   InputMethodManager.HIDE_NOT_ALWAYS);
           mConfirmButton.performClick();
+          return true;
         }
         return false;
       }
@@ -353,8 +343,10 @@ public final class Edit extends Activity {
       public void onClick(View v) {
         final String newName = ToDoDB.sanitize(mBodyText.getText().toString());
         if (action.equals(Integer.toString(TagToDoList.TAG_CREATE_ID))) {
-          if (!(mDbHelper.createTag(newName))) {
-            showMessage(v.getContext().getString(R.string.tag_existent));
+          if (!mDbHelper.createTag(newName)) {
+            Toast.makeText(Edit.this,
+                Edit.this.getString(R.string.tag_existent), Toast.LENGTH_LONG)
+                .show();
             return;
           } else {
             Edit.this.setResult(RESULT_OK,
@@ -373,8 +365,10 @@ public final class Edit extends Activity {
             }
           }
           if (result != null) {
-            showMessage(v.getContext().getString(R.string.entry_existent)
-                + " '" + result + '\'');
+            Toast.makeText(
+                Edit.this,
+                Edit.this.getString(R.string.entry_existent) + " '" + result
+                    + '\'', Toast.LENGTH_LONG).show();
             return;
           }
           updateTask(newName);
@@ -663,35 +657,6 @@ public final class Edit extends Activity {
   protected void onResume() {
     super.onResume();
     populateFields();
-  }
-
-  /**
-   * Shows a dialog box with the given message
-   * 
-   * @param message
-   */
-  private void showMessage(String message) {
-    final Dialog d = new Dialog(Edit.this);
-    final Button b = new Button(Edit.this);
-    b.setText(R.string.go_back);
-    b.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View view) {
-        d.dismiss();
-      }
-    });
-    d.setOnKeyListener(new Dialog.OnKeyListener() {
-      public boolean onKey(DialogInterface di, int keyCode, KeyEvent msg) {
-        if (keyCode == KeyEvent.KEYCODE_ENTER
-            || keyCode == KeyEvent.KEYCODE_DEL
-            || keyCode == KeyEvent.KEYCODE_SPACE) {
-          b.performClick();
-        }
-        return false;
-      }
-    });
-    d.setContentView(b);
-    d.setTitle(message);
-    d.show();
   }
 
   /**
