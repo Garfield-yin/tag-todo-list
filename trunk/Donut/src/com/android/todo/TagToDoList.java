@@ -1270,7 +1270,7 @@ public class TagToDoList extends Activity {
             sDbHelper.updateTaskParent(mContextEntry,
                 mTagsAdapter.getItem(index).toString(), 0);
             av.setOnItemSelectedListener(l);
-            av.setSelection(p);
+            selectTag(true, p);
           }
 
           public void onNothingSelected(AdapterView<?> arg0) {
