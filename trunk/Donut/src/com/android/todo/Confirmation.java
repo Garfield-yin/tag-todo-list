@@ -51,17 +51,9 @@ public final class Confirmation extends Activity {
 
     mFirstButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
-          sDbHelper.deleteTag(mTagName);
-          setResult(RESULT_OK);
-          finish();
-        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
+        if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
           startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(v
               .getContext().getString(R.string.url_help))));
-        } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
-          sDbHelper.deleteEntries(mTagName, false);
-          setResult(RESULT_OK);
-          finish();
         } else if (mAction.equals(Integer
             .toString(TagToDoList.TAG_IMPORT_BACKUP_ID))) {
           TagToDoList.importBackupSD(getApplicationContext());
@@ -142,13 +134,6 @@ public final class Confirmation extends Activity {
    */
   private void populateFields() {
     if (mTagName != null) {
-      if (mAction.equals(Integer.toString(TagToDoList.TAG_DELETE_ID))) {
-        mMessage.setText(R.string.confirm_tag_deletion);
-      } else if (mAction.equals(Integer.toString(TagToDoList.TAG_CLEAR_ID))) {
-        mMessage.setText(R.string.confirm_entry_clearing);
-      }
-      mFirstButton.setText(android.R.string.yes);
-      mSecondButton.setText(android.R.string.no);
     } else {
       if (mAction.equals(Integer.toString(TagToDoList.TAG_HELP_ID))) {
         mMessage.setText(R.string.help_text);
