@@ -8,11 +8,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -481,6 +483,9 @@ public class TagToDoList extends Activity {
     if (selectedTag == -2) {
       selectedTag = sCurrentTag;
     }
+    if (selectedTag >= mTagsAdapter.getCount()) {
+      selectedTag = mTagsAdapter.getCount() - 1;
+    }
     sCurrentTag = selectedTag;
     final ToDoDB dbHelper = sDbHelper;
     final LayoutInflater inflater = getLayoutInflater();
@@ -850,25 +855,41 @@ public class TagToDoList extends Activity {
   /**
    * Deletes the active tag
    */
-  private void removeTag() {
+  private final void removeTag() {
     if (mTagSpinner.getCount() == 1) {
       Utils.showDialog(-1, R.string.impossible_tag_deletion, TagToDoList.this);
       return;
     }
-    Intent i = new Intent(this, Confirmation.class);
-    i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
-    i.setAction(Integer.toString(TAG_DELETE_ID));
-    startActivity(i);
+    new AlertDialog.Builder(this)
+        .setIcon(android.R.drawable.ic_dialog_alert)
+        .setTitle(android.R.string.dialog_alert_title)
+        .setMessage(R.string.confirm_tag_deletion)
+        .setPositiveButton(android.R.string.yes,
+            new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface arg0, int arg1) {
+                sDbHelper.deleteTag(mTagsAdapter.getItem(sCurrentTag)
+                    .toString());
+                onResume();
+              }
+            }).setNegativeButton(android.R.string.no, null).show();
   }
 
   /**
    * Deletes all the tasks in the active tag
    */
   private final void removeAllTasks() {
-    final Intent i = new Intent(this, Confirmation.class);
-    i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
-    i.setAction(Integer.toString(TAG_CLEAR_ID));
-    startActivity(i);
+    new AlertDialog.Builder(this)
+        .setIcon(android.R.drawable.ic_dialog_alert)
+        .setTitle(android.R.string.dialog_alert_title)
+        .setMessage(R.string.confirm_entry_clearing)
+        .setPositiveButton(android.R.string.yes,
+            new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface arg0, int arg1) {
+                sDbHelper.deleteEntries(mTagsAdapter.getItem(sCurrentTag)
+                    .toString(), false);
+                onResume();
+              }
+            }).setNegativeButton(android.R.string.no, null).show();
   }
 
   /**
@@ -989,6 +1010,8 @@ public class TagToDoList extends Activity {
       if (month != sPref.getInt(Analytics.LAST_SYNCHRONIZED_MONTH, -1)) {
         Analytics.sTracker.trackPageView("version/".concat(Integer
             .toString(VERSION.SDK_INT)));
+        Analytics.sTracker.trackPageView("model/"
+            .concat(android.os.Build.MODEL));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
             Analytics.SPACE_STATE, mTagSpinner.getCount());
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
