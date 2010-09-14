@@ -9,31 +9,45 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ListLayout extends LinearLayout {
-  
+
+  private Runnable mRunnable = null;
+  private int mSelected = -1;
+
   public ListLayout(Context context) {
     super(context);
     this.setOrientation(LinearLayout.VERTICAL);
   }
-  
+
   public ListLayout(Context context, AttributeSet attrs) {
     super(context, attrs);
     this.setOrientation(LinearLayout.VERTICAL);
   }
 
-  private Runnable mRunnable = null;
-  private int mSelected = -1;
-
-
-
+  /**
+   * @return The selected index
+   */
   public final int getSelected() {
     return mSelected;
   }
 
+  /**
+   * Select a view by its index.
+   * 
+   * @param index
+   */
   public final void select(final int index) {
     select(this.getChildAt(index));
   }
 
+  /**
+   * Selects one of the views.
+   * 
+   * @param v
+   */
   private final void select(final View v) {
+    if (v == null) {
+      return;
+    }
     v.setBackgroundColor(Color.GRAY);
     final LinearLayout ll = (LinearLayout) v.getParent();
     for (int i = 0; i < ll.getChildCount(); i++) {
@@ -48,6 +62,11 @@ public class ListLayout extends LinearLayout {
     }
   }
 
+  /**
+   * Sets an adapter and creates the corresponding views.
+   * 
+   * @param aa
+   */
   public final void setAdapter(final ArrayAdapter<CharSequence> aa) {
     this.removeAllViews();
     for (int i = 0; i < aa.getCount(); i++) {
@@ -64,6 +83,11 @@ public class ListLayout extends LinearLayout {
     }
   }
 
+  /**
+   * Sets the Runnable to be run when one of the views is clicked.
+   * 
+   * @param r
+   */
   public final void setOnClickRunnable(final Runnable r) {
     mRunnable = r;
   }
