@@ -68,10 +68,10 @@ public final class ToDoDB extends ADB {
 
   private class DatabaseHelper extends SQLiteOpenHelper {
 
-    DatabaseHelper(Context context) {
-      super(context, DB_NAME, null, DATABASE_VERSION);
-      mCtx = context;
-      res = context.getResources();
+    DatabaseHelper(Context c) {
+      super(c, DB_NAME, null, DATABASE_VERSION);
+      mCtx = c;
+      res = c.getResources();
     }
 
     @Override
@@ -130,7 +130,7 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 100, 101);
       onUpgrade(db, 101, 102);
       onUpgrade(db, 120, 121);
-      onUpgrade(db, 121, 122);
+      //onUpgrade(db, 122, 123); not to be called, this is a one time correction 
     }
 
     @Override
@@ -353,28 +353,33 @@ public final class ToDoDB extends ADB {
       // changing the way the date is encoded; from (year*12+month)*31+date to
       // (year*12+month)*32+date
       if (oldVersion < 123 && newVersion >= 123) {
-        final Cursor c = db.query(DB_TASK_TABLE, new String[] { KEY_NAME,
-            KEY_DUE_DATE }, null, null, null, null, null);
-        if (c.getCount() > 0) {
-          c.moveToFirst();
-          final ContentValues args = new ContentValues();
-          do {
-            try {
-              final int encodedDate = c.getInt(1);
-              if (encodedDate > 31 && encodedDate % 31 == 0) {
-                args.put(KEY_DUE_DATE, (encodedDate / 31 - 1) * 32 + 31);
-                db.update(DB_TASK_TABLE, args, KEY_NAME + "='" + c.getString(0)
-                    + "'", null);
+        try {
+          final Cursor c = db.query(DB_TASK_TABLE, new String[] { KEY_NAME,
+              KEY_DUE_DATE }, null, null, null, null, null);
+          if (c.getCount() > 0) {
+            c.moveToFirst();
+            final ContentValues args = new ContentValues();
+            do {
+              try {
+                final int encodedDate = c.getInt(1);
+                if (encodedDate > 31 && encodedDate % 31 == 0) {
+                  args.put(KEY_DUE_DATE, (encodedDate / 31 - 1) * 32 + 31);
+                  db.update(DB_TASK_TABLE, args,
+                      KEY_NAME + "='" + c.getString(0) + "'", null);
+                }
+              } catch (Exception e) {
+                if (Analytics.sTracker != null) {
+                  Analytics.sTracker.trackPageView(Analytics.EXCEPTION
+                      + "/v123/inner/" + e.getMessage());
+                }
               }
-            } catch (Exception e) {
-              if (Analytics.sTracker != null) {
-                Analytics.sTracker.trackPageView(Analytics.EXCEPTION + '/'
-                    + e.getMessage());
-              }
-            }
-          } while (c.moveToNext());
+            } while (c.moveToNext());
+          }
+          c.close();
+        } catch (Exception e) {
+          Analytics.sTracker.trackPageView(Analytics.EXCEPTION + "/v123/outer/"
+              + e.getMessage());
         }
-        c.close();
       }
 
       // must be last:
@@ -555,7 +560,7 @@ public final class ToDoDB extends ADB {
    *          The caller context (used if we need to create from scratch)
    * @return A DbHelper instance, useful for DB stuff
    */
-  public static final ToDoDB getInstance(Context c) {
+  public static final ToDoDB getInstance(final Context c) {
     return sInstance != null ? sInstance : (sInstance = new ToDoDB(c).open());
   }
 
@@ -581,8 +586,8 @@ public final class ToDoDB extends ADB {
             DB_TASK_TABLE,
             new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_TAG,
                 KEY_SUBTASKS, KEY_SECONDARY_TAGS },
-            ((tag != null ? '('+KEY_TAG + "='" + tag + "' OR " + KEY_SECONDARY_TAGS
-                + " LIKE '%" + tag + "%') " : "1=1 ")
+            ((tag != null ? '(' + KEY_TAG + "='" + tag + "' OR "
+                + KEY_SECONDARY_TAGS + " LIKE '%" + tag + "%') " : "1=1 ")
                 + (depth != -1 ? "AND " + KEY_DEPTH + "=" + depth + " " : "") + (superTask != null ? "AND "
                 + KEY_SUPERTASK + "='" + superTask + "' "
                 : ""))
@@ -663,11 +668,11 @@ public final class ToDoDB extends ADB {
     final int year = Chronos.getYear();
     final int month = Chronos.getMonth();
     return mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS }, KEY_EXTRA_OPTIONS + " = 1 AND " + KEY_STATUS
-        + " = 0 AND (" + KEY_DUE_YEAR + " < " + year + " OR (" + KEY_DUE_YEAR
-        + " = " + year + " AND (" + KEY_DUE_MONTH + " < " + month + " OR ("
-        + KEY_DUE_MONTH + " = " + month + " AND " + KEY_DUE_DATE + " <= "
-        + Chronos.getDate() + "))))", null, null, null, null);
+        KEY_STATUS }, KEY_EXTRA_OPTIONS + "=1 AND " + KEY_STATUS + "=0 AND ("
+        + KEY_DUE_YEAR + "<" + year + " OR (" + KEY_DUE_YEAR + "=" + year
+        + " AND (" + KEY_DUE_MONTH + "<" + month + " OR (" + KEY_DUE_MONTH
+        + "=" + month + " AND " + KEY_DUE_DATE + "<=" + Chronos.getDate()
+        + "))))", null, null, null, null);
   }
 
   /**
@@ -693,9 +698,9 @@ public final class ToDoDB extends ADB {
    */
   public final int getUncheckedCount(final String tag) {
     final Cursor c = mDb.query(DB_TASK_TABLE, new String[] {},
-        (tag != null ? '('+KEY_TAG + "='" + tag + "' OR "+KEY_SECONDARY_TAGS
-            + " LIKE '%" + tag + "%') AND " : "") + KEY_STATUS
-            + "=0", null, null, null, null);
+        (tag != null ? '(' + KEY_TAG + "='" + tag + "' OR "
+            + KEY_SECONDARY_TAGS + " LIKE '%" + tag + "%') AND " : "")
+            + KEY_STATUS + "=0", null, null, null, null);
     final int unchecked = c.getCount();
     c.close();
     return unchecked;
@@ -896,7 +901,7 @@ public final class ToDoDB extends ADB {
     final ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
-    final Cursor subtasks = getTasks(null,-1, task);
+    final Cursor subtasks = getTasks(null, -1, task);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
       subtasks.moveToFirst();
@@ -1135,7 +1140,8 @@ public final class ToDoDB extends ADB {
     ContentValues args = new ContentValues();
     args.put(KEY_SUPERTASK, superTask);
     args.put(KEY_DEPTH, c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
-    updateTaskParent(task, c.getString(c.getColumnIndex(KEY_TAG)), c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
+    updateTaskParent(task, c.getString(c.getColumnIndex(KEY_TAG)),
+        c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
     mDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
     args = new ContentValues();
     args.put(KEY_SUBTASKS, c.getInt(c.getColumnIndex(KEY_SUBTASKS)) + 1);
