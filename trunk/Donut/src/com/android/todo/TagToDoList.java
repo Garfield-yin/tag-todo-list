@@ -195,7 +195,6 @@ public class TagToDoList extends Activity {
           sTts.speak(mTagsAdapter.getItem(sCurrentTag).toString());
         }
       }
-
       public void onNothingSelected(AdapterView<?> arg0) {
       }
     });
@@ -1295,7 +1294,6 @@ public class TagToDoList extends Activity {
             av.setOnItemSelectedListener(l);
             selectTag(true, p);
           }
-
           public void onNothingSelected(AdapterView<?> arg0) {
           }
         });
