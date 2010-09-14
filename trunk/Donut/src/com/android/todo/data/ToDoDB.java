@@ -118,7 +118,7 @@ public final class ToDoDB extends ADB {
      * @param db
      *          as an SQLiteDatabase
      */
-    public void upgrade(SQLiteDatabase db) {
+    public final void upgrade(final SQLiteDatabase db) {
       onUpgrade(db, 73, 74);
       onUpgrade(db, 74, 75);
       onUpgrade(db, 75, 76);
@@ -370,14 +370,14 @@ public final class ToDoDB extends ADB {
               } catch (Exception e) {
                 if (Analytics.sTracker != null) {
                   Analytics.sTracker.trackPageView(Analytics.EXCEPTION
-                      + "/v123/inner/" + e.getMessage());
+                      + "/db/v123/inner/" + e.getMessage());
                 }
               }
             } while (c.moveToNext());
           }
           c.close();
         } catch (Exception e) {
-          Analytics.sTracker.trackPageView(Analytics.EXCEPTION + "/v123/outer/"
+          Analytics.sTracker.trackPageView(Analytics.EXCEPTION + "/db/v123/outer/"
               + e.getMessage());
         }
       }
