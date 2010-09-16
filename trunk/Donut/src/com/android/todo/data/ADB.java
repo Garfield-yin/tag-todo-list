@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * This is an abstraction of the actual database we'll use throughout the app.
@@ -23,7 +24,8 @@ public abstract class ADB {
   public static final int DATABASE_VERSION = 132;
 
   protected static Context mCtx;
-  public SQLiteDatabase mDb;
+  public static SQLiteDatabase sDb;
+  protected static SQLiteOpenHelper sDbHelper;
   public static Resources res;
 
   /**
@@ -86,8 +88,8 @@ public abstract class ADB {
    * @return
    */
   public final boolean isTask(final String task) {
-    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] {}, KEY_NAME
-        + "='" + task + "'", null, null, null, null);
+    final Cursor entry = sDb.query(DB_TASK_TABLE,
+        new String[] {}, KEY_NAME + "='" + task + "'", null, null, null, null);
     final boolean b = entry.getCount() > 0;
     entry.close();
     return b;
@@ -101,7 +103,7 @@ public abstract class ADB {
    * @return encoded date
    */
   public final int getDueDate(final String task) {
-    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE }, KEY_NAME
         + " = '" + task + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -121,7 +123,7 @@ public abstract class ADB {
    *         the week set
    */
   public int getDueDayOfWeek(String task) {
-    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_DAY_OF_WEEK }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     // for now, assuming we have a task named like this :)
@@ -139,7 +141,7 @@ public abstract class ADB {
    * @return encoded date
    */
   public int getDueTime(String task) {
-    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_DUE_HOUR, KEY_DUE_MINUTE }, KEY_NAME + " = '" + task
         + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
@@ -156,7 +158,7 @@ public abstract class ADB {
    * @return a Cursor over the tasks which are not checked
    */
   public Cursor getUncheckedEntries() {
-    return mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+    return sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS }, KEY_STATUS + "=0", null, null, null, null);
   }
 
@@ -167,7 +169,7 @@ public abstract class ADB {
    * @return true, if a due date has been set
    */
   public final boolean isDueDateSet(final String task) {
-    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     if (entry.getCount() == 0) {
@@ -188,7 +190,7 @@ public abstract class ADB {
    * @return true, if a due time has been set
    */
   public final boolean isDueTimeSet(final String task) {
-    final Cursor entry = mDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
+    final Cursor entry = sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
         KEY_NAME, KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null,
         null, null, null);
     if (entry.getCount() == 0) {
