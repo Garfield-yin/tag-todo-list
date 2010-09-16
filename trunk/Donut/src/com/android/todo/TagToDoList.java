@@ -195,6 +195,7 @@ public class TagToDoList extends Activity {
           sTts.speak(mTagsAdapter.getItem(sCurrentTag).toString());
         }
       }
+
       public void onNothingSelected(AdapterView<?> arg0) {
       }
     });
@@ -391,7 +392,7 @@ public class TagToDoList extends Activity {
         b.setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
             d.dismiss();
-            mTagSpinner.setSelection((Integer) v.getTag());
+            selectTag(true, (Integer) v.getTag());
           }
         });
         tr.addView(b);
@@ -802,8 +803,8 @@ public class TagToDoList extends Activity {
           args.put(ToDoDB.KEY_SUPERTASK, "");
           c.moveToFirst();
           do {
-            sDbHelper.mDb.update(ToDoDB.DB_TASK_TABLE, args, ToDoDB.KEY_NAME
-                + " = '" + c.getString(name) + "'", null);
+            ToDoDB.sDb.update(ToDoDB.DB_TASK_TABLE, args, ToDoDB.KEY_NAME
+                + "='" + c.getString(name) + "'", null);
           } while (c.moveToNext());
         }
         selectTag(false, -2);
@@ -1294,6 +1295,7 @@ public class TagToDoList extends Activity {
             av.setOnItemSelectedListener(l);
             selectTag(true, p);
           }
+
           public void onNothingSelected(AdapterView<?> arg0) {
           }
         });
