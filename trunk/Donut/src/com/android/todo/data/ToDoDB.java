@@ -128,7 +128,8 @@ public final class ToDoDB extends ADB {
       onUpgrade(db, 100, 101);
       onUpgrade(db, 101, 102);
       onUpgrade(db, 120, 121);
-      //onUpgrade(db, 122, 123); not to be called, this is a one time correction 
+      // onUpgrade(db, 122, 123); not to be called, this is a one time
+      // correction
     }
 
     @Override
@@ -375,8 +376,8 @@ public final class ToDoDB extends ADB {
           }
           c.close();
         } catch (Exception e) {
-          Analytics.sTracker.trackPageView(Analytics.EXCEPTION + "/db/v123/outer/"
-              + e.getMessage());
+          Analytics.sTracker.trackPageView(Analytics.EXCEPTION
+              + "/db/v123/outer/" + e.getMessage());
         }
       }
 
@@ -455,7 +456,7 @@ public final class ToDoDB extends ADB {
       // checking if the Tag-ToDo folder exists on the sdcard
       final File f = new File(Environment.getExternalStorageDirectory(),
           "/Tag-ToDo_data/");
-      if (f.exists() == false) {
+      if (!f.exists()) {
         try {
           f.mkdirs();
         } catch (Exception e) {
@@ -484,8 +485,8 @@ public final class ToDoDB extends ADB {
   public final String createTask(final String tagName, final String task) {
     // checking for duplicate tasks
     final Cursor c = sDb.query(DB_TASK_TABLE,
-        new String[] { KEY_NAME, KEY_TAG }, KEY_NAME + "='" + task + "'",
-        null, null, null, null);
+        new String[] { KEY_NAME, KEY_TAG }, KEY_NAME + "='" + task + "'", null,
+        null, null, null);
     if (c.getCount() > 0) {
       c.moveToFirst();
       final String s = c.getString(c.getColumnIndexOrThrow(KEY_TAG));
@@ -547,7 +548,8 @@ public final class ToDoDB extends ADB {
   public final Cursor getTags() {
     return sDb.query(DB_TAG_TABLE, new String[] { KEY_ROWID, KEY_NAME }, null,
         null, null, null,
-        ALPHABET_ORDER_TOKEN != "" ? ALPHABET_ORDER_TOKEN.substring(2) : "");
+        (!"".equals(ALPHABET_ORDER_TOKEN)) ? ALPHABET_ORDER_TOKEN.substring(2)
+            : "");
   }
 
   /**
@@ -682,8 +684,8 @@ public final class ToDoDB extends ADB {
   public final Cursor getAllDueEntries() {
     return sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
         KEY_STATUS, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE },
-        KEY_EXTRA_OPTIONS + "= 1 AND " + KEY_STATUS + "=0", null, null,
-        null, null);
+        KEY_EXTRA_OPTIONS + "= 1 AND " + KEY_STATUS + "=0", null, null, null,
+        null);
   }
 
   /**
@@ -943,7 +945,7 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DEPTH, depth);
     String secondaryTags = getStringFlag(task, KEY_SECONDARY_TAGS);
     secondaryTags = secondaryTags.replace(newParent, "");
-    if (secondaryTags.startsWith("'")) {
+    if (secondaryTags.charAt(0) == '\'') {
       secondaryTags = secondaryTags.substring(1);
     }
     if (secondaryTags.endsWith("'")) {
@@ -1250,8 +1252,10 @@ public final class ToDoDB extends ADB {
    * app or something...
    */
   public final void repair() {
-    ((DatabaseHelper) sDbHelper).upgrade(sDb);
-    FLAG_REPAIRED = true;
+    if (sDbHelper instanceof DatabaseHelper) {
+      ((DatabaseHelper) sDbHelper).upgrade(sDb);
+      FLAG_REPAIRED = true;
+    }
   }
 
   /**

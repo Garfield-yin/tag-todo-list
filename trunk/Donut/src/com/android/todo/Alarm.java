@@ -195,14 +195,4 @@ public final class Alarm extends Activity {
     super.onSaveInstanceState(outState);
     outState.putString(ToDoDB.KEY_NAME, mTask);
   }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-  }
 }

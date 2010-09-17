@@ -304,7 +304,6 @@ public final class Utils {
 
     // Go over entries
     for (File entry : entries) {
-      ;
 
       // If there is no filter or the filter accepts the
       // file / directory, add it to the list

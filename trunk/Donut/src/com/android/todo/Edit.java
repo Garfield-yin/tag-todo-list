@@ -257,7 +257,7 @@ public final class Edit extends Activity {
 
             dpd.setOnDismissListener(new OnDismissListener() {
               public void onDismiss(DialogInterface dialog) {
-                if ((Boolean) (mDateTb.getTag()) == false) {
+                if (!((Boolean) (mDateTb.getTag()))) {
                   mDateTb.setChecked(false);
                 }
                 mDateTb.setTag(Boolean.valueOf(false));
@@ -310,7 +310,7 @@ public final class Edit extends Activity {
             d.show();
             d.setOnDismissListener(new OnDismissListener() {
               public void onDismiss(DialogInterface dialog) {
-                if ((Boolean) (mTimeTb.getTag()) == false) {
+                if (!((Boolean) (mTimeTb.getTag()))) {
                   mTimeTb.setChecked(false);
                 }
                 mTimeTb.setTag(Boolean.valueOf(false));
@@ -638,19 +638,9 @@ public final class Edit extends Activity {
   }
 
   @Override
-  protected void onDestroy() {
-    super.onDestroy();
-  }
-
-  @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putString(ToDoDB.KEY_ROWID, sTask);
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
   }
 
   @Override
