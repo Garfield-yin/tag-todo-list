@@ -596,11 +596,6 @@ public final class Config extends Activity {
     sHelpButton.setVisibility(8 - visibility);
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-  }
-
   /**
    * @see same function in the TagToDoList class
    */

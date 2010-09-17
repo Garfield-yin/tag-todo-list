@@ -42,11 +42,6 @@ public final class Graphics extends Activity {
   private static Button sClearButton, sExitButton, sDeleteButton;
 
   @Override
-  public void setContentView(View view) {
-    super.setContentView(view);
-  }
-
-  @Override
   protected void onCreate(Bundle savedInstanceState) {
     TagToDoList.setTheme(this,
         getSharedPreferences(TagToDoList.PREFS_NAME, Context.MODE_PRIVATE));
@@ -55,7 +50,7 @@ public final class Graphics extends Activity {
 
     // checking if the necessary folders exist on the sdcard
     final File f = new File(Environment.getExternalStorageDirectory(),PATH);
-    if (f.exists() == false) {
+    if (! f.exists()) {
       try {
         f.mkdirs();
       } catch (Exception e) {
@@ -180,11 +175,6 @@ public final class Graphics extends Activity {
         } catch (IOException e) {
         }
       }
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-      super.onSizeChanged(w, h, oldw, oldh);
     }
 
     @Override

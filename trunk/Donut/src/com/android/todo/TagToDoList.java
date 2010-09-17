@@ -1092,11 +1092,6 @@ public class TagToDoList extends Activity {
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-  }
-
-  @Override
   public boolean onTouchEvent(MotionEvent me) {
     return sGestureListener.onTouch(null, me);
   }
@@ -1393,7 +1388,7 @@ public class TagToDoList extends Activity {
               sb.append(s);
             }
             String s = sb.toString();
-            if (s.startsWith("'")) {
+            if (s.charAt(0) == '\'') {
               s = s.substring(1);
             }
             sDbHelper.setFlag(mContextEntry, ToDoDB.KEY_SECONDARY_TAGS, s);
@@ -1687,11 +1682,11 @@ public class TagToDoList extends Activity {
           dueEntries.close();
           return false;
         }
-        StringBuilder sb = new StringBuilder(
-            this.getString(R.string.due_date_notification) + "\n");
+        final StringBuilder sb = new StringBuilder(
+            getString(R.string.due_date_notification) + '\n');
         do {
           sb.append(dueEntries.getString(name));
-          sb.append("\n");
+          sb.append('\n');
         } while (dueEntries.moveToNext());
         Utils.showDueTasksNotification(sb.toString(), TagToDoList.this);
       }
