@@ -21,9 +21,14 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TextView;
 
+import com.admob.android.ads.AdManager;
+import com.admob.android.ads.AdManager.Gender;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.speech.TTS;
@@ -67,6 +72,7 @@ public final class Config extends Activity {
   public static final String ALARM_SCREEN = "alarmScreen";
   public static final String DETAILED_STATS = "statsDetailed";
   public static final String CONFIG_VIEWS = "numberOfConfigViews";
+  public static final String HAND = "hand";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -197,7 +203,7 @@ public final class Config extends Activity {
         }
       }
     });
-    
+
     TagToDoList.sEditor.putInt(CONFIG_VIEWS,
         TagToDoList.sPref.getInt(CONFIG_VIEWS, 0) + 1).commit();
 
@@ -455,15 +461,85 @@ public final class Config extends Activity {
       case 3:
         // usage stats
         cb = new CheckBox(this);
-        cb.setChecked(TagToDoList.sPref.getBoolean(USAGE_STATS, false));
+        final boolean stats = TagToDoList.sPref.getBoolean(USAGE_STATS, false);
+        final LinearLayout userData = new LinearLayout(this);
+        userData.setOrientation(LinearLayout.VERTICAL);
+        userData.setVisibility(stats ? View.VISIBLE : View.GONE);
+        userData.setPadding(32, 0, 0, 0);
+        final TextView tv=new TextView(this);
+        tv.setText(R.string.config_19_extra_stats);
+        userData.addView(tv);
+        
+        cb.setChecked(stats);
         cb.setText(R.string.config_5_stats);
-        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
             TagToDoList.sEditor.putBoolean(USAGE_STATS, isChecked);
             TagToDoList.sEditor.commit();
+            userData.setVisibility(isChecked ? View.VISIBLE : View.GONE);
           }
         });
+        final boolean genderSet = AdManager.getGender() != null;
+        final RadioGroup rgGender = new RadioGroup(this);
+        rgGender.setOrientation(RadioGroup.HORIZONTAL);
+        final RadioButton rbM = new RadioButton(this);
+        rbM.setText(R.string.male);
+        rgGender.addView(rbM);
+        final RadioButton rbF = new RadioButton(this);
+        rbF.setText(R.string.female);
+        rgGender.addView(rbF);
+        rbM.setChecked(genderSet ? AdManager.getGender().equals(Gender.MALE)
+            : false);
+        rbF.setChecked(genderSet ? AdManager.getGender().equals(Gender.FEMALE)
+            : false);
+        rbM.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            if (isChecked) {
+              AdManager.setGender(Gender.MALE);
+            }
+          }
+        });
+        rbF.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            if (isChecked) {
+              AdManager.setGender(Gender.FEMALE);
+            }
+          }
+        });
+        userData.addView(rgGender);
+
+        final RadioGroup rgHand = new RadioGroup(this);
+        rgHand.setOrientation(RadioGroup.HORIZONTAL);
+        final RadioButton rbL = new RadioButton(this);
+        rbL.setText(R.string.leftHanded);
+        rgHand.addView(rbL);
+        final RadioButton rbR = new RadioButton(this);
+        rbR.setText(R.string.rightHanded);
+        rgHand.addView(rbR);
+        rbL.setChecked(TagToDoList.sPref.getInt(Config.HAND, 0) == 1);
+        rbR.setChecked(TagToDoList.sPref.getInt(Config.HAND, 0) == 2);
+        rbL.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            if (isChecked) {
+              TagToDoList.sEditor.putInt(Config.HAND, 1).commit();
+            }
+          }
+        });
+        rbR.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton buttonView,
+              boolean isChecked) {
+            if (isChecked) {
+              TagToDoList.sEditor.putInt(Config.HAND, 2).commit();
+            }
+          }
+        });
+        userData.addView(rgHand);
+
         ll.addView(cb);
+        ll.addView(userData);
 
         // sync TO Google Calendar
         cb = new CheckBox(this);
@@ -588,7 +664,7 @@ public final class Config extends Activity {
    *          if true, they will be showed, if not, they will be hidden
    */
   public void showLogin(boolean b) {
-    int visibility = b ? View.VISIBLE : View.GONE;
+    final int visibility = b ? View.VISIBLE : View.GONE;
     sUserEdit.setVisibility(visibility);
     sPassEdit.setVisibility(visibility);
     sConfirmButton.setVisibility(visibility);
