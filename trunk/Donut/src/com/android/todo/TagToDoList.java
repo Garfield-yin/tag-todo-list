@@ -59,6 +59,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.admob.android.ads.AdManager;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -480,7 +481,7 @@ public class TagToDoList extends Activity {
       }
     };
 
-    if (selectedTag == -2) {
+    if (selectedTag < 0) {
       selectedTag = sCurrentTag;
     }
     if (selectedTag >= mTagsAdapter.getCount()) {
@@ -498,7 +499,6 @@ public class TagToDoList extends Activity {
       if (mTabletList != null) {
         mTabletList.select(selectedTag);
       }
-      return;
     }
   }
 
@@ -915,7 +915,7 @@ public class TagToDoList extends Activity {
    * response reaches that activity, the tag is created with the given name
    */
   private void createEntry() {
-    Intent i = new Intent(this, Edit.class);
+    final Intent i = new Intent(this, Edit.class);
     i.putExtra(ToDoDB.KEY_NAME, mTagsAdapter.getItem(sCurrentTag).toString());
     i.putExtra(ToDoDB.KEY_SUPERTASK, "");
     i.setAction(Integer.toString(ACTIVITY_CREATE_ENTRY));
@@ -1012,6 +1012,11 @@ public class TagToDoList extends Activity {
             .toString(VERSION.SDK_INT)));
         Analytics.sTracker.trackPageView("model/"
             .concat(android.os.Build.MODEL));
+        Analytics.sTracker
+            .trackPageView("gender/".concat(AdManager.getGender() != null ? AdManager
+                .getGender().toString() : "NA"));
+        Analytics.sTracker.trackPageView(Config.HAND.concat("/").concat(
+            Integer.toString(sPref.getInt(Config.HAND, 0))));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",
             Analytics.SPACE_STATE, mTagSpinner.getCount());
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,

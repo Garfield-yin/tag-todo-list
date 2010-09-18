@@ -336,6 +336,7 @@ public final class Edit extends Activity {
         ad.setKeywords(getString(R.string.ad_keywords));
         ad.setRequestInterval(0);
         sLayout.addView(ad);
+        
       }
     }
 
