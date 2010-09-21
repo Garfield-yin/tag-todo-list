@@ -19,6 +19,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -333,10 +334,20 @@ public final class Edit extends Activity {
         ad.setBackgroundColor(Color.BLACK);
         ad.setPrimaryTextColor(Color.WHITE);
         ad.setSecondaryTextColor(Color.DKGRAY);
-        ad.setKeywords(getString(R.string.ad_keywords));
+        if (sPref.getBoolean(Config.AD_USE_TAGS, false)) {
+          try {
+            final Cursor c = mDbHelper.getTags();
+            c.moveToPosition(TagToDoList.sCurrentTag);
+            ad.setKeywords(c.getString(c.getColumnIndex(ToDoDB.KEY_NAME)));
+            c.close();
+          } catch (Exception e) {
+            ad.setKeywords(getString(R.string.ad_keywords));
+          }
+        } else {
+          ad.setKeywords(getString(R.string.ad_keywords));
+        }
         ad.setRequestInterval(0);
         sLayout.addView(ad);
-        
       }
     }
 

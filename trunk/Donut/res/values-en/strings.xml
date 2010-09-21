@@ -163,6 +163,7 @@
 <string name="config_17_alarm_duration">Alarm duration</string>
 <string name="config_18_alarm_snooze">Instead of a message in the notification bar, show the alarm as a Snooze/Dismiss screen</string>
 <string name="config_19_extra_stats">You can also set these options for better content:</string>
+<string name="config_20_tags_ads">Allow tag names (not the tasks) to be used for better ads</string>
 
 <!-- Alarm screen -->
 <string name="alarm_dismiss">Dismiss</string>

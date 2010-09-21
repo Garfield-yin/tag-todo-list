@@ -73,6 +73,7 @@ public final class Config extends Activity {
   public static final String DETAILED_STATS = "statsDetailed";
   public static final String CONFIG_VIEWS = "numberOfConfigViews";
   public static final String HAND = "hand";
+  public static final String AD_USE_TAGS = "useTagsInAds";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -466,10 +467,10 @@ public final class Config extends Activity {
         userData.setOrientation(LinearLayout.VERTICAL);
         userData.setVisibility(stats ? View.VISIBLE : View.GONE);
         userData.setPadding(32, 0, 0, 0);
-        final TextView tv=new TextView(this);
+        final TextView tv = new TextView(this);
         tv.setText(R.string.config_19_extra_stats);
         userData.addView(tv);
-        
+
         cb.setChecked(stats);
         cb.setText(R.string.config_5_stats);
         cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -540,6 +541,20 @@ public final class Config extends Activity {
 
         ll.addView(cb);
         ll.addView(userData);
+
+        // tag usage in ads (dependent on whether ads are enabled)
+        if (!TagToDoList.sPref.getBoolean(AD_DISABLED, false)) {
+          cb = new CheckBox(this);
+          cb.setChecked(TagToDoList.sPref.getBoolean(AD_USE_TAGS, false));
+          cb.setText(R.string.config_20_tags_ads);
+          cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+              TagToDoList.sEditor.putBoolean(AD_USE_TAGS, isChecked)
+                  .commit();
+            }
+          });
+          ll.addView(cb);
+        }
 
         // sync TO Google Calendar
         cb = new CheckBox(this);
