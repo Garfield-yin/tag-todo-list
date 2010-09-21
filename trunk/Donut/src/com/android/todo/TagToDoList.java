@@ -141,7 +141,7 @@ public class TagToDoList extends Activity {
   private static ToDoDB sDbHelper;
   public static SharedPreferences sPref;
   public static Editor sEditor;
-  private Spinner mTagSpinner;
+  public Spinner mTagSpinner;
   private LinearLayout mEntryLayout;
   private ArrayAdapter<CharSequence> mTagsAdapter;
   private Button mStatButton;
@@ -152,7 +152,7 @@ public class TagToDoList extends Activity {
   private Action mContextAction;
   private int mActiveEntry; // useful only in keyboard mode
   private int mMaxPriority; // useful only with shiny priority :)
-  private static int sCurrentTag;
+  public static int sCurrentTag;
 
   /**
    * Sets the theme of the given context, based on the give preferences.
@@ -178,6 +178,7 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
+    AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     sEditor = sPref.edit();
     TagToDoList.setTheme(this, sPref);
@@ -1079,6 +1080,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.CONFIG_VIEWS, Analytics.SPACE_STATE,
             sPref.getInt(Config.CONFIG_VIEWS, 0));
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.AD_USE_TAGS, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.AD_USE_TAGS, false) ? 1 : 0);
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
