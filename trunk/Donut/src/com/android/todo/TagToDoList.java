@@ -804,7 +804,7 @@ public class TagToDoList extends Activity {
           args.put(ToDoDB.KEY_SUPERTASK, "");
           c.moveToFirst();
           do {
-            ToDoDB.sDb.update(ToDoDB.DB_TASK_TABLE, args, ToDoDB.KEY_NAME
+            ToDoDB.sDbHelper.getWritableDatabase().update(ToDoDB.DB_TASK_TABLE, args, ToDoDB.KEY_NAME
                 + "='" + c.getString(name) + "'", null);
           } while (c.moveToNext());
         }
@@ -1680,7 +1680,7 @@ public class TagToDoList extends Activity {
    * @return false, if there are no due tasks
    */
   private final boolean showDueTasks(boolean showDialog) {
-    final Cursor dueEntries = sDbHelper.getDueEntries();
+    final Cursor dueEntries = sDbHelper.getDueTasks();
     if (dueEntries.getCount() > 0) {
       if (showDialog) {
         dueEntries.moveToFirst();

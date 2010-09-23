@@ -51,7 +51,7 @@ public class TaskProvider extends ContentProvider {
       case URI_TASKS_DUE:
         return dbHelper.getAllDueEntries();
       case URI_TASKS_DUE_TODAY:
-        return dbHelper.getDueEntries();
+        return dbHelper.getDueTasks();
       default:
         // QSB search?
         final String searchString = uri.getLastPathSegment().toLowerCase();

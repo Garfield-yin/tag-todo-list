@@ -167,6 +167,7 @@
 
 <!-- Alarm screen -->
 <string name="alarm_dismiss">Dismiss</string>
+<string name="alarm_check_dismiss">Check &amp; Dismiss</string>
 <string name="alarm_snooze">Snooze</string>
 <string name="alarm_last_message">This is the last alarm for this task!</string>
 

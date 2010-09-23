@@ -49,7 +49,7 @@ public final class BootDB extends ADB {
    */
   public BootDB open() throws SQLException {
     sDbHelper = new DatabaseHelper(mCtx);
-    sDb = sDbHelper.getWritableDatabase();
+    //sDb=sDbHelper.getWritableDatabase();
     return this;
   }
 
