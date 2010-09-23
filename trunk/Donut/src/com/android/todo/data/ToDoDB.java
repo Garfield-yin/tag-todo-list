@@ -411,7 +411,7 @@ public final class ToDoDB extends ADB {
    */
   public ToDoDB open() throws SQLException {
     sDbHelper = new DatabaseHelper(mCtx);
-    sDb = sDbHelper.getWritableDatabase();
+    // sDb = sDbHelper.getWritableDatabase();
     if (FLAG_UPDATED && !FLAG_REPAIRED) {
       BootReceiver.setOldAlarms(mCtx, this);
     }
@@ -432,9 +432,10 @@ public final class ToDoDB extends ADB {
    *          the name of the ToDo List tag, as it will appear visually
    * @return true if insertion went ok, false if such a tag already exists
    */
-  public boolean createTag(final String tagName) {
-    final Cursor c = sDb.query(DB_TAG_TABLE, new String[] { KEY_NAME },
-        KEY_NAME + " = '" + tagName + "'", null, null, null, null);
+  public final boolean createTag(final String tagName) {
+    final Cursor c = sDbHelper.getWritableDatabase().query(DB_TAG_TABLE,
+        new String[] { KEY_NAME }, KEY_NAME + " = '" + tagName + "'", null,
+        null, null, null);
     if (c.getCount() > 0) {
       c.close();
       return false;
@@ -443,7 +444,7 @@ public final class ToDoDB extends ADB {
     // inserting the actual tag
     ContentValues args = new ContentValues();
     args.put(KEY_NAME, tagName);
-    sDb.insert(DB_TAG_TABLE, null, args);
+    sDbHelper.getWritableDatabase().insert(DB_TAG_TABLE, null, args);
     c.close();
     return true;
   }
@@ -484,7 +485,7 @@ public final class ToDoDB extends ADB {
    */
   public final String createTask(final String tagName, final String task) {
     // checking for duplicate tasks
-    final Cursor c = sDb.query(DB_TASK_TABLE,
+    final Cursor c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
         new String[] { KEY_NAME, KEY_TAG }, KEY_NAME + "='" + task + "'", null,
         null, null, null);
     if (c.getCount() > 0) {
@@ -499,7 +500,7 @@ public final class ToDoDB extends ADB {
     args.put(KEY_NAME, task);
     args.put(KEY_STATUS, 0);
     args.put(KEY_TAG, tagName);
-    sDb.insert(DB_TASK_TABLE, null, args);
+    sDbHelper.getWritableDatabase().insert(DB_TASK_TABLE, null, args);
     c.close();
     return null;
   }
@@ -527,9 +528,11 @@ public final class ToDoDB extends ADB {
    *          name of the tag to be deleted
    */
   public final void deleteTag(final String tag) {
-    sDb.delete(DB_TAG_TABLE, KEY_NAME + "='" + tag + "'", null);
-    final Cursor tasks = sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
-        KEY_TAG }, KEY_TAG + " = '" + tag + "'", null, null, null, null);
+    sDbHelper.getWritableDatabase().delete(DB_TAG_TABLE,
+        KEY_NAME + "='" + tag + "'", null);
+    final Cursor tasks = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+        new String[] { KEY_NAME, KEY_TAG }, KEY_TAG + " = '" + tag + "'", null,
+        null, null, null);
     if (tasks.getCount() > 0) {
       tasks.moveToFirst();
       final int taskName = tasks.getColumnIndexOrThrow(KEY_NAME);
@@ -546,8 +549,13 @@ public final class ToDoDB extends ADB {
    * @return Cursor over all tags
    */
   public final Cursor getTags() {
-    return sDb.query(DB_TAG_TABLE, new String[] { KEY_ROWID, KEY_NAME }, null,
-        null, null, null,
+    return sDbHelper.getWritableDatabase().query(
+        DB_TAG_TABLE,
+        new String[] { KEY_ROWID, KEY_NAME },
+        null,
+        null,
+        null,
+        null,
         (!"".equals(ALPHABET_ORDER_TOKEN)) ? ALPHABET_ORDER_TOKEN.substring(2)
             : "");
   }
@@ -581,7 +589,8 @@ public final class ToDoDB extends ADB {
   public final Cursor getTasks(final String tag, final int depth,
       final String superTask) {
 
-    return sDb
+    return sDbHelper
+        .getWritableDatabase()
         .query(
             DB_TASK_TABLE,
             new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_TAG,
@@ -608,7 +617,7 @@ public final class ToDoDB extends ADB {
    */
   public final int getIntFlag(final String task, final String key) {
     // a try-catch clause should go here
-    final Cursor tasks = sDb.query(DB_TASK_TABLE,
+    final Cursor tasks = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
         new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
         null, null, null);
     tasks.moveToFirst();
@@ -626,7 +635,7 @@ public final class ToDoDB extends ADB {
    */
   public final String getStringFlag(final String task, final String key) {
     // a try-catch clause should go here
-    final Cursor tasks = sDb.query(DB_TASK_TABLE,
+    final Cursor tasks = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
         new String[] { KEY_NAME, key }, KEY_NAME + "='" + task + "'", null,
         null, null, null);
     tasks.moveToFirst();
@@ -641,10 +650,10 @@ public final class ToDoDB extends ADB {
    * @param task
    * @return priority
    */
-  public int getPriority(final String task) {
-    final Cursor taskC = sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID,
-        KEY_NAME, KEY_PRIORITY }, KEY_NAME + " = '" + task + "'", null, null,
-        null, null);
+  public final int getPriority(final String task) {
+    final Cursor taskC = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+        new String[] { KEY_ROWID, KEY_NAME, KEY_PRIORITY },
+        KEY_NAME + "='" + task + "'", null, null, null, null);
     // for now, assuming we have a task named like this :)
     taskC.moveToFirst();
     try {
@@ -663,16 +672,18 @@ public final class ToDoDB extends ADB {
    * 
    * @return Cursor
    */
-  public final Cursor getDueEntries() {
+  public final Cursor getDueTasks() {
     Chronos.refresh();
     final int year = Chronos.getYear();
     final int month = Chronos.getMonth();
-    return sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS }, KEY_EXTRA_OPTIONS + "=1 AND " + KEY_STATUS + "=0 AND ("
-        + KEY_DUE_YEAR + "<" + year + " OR (" + KEY_DUE_YEAR + "=" + year
-        + " AND (" + KEY_DUE_MONTH + "<" + month + " OR (" + KEY_DUE_MONTH
-        + "=" + month + " AND " + KEY_DUE_DATE + "<=" + Chronos.getDate()
-        + "))))", null, null, null, null);
+    return sDbHelper.getWritableDatabase().query(
+        DB_TASK_TABLE,
+        new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS },
+        KEY_EXTRA_OPTIONS + "=1 AND " + KEY_STATUS + "=0 AND (" + KEY_DUE_YEAR
+            + "<" + year + " OR (" + KEY_DUE_YEAR + "=" + year + " AND ("
+            + KEY_DUE_MONTH + "<" + month + " OR (" + KEY_DUE_MONTH + "="
+            + month + " AND " + KEY_DUE_DATE + "<=" + Chronos.getDate()
+            + "))))", null, null, null, null);
   }
 
   /**
@@ -682,8 +693,10 @@ public final class ToDoDB extends ADB {
    * @return Cursor
    */
   public final Cursor getAllDueEntries() {
-    return sDb.query(DB_TASK_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        KEY_STATUS, KEY_DUE_YEAR, KEY_DUE_MONTH, KEY_DUE_DATE },
+    return sDbHelper.getWritableDatabase().query(
+        DB_TASK_TABLE,
+        new String[] { KEY_ROWID, KEY_NAME, KEY_STATUS, KEY_DUE_YEAR,
+            KEY_DUE_MONTH, KEY_DUE_DATE },
         KEY_EXTRA_OPTIONS + "= 1 AND " + KEY_STATUS + "=0", null, null, null,
         null);
   }
@@ -697,7 +710,9 @@ public final class ToDoDB extends ADB {
    * @return number of unchecked tasks
    */
   public final int getUncheckedCount(final String tag) {
-    final Cursor c = sDb.query(DB_TASK_TABLE, new String[] {},
+    final Cursor c = sDbHelper.getWritableDatabase().query(
+        DB_TASK_TABLE,
+        new String[] {},
         (tag != null ? '(' + KEY_TAG + "='" + tag + "' OR "
             + KEY_SECONDARY_TAGS + " LIKE '%" + tag + "%') AND " : "")
             + KEY_STATUS + "=0", null, null, null, null);
@@ -716,7 +731,8 @@ public final class ToDoDB extends ADB {
   public final void setFlag(final String task, final String key, final int value) {
     final ContentValues args = new ContentValues();
     args.put(key, value);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null);
   }
 
   /**
@@ -730,7 +746,8 @@ public final class ToDoDB extends ADB {
       final String value) {
     final ContentValues args = new ContentValues();
     args.put(key, value);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null);
   }
 
   /**
@@ -744,11 +761,12 @@ public final class ToDoDB extends ADB {
   public boolean updateTag(final String tagName, final String newName) {
     final ContentValues args1 = new ContentValues();
     args1.put(KEY_TAG, newName);
-    sDb.update(DB_TASK_TABLE, args1, KEY_TAG + " = '" + tagName + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args1,
+        KEY_TAG + "='" + tagName + "'", null);
     final ContentValues args2 = new ContentValues();
     args2.put(KEY_NAME, newName);
-    return sDb.update(DB_TAG_TABLE, args2, KEY_NAME + " = '" + tagName + "'",
-        null) > 0;
+    return sDbHelper.getWritableDatabase().update(DB_TAG_TABLE, args2,
+        KEY_NAME + "='" + tagName + "'", null) > 0;
   }
 
   /**
@@ -768,8 +786,9 @@ public final class ToDoDB extends ADB {
     if (checked) {
       // removing tasks if their number surpasses a certain limit;
       // the removed tasks can only be checked ones (finished)
-      final Cursor checkedC = sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
-          KEY_STATUS }, KEY_STATUS + " = 1", null, null, null, null);
+      final Cursor checkedC = sDbHelper.getWritableDatabase().query(
+          DB_TASK_TABLE, new String[] { KEY_NAME, KEY_STATUS },
+          KEY_STATUS + " = 1", null, null, null, null);
       final SharedPreferences settings = mCtx.getSharedPreferences(
           TagToDoList.PREFS_NAME, 0);
       int limit = settings.getInt("listSizeLimit", 50);
@@ -831,12 +850,13 @@ public final class ToDoDB extends ADB {
     if (goDown == null) {
       ContentValues args = new ContentValues();
       args.put(KEY_STATUS, checked ? 1 : 0);
-      sDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + "'", null);
+      sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+          KEY_NAME + "='" + task + "'", null);
     } else if (goDown.equals(Boolean.TRUE)) {
       // applying the same to subtasks
-      Cursor c = sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
-          KEY_SUPERTASK }, KEY_SUPERTASK + "='" + task + "'", null, null, null,
-          null);
+      Cursor c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+          new String[] { KEY_NAME, KEY_SUPERTASK },
+          KEY_SUPERTASK + "='" + task + "'", null, null, null, null);
       if (c.getCount() > 0) {
         final int name = c.getColumnIndex(KEY_NAME);
         c.moveToFirst();
@@ -848,9 +868,9 @@ public final class ToDoDB extends ADB {
       c.close();
     } else {
       // must do the same with supertasks
-      Cursor c = sDb
-          .query(DB_TASK_TABLE, new String[] { KEY_NAME, KEY_SUPERTASK },
-              KEY_NAME + "='" + task + "'", null, null, null, null);
+      Cursor c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+          new String[] { KEY_NAME, KEY_SUPERTASK },
+          KEY_NAME + "='" + task + "'", null, null, null, null);
       if (c.getCount() > 0) {
         c.moveToFirst();
         if (!checked) {
@@ -900,7 +920,8 @@ public final class ToDoDB extends ADB {
 
     final ContentValues args = new ContentValues();
     args.put(KEY_NAME, newName);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + " = '" + task + "'", null);
     final Cursor subtasks = getTasks(null, -1, task);
     if (subtasks.getCount() > 0) {
       final int name = subtasks.getColumnIndex(KEY_NAME);
@@ -953,7 +974,8 @@ public final class ToDoDB extends ADB {
     }
     secondaryTags = secondaryTags.replace("\'\'", "\'");
     args.put(KEY_SECONDARY_TAGS, secondaryTags);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null);
   }
 
   /**
@@ -968,7 +990,8 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DUE_YEAR, d.getYear());
     args.put(KEY_DUE_MONTH, d.getMonth());
     args.put(KEY_DUE_DATE, d.getDay());
-    return sDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
+    return sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
   /**
@@ -983,7 +1006,8 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DUE_HOUR, t.getHour());
     args.put(KEY_DUE_MINUTE, t.getMinute());
     args.put(KEY_DUE_DAY_OF_WEEK, t.getDayOfWeek());
-    return sDb.update(DB_TASK_TABLE, args, KEY_NAME + "='" + task + '\'', null) > 0;
+    return sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + '\'', null) > 0;
   }
 
   /**
@@ -995,9 +1019,9 @@ public final class ToDoDB extends ADB {
    * @return
    */
   public final boolean setIsDueDate(final String task, final boolean b) {
-    final Cursor c = sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
-        KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null, null, null,
-        null);
+    final Cursor c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+        new String[] { KEY_NAME, KEY_EXTRA_OPTIONS },
+        KEY_NAME + " = '" + task + "'", null, null, null, null);
     c.moveToFirst();
     final ContentValues args = new ContentValues();
     // the due date is given by the last bit of KEY_EXTRA_OPTIONS
@@ -1006,8 +1030,8 @@ public final class ToDoDB extends ADB {
         b ? (c.getInt(c.getColumnIndex(KEY_EXTRA_OPTIONS)) | 1) : (c.getInt(c
             .getColumnIndex(KEY_EXTRA_OPTIONS)) & 2));
     c.close();
-    return sDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null) > 0;
+    return sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + " = '" + task + "'", null) > 0;
   }
 
   /**
@@ -1019,9 +1043,9 @@ public final class ToDoDB extends ADB {
    * @return
    */
   public final boolean setIsDueTime(final String task, final boolean b) {
-    final Cursor c = sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME,
-        KEY_EXTRA_OPTIONS }, KEY_NAME + " = '" + task + "'", null, null, null,
-        null);
+    final Cursor c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+        new String[] { KEY_NAME, KEY_EXTRA_OPTIONS },
+        KEY_NAME + " = '" + task + "'", null, null, null, null);
     c.moveToFirst();
     final ContentValues args = new ContentValues();
     // the due date is given by the last bit of KEY_EXTRA_OPTIONS
@@ -1030,8 +1054,8 @@ public final class ToDoDB extends ADB {
         b ? (c.getInt(c.getColumnIndex(KEY_EXTRA_OPTIONS)) | 2) : (c.getInt(c
             .getColumnIndex(KEY_EXTRA_OPTIONS)) & 5));
     c.close();
-    return sDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null) > 0;
+    return sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null) > 0;
   }
 
   /**
@@ -1044,8 +1068,8 @@ public final class ToDoDB extends ADB {
   public final boolean setPriority(final String task, final int priority) {
     final ContentValues args = new ContentValues();
     args.put(KEY_PRIORITY, priority);
-    return sDb
-        .update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null) > 0;
+    return sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null) > 0;
   }
 
   /**
@@ -1058,7 +1082,8 @@ public final class ToDoDB extends ADB {
   public final void setWrittenNote(final String task, final String note) {
     final ContentValues args = new ContentValues();
     args.put(KEY_WRITTEN_NOTE, note);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null);
     setFlag(task, KEY_NOTE_IS_WRITTEN, !"".equals(note) && note != null ? 1 : 0);
   }
 
@@ -1123,9 +1148,9 @@ public final class ToDoDB extends ADB {
     }
     String curTask = superTask;
     Cursor c;
-    while ((c = sDb.query(DB_TASK_TABLE,
-        new String[] { KEY_NAME, KEY_SUPERTASK }, KEY_NAME + "='" + curTask
-            + "'", null, null, null, null)).getCount() > 0) {
+    while ((c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+        new String[] { KEY_NAME, KEY_SUPERTASK },
+        KEY_NAME + "='" + curTask + "'", null, null, null, null)).getCount() > 0) {
       c.moveToFirst();
       if (task.equals(curTask = c.getString(c.getColumnIndex(KEY_SUPERTASK)))) {
         throw new Exception();
@@ -1133,19 +1158,21 @@ public final class ToDoDB extends ADB {
       c.close();
     }
 
-    c = sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME, KEY_DEPTH,
-        KEY_SUBTASKS, KEY_TAG }, KEY_NAME + " = '" + superTask + "'", null,
-        null, null, null);
+    c = sDbHelper.getWritableDatabase().query(DB_TASK_TABLE,
+        new String[] { KEY_NAME, KEY_DEPTH, KEY_SUBTASKS, KEY_TAG },
+        KEY_NAME + "='" + superTask + "'", null, null, null, null);
     c.moveToFirst();
     ContentValues args = new ContentValues();
     args.put(KEY_SUPERTASK, superTask);
     args.put(KEY_DEPTH, c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
     updateTaskParent(task, c.getString(c.getColumnIndex(KEY_TAG)),
         c.getInt(c.getColumnIndex(KEY_DEPTH)) + 1);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + task + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + task + "'", null);
     args = new ContentValues();
     args.put(KEY_SUBTASKS, c.getInt(c.getColumnIndex(KEY_SUBTASKS)) + 1);
-    sDb.update(DB_TASK_TABLE, args, KEY_NAME + " = '" + superTask + "'", null);
+    sDbHelper.getWritableDatabase().update(DB_TASK_TABLE, args,
+        KEY_NAME + "='" + superTask + "'", null);
     c.close();
     updateTask(superTask, false, null);
     updateTask(superTask, false, Boolean.FALSE);
@@ -1186,9 +1213,11 @@ public final class ToDoDB extends ADB {
    * @return tasks which are not checked from a certain tag
    */
   public final Cursor getUncheckedTasks(final String tag) {
-    return sDb.query(DB_TASK_TABLE, new String[] { KEY_NAME, KEY_STATUS,
-        KEY_TAG }, (tag != null ? KEY_TAG + " = '" + tag + "' AND " : "")
-        + KEY_STATUS + " = 0", null, null, null, null);
+    return sDbHelper.getWritableDatabase().query(
+        DB_TASK_TABLE,
+        new String[] { KEY_NAME, KEY_STATUS, KEY_TAG },
+        (tag != null ? KEY_TAG + " = '" + tag + "' AND " : "") + KEY_STATUS
+            + " = 0", null, null, null, null);
   }
 
   /**
@@ -1200,13 +1229,15 @@ public final class ToDoDB extends ADB {
    */
   public final void deleteTask(final String task) {
     // decrementing the subtask count of the supertask
-    final Cursor subC = sDb.query(true, DB_TASK_TABLE, new String[] { KEY_NAME,
-        KEY_SUPERTASK }, KEY_NAME + "='" + task + "'", null, null, null, null,
-        null);
+    final Cursor subC = sDbHelper.getWritableDatabase().query(true,
+        DB_TASK_TABLE, new String[] { KEY_NAME, KEY_SUPERTASK },
+        KEY_NAME + "='" + task + "'", null, null, null, null, null);
     if (subC.getCount() > 0) {
       subC.moveToFirst();
-      final Cursor supC = sDb.query(true, DB_TASK_TABLE, new String[] {
-          KEY_NAME, KEY_SUBTASKS },
+      final Cursor supC = sDbHelper.getWritableDatabase().query(
+          true,
+          DB_TASK_TABLE,
+          new String[] { KEY_NAME, KEY_SUBTASKS },
           KEY_NAME + "='" + subC.getString(subC.getColumnIndex(KEY_SUPERTASK))
               + "'", null, null, null, null, null);
       if (supC.getCount() > 0) {
@@ -1214,7 +1245,7 @@ public final class ToDoDB extends ADB {
         final ContentValues args = new ContentValues();
         args.put(KEY_SUBTASKS,
             supC.getInt(supC.getColumnIndex(KEY_SUBTASKS)) - 1);
-        sDb.update(
+        sDbHelper.getWritableDatabase().update(
             DB_TASK_TABLE,
             args,
             KEY_NAME + "='"
@@ -1226,9 +1257,9 @@ public final class ToDoDB extends ADB {
     subC.close();
 
     // recursively deleting subtasks, if any:
-    final Cursor subtasks = sDb.query(true, DB_TASK_TABLE,
-        new String[] { KEY_NAME }, KEY_SUPERTASK + " = '" + task + "'", null,
-        null, null, null, null);
+    final Cursor subtasks = sDbHelper.getWritableDatabase().query(true,
+        DB_TASK_TABLE, new String[] { KEY_NAME },
+        KEY_SUPERTASK + " = '" + task + "'", null, null, null, null, null);
     if (subtasks.getCount() > 0) {
       subtasks.moveToFirst();
       do {
@@ -1238,7 +1269,8 @@ public final class ToDoDB extends ADB {
     subtasks.close();
 
     // now we actually delete it:
-    sDb.delete(DB_TASK_TABLE, KEY_NAME + "='" + task + "'", null);
+    sDbHelper.getWritableDatabase().delete(DB_TASK_TABLE,
+        KEY_NAME + "='" + task + "'", null);
 
     // the next line is to be removed when Android 2.2 is no longer supported:
     mCtx.deleteFile(Utils.getImageName(task, false));
@@ -1253,7 +1285,7 @@ public final class ToDoDB extends ADB {
    */
   public final void repair() {
     if (sDbHelper instanceof DatabaseHelper) {
-      ((DatabaseHelper) sDbHelper).upgrade(sDb);
+      ((DatabaseHelper) sDbHelper).upgrade(sDbHelper.getWritableDatabase());
       FLAG_REPAIRED = true;
     }
   }

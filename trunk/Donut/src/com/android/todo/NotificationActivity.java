@@ -93,7 +93,7 @@ public final class NotificationActivity extends Activity {
     mActiveEntry = -1;
 
     // fetching the due entries from the database
-    Cursor c = mDbHelper.getDueEntries();
+    Cursor c = mDbHelper.getDueTasks();
 
     LinearLayout el = mEntryLayout;
     el.removeAllViews();

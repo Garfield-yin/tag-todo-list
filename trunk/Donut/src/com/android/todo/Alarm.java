@@ -77,9 +77,9 @@ public final class Alarm extends Activity {
     tv.setGravity(Gravity.CENTER_HORIZONTAL);
     ll.addView(tv);
 
-    final Button b = new Button(this);
-    b.setText(R.string.alarm_dismiss);
-    b.setOnClickListener(new OnClickListener() {
+    final Button dismissButton = new Button(this);
+    dismissButton.setText(R.string.alarm_dismiss);
+    dismissButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         Apollo.shutUp();
         if (mPhase < 2) {
@@ -93,7 +93,18 @@ public final class Alarm extends Activity {
         finish();
       }
     });
-    ll.addView(b);
+    ll.addView(dismissButton);
+    
+    final Button checkButton = new Button(this);
+    checkButton.setText(R.string.alarm_check_dismiss);
+    checkButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        ToDoDB.getInstance(getApplicationContext()).updateTask(mTask, true);
+        dismissButton.performClick();
+      }
+    });
+    ll.addView(checkButton);
+    
     mSnoozeButton = new Button(this);
     mSnoozeButton.setText(R.string.alarm_snooze);
     switch (mPhase) {
