@@ -59,7 +59,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admob.android.ads.AdManager;
 import com.android.todo.action.Action;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
@@ -178,7 +177,6 @@ public class TagToDoList extends Activity {
 
   @Override
   public void onCreate(Bundle icicle) {
-    AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR });
     sPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     sEditor = sPref.edit();
     TagToDoList.setTheme(this, sPref);
@@ -804,8 +802,8 @@ public class TagToDoList extends Activity {
           args.put(ToDoDB.KEY_SUPERTASK, "");
           c.moveToFirst();
           do {
-            ToDoDB.sDbHelper.getWritableDatabase().update(ToDoDB.DB_TASK_TABLE, args, ToDoDB.KEY_NAME
-                + "='" + c.getString(name) + "'", null);
+            ToDoDB.sDbHelper.getWritableDatabase().update(ToDoDB.DB_TASK_TABLE,
+                args, ToDoDB.KEY_NAME + "='" + c.getString(name) + "'", null);
           } while (c.moveToNext());
         }
         selectTag(false, -2);
@@ -1013,9 +1011,8 @@ public class TagToDoList extends Activity {
             .toString(VERSION.SDK_INT)));
         Analytics.sTracker.trackPageView("model/"
             .concat(android.os.Build.MODEL));
-        Analytics.sTracker
-            .trackPageView("gender/".concat(AdManager.getGender() != null ? AdManager
-                .getGender().toString() : "NA"));
+        Analytics.sTracker.trackPageView("gender/".concat(Integer
+            .toString(sPref.getInt(Config.GENDER, 0))));
         Analytics.sTracker.trackPageView(Config.HAND.concat("/").concat(
             Integer.toString(sPref.getInt(Config.HAND, 0))));
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY, "TAG_NUMBER",

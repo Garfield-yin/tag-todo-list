@@ -43,7 +43,7 @@ contain visual ads in certain screens.
 5. RELEASE LOG: 
 http://tagtodolist.blogspot.com/
 This is a release log / 'official' blog of Tag-ToDo-List.
-It will tell you what's new in each version,
+It will tell you what's new in each important version,
 starting with the latest version.
 
 6. STEPS TO COMPILE AN OFFICIAL RELEASE (no point in applying 

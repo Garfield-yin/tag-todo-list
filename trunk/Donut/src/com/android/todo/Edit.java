@@ -44,7 +44,9 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.admob.android.ads.AdManager;
 import com.admob.android.ads.AdView;
+import com.admob.android.ads.AdManager.Gender;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.olympus.Chronos;
 import com.android.todo.olympus.Chronos.Date;
@@ -330,6 +332,12 @@ public final class Edit extends Activity {
       sLayout.addView(mDateTimeLayout);
 
       if (!sPref.getBoolean(Config.AD_DISABLED, false)) {
+        // the next 4 lines should be moved in onCreate soon
+        final int gender = sPref.getInt(Config.GENDER, 0);
+        if (gender > 0) {
+          AdManager.setGender(gender < 2 ? Gender.MALE : Gender.FEMALE);
+        }
+        
         final AdView ad = new AdView(this);
         ad.setBackgroundColor(Color.BLACK);
         ad.setPrimaryTextColor(Color.WHITE);
