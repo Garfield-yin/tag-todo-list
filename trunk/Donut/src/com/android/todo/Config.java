@@ -27,8 +27,6 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 
-import com.admob.android.ads.AdManager;
-import com.admob.android.ads.AdManager.Gender;
 import com.android.todo.data.Analytics;
 import com.android.todo.data.ToDoDB;
 import com.android.todo.speech.TTS;
@@ -74,6 +72,7 @@ public final class Config extends Activity {
   public static final String CONFIG_VIEWS = "numberOfConfigViews";
   public static final String HAND = "hand";
   public static final String AD_USE_TAGS = "useTagsInAds";
+  public static final String GENDER = "gender";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -480,7 +479,7 @@ public final class Config extends Activity {
             userData.setVisibility(isChecked ? View.VISIBLE : View.GONE);
           }
         });
-        final boolean genderSet = AdManager.getGender() != null;
+
         final RadioGroup rgGender = new RadioGroup(this);
         rgGender.setOrientation(RadioGroup.HORIZONTAL);
         final RadioButton rbM = new RadioButton(this);
@@ -489,15 +488,14 @@ public final class Config extends Activity {
         final RadioButton rbF = new RadioButton(this);
         rbF.setText(R.string.female);
         rgGender.addView(rbF);
-        rbM.setChecked(genderSet ? AdManager.getGender().equals(Gender.MALE)
-            : false);
-        rbF.setChecked(genderSet ? AdManager.getGender().equals(Gender.FEMALE)
-            : false);
+        final int gender = TagToDoList.sPref.getInt(Config.GENDER, 0);
+        rbM.setChecked(gender == 1);
+        rbF.setChecked(gender == 2);
         rbM.setOnCheckedChangeListener(new OnCheckedChangeListener() {
           public void onCheckedChanged(CompoundButton buttonView,
               boolean isChecked) {
             if (isChecked) {
-              AdManager.setGender(Gender.MALE);
+              TagToDoList.sEditor.putInt(Config.GENDER, 1).commit();
             }
           }
         });
@@ -505,7 +503,7 @@ public final class Config extends Activity {
           public void onCheckedChanged(CompoundButton buttonView,
               boolean isChecked) {
             if (isChecked) {
-              AdManager.setGender(Gender.FEMALE);
+              TagToDoList.sEditor.putInt(Config.GENDER, 2).commit();
             }
           }
         });
@@ -549,8 +547,7 @@ public final class Config extends Activity {
           cb.setText(R.string.config_20_tags_ads);
           cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton v, boolean isChecked) {
-              TagToDoList.sEditor.putBoolean(AD_USE_TAGS, isChecked)
-                  .commit();
+              TagToDoList.sEditor.putBoolean(AD_USE_TAGS, isChecked).commit();
             }
           });
           ll.addView(cb);

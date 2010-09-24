@@ -162,9 +162,12 @@
 <string name="config_16_task_padding">Distance between tasks</string>
 <string name="config_17_alarm_duration">Alarm duration</string>
 <string name="config_18_alarm_snooze">Instead of a message in the notification bar, show the alarm as a Snooze/Dismiss screen</string>
+<string name="config_19_extra_stats">You can also set these options for better ad content and upcoming features:</string>
+<string name="config_20_tags_ads">Allow tag names (not the tasks) to be used for better ads</string>
 
 <!-- Alarm screen -->
 <string name="alarm_dismiss">Dismiss</string>
+<string name="alarm_check_dismiss">Check &amp; Dismiss</string>
 <string name="alarm_snooze">Snooze</string>
 <string name="alarm_last_message">This is the last alarm for this task!</string>
 
@@ -216,6 +219,10 @@
 <string name="tasks">Task</string>
 <string name="tag">Tag</string>
 <string name="or">or</string>
+<string name="male">male</string>
+<string name="female">female</string>
+<string name="leftHanded">left-handed</string>
+<string name="rightHanded">right-handed</string>
 
 <!-- Search -->
 <string name="search_label">Search Tag-ToDo-List</string>
