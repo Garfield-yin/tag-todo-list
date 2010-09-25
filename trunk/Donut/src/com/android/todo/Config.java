@@ -73,6 +73,7 @@ public final class Config extends Activity {
   public static final String HAND = "hand";
   public static final String AD_USE_TAGS = "useTagsInAds";
   public static final String GENDER = "gender";
+  public static final String CONFIRM_CHECK = "confirmTaskCheck";
 
   private static EditText sUserEdit, sPassEdit;
   private static Button sSongPicker, sConfirmButton, sHelpButton, sCloseButton;
@@ -267,6 +268,17 @@ public final class Config extends Activity {
           public void onCheckedChanged(CompoundButton v, boolean isChecked) {
             TagToDoList.sEditor.putBoolean(PRIORITY_DISABLE, isChecked)
                 .commit();
+          }
+        });
+        ll.addView(cb);
+        
+        // confirm before checking a task
+        cb = new CheckBox(this);
+        cb.setChecked(TagToDoList.sPref.getBoolean(CONFIRM_CHECK, false));
+        cb.setText(R.string.config_21_confirm_check);
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+          public void onCheckedChanged(CompoundButton v, boolean isChecked) {
+            TagToDoList.sEditor.putBoolean(CONFIRM_CHECK, isChecked).commit();
           }
         });
         ll.addView(cb);

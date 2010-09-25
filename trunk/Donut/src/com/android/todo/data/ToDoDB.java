@@ -966,7 +966,7 @@ public final class ToDoDB extends ADB {
     args.put(KEY_DEPTH, depth);
     String secondaryTags = getStringFlag(task, KEY_SECONDARY_TAGS);
     secondaryTags = secondaryTags.replace(newParent, "");
-    if (secondaryTags.charAt(0) == '\'') {
+    if (secondaryTags.length() > 0 && secondaryTags.charAt(0) == '\'') {
       secondaryTags = secondaryTags.substring(1);
     }
     if (secondaryTags.endsWith("'")) {

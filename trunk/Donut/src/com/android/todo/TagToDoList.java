@@ -471,12 +471,33 @@ public class TagToDoList extends Activity {
         }
       }
     } : new OnCheckedChangeListener() {
-      public void onCheckedChanged(CompoundButton cb, boolean isChecked) {
-        if (sDbHelper.updateTask(cb.getText().toString(), isChecked)) {
-          Utils.showDialog(R.string.notification,
-              R.string.notification_checked_tasks_limit, cb.getContext());
+      public void onCheckedChanged(final CompoundButton cb, final boolean isChecked) {
+        if (isChecked && sPref.getBoolean(Config.CONFIRM_CHECK, false)){
+          new AlertDialog.Builder(TagToDoList.this)
+          .setIcon(android.R.drawable.ic_dialog_alert)
+          .setTitle(android.R.string.dialog_alert_title)
+          .setMessage(R.string.confirm_check)
+          .setPositiveButton(android.R.string.yes,
+              new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+                  if (sDbHelper.updateTask(cb.getText().toString(), isChecked)) {
+                    Utils.showDialog(R.string.notification,
+                        R.string.notification_checked_tasks_limit, cb.getContext());
+                  }
+                  selectTag(false, -2);
+                }
+              }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  cb.setChecked(false);
+                }
+              }).show();
+        }else{
+          if (sDbHelper.updateTask(cb.getText().toString(), isChecked)) {
+            Utils.showDialog(R.string.notification,
+                R.string.notification_checked_tasks_limit, cb.getContext());
+          }
+          selectTag(false, -2);
         }
-        selectTag(false, -2);
       }
     };
 
@@ -1080,6 +1101,9 @@ public class TagToDoList extends Activity {
         Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
             Config.AD_USE_TAGS, Analytics.SPACE_STATE,
             sPref.getBoolean(Config.AD_USE_TAGS, false) ? 1 : 0);
+        Analytics.sTracker.trackEvent(Analytics.ACTION_NOTIFY,
+            Config.CONFIRM_CHECK, Analytics.SPACE_STATE,
+            sPref.getBoolean(Config.CONFIRM_CHECK, false) ? 1 : 0);
         Analytics.sTracker.dispatch();
         sEditor.putInt(Analytics.LAST_SYNCHRONIZED_MONTH, month).commit();
       }
