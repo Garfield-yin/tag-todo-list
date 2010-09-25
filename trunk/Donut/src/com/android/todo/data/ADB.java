@@ -20,7 +20,7 @@ public abstract class ADB {
    * deletion of alarms. The name of the attribute (DATABASE_VERSION) IS NOT TO
    * BE CHANGED!
    */
-  public static final int DATABASE_VERSION = 133;
+  public static final int DATABASE_VERSION = 135;
 
   protected static Context mCtx;
   //public static SQLiteDatabase sDbHelper.getWritableDatabase();

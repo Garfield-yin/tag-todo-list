@@ -31,6 +31,7 @@
 <string name="move_fail">You can\'t move a task under itself or a subtask of itself.</string>
 <string name="backup_import_fail">The todo list couldn\'t be imported for some reason. Are you sure there is a backup on the card, or that an SD card is inserted?</string>
 <string name="visually_challenged_mode_disabled">Visually Challenged mode disabled</string><!-- not sure this is used anymore -->
+<string name="confirm_check">Are you sure you want to check this task?\n\n(You can disable this dialog in the configuration screen)</string>
 
 <!-- Spoken (actually spoken by the TTS engine!!) -->
 <string name="visually_challenged_mode_enabled">Visually Challenged mode enabled</string>
@@ -164,6 +165,7 @@
 <string name="config_18_alarm_snooze">Instead of a message in the notification bar, show the alarm as a Snooze/Dismiss screen</string>
 <string name="config_19_extra_stats">You can also set these options for better ad content and upcoming features:</string>
 <string name="config_20_tags_ads">Allow tag names (not the tasks) to be used for better ads</string>
+<string name="config_21_confirm_check">Show a confirmation dialog before checking a task</string>
 
 <!-- Alarm screen -->
 <string name="alarm_dismiss">Dismiss</string>
