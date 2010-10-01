@@ -1,1 +1,0 @@
-These are just general helper classes named after what greek god would correspond to that field :)
